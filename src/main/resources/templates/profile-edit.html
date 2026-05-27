@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edytuj profil</title>
+</head>
+<body>
+<header><h1>Edycja profilu</h1></header>
+<main>
+    <form method="post" th:action="@{/profile/edit}">
+        <label>Imię: <input name="firstName"></label><br>
+        <label>Nazwisko: <input name="lastName"></label><br>
+        <label>Wiek: <input type="number" name="age" min="18"></label><br>
+        <button>Zapisz</button>
+    </form>
+</main>
+</body>
+</html>

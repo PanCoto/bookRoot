@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nowe zadanie</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header><h1>Nowe zadanie</h1></header>
+<main>
+    <form method="post" th:action="@{/tasks/new}">
+        <label for="title">Tytuł</label>
+        <input type="text" id="title" name="title" required minlength="5" maxlength="150"><br>
+        <label for="content">Treść</label>
+        <textarea id="content" name="content" required minlength="20" maxlength="5000"></textarea><br>
+        <button type="submit">Zapisz szkic</button>
+    </form>
+</main>
+</body>
+</html>
