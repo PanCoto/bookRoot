@@ -1,3 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('task-creator ready');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('task-creator.js loaded');
+
 });

@@ -7,6 +7,10 @@ import pl.studyshare.dto.TaskDTO;
 @Component
 public class TaskMapper {
     public TaskDTO toDto(Task task) {
+        String authorName = null;
+        if (!task.getAnonymous() && task.getAuthor() != null) {
+            authorName = task.getAuthor().getLogin();
+        }
         return new TaskDTO(
                 task.getId(),
                 task.getTitle(),
@@ -14,10 +18,10 @@ public class TaskMapper {
                 task.getImageUrl(),
                 task.getStatus(),
                 task.getCreatedDate(),
-                task.getAnonymous() ? null : task.getAuthor().getLogin(),
+                authorName,
                 task.getCategory() != null ? task.getCategory().getName() : null,
-                task.getQuestions().size(),
-                task.getAnswers().size(),
+                task.getQuestions() != null ? task.getQuestions().size() : 0,
+                task.getAnswers() != null ? task.getAnswers().size() : 0,
                 0
         );
     }

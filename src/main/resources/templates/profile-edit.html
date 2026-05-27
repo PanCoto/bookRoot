@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Edytuj profil</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <header><h1>Edycja profilu</h1></header>
 <main>
-    <form method="post" th:action="@{/profile/edit}">
-        <label>Imię: <input name="firstName"></label><br>
-        <label>Nazwisko: <input name="lastName"></label><br>
-        <label>Wiek: <input type="number" name="age" min="18"></label><br>
-        <button>Zapisz</button>
+    <form th:action="@{/profile/edit}" th:object="${userProfile}" method="post">
+        <label>Imię: <input th:field="*{firstName}"></label><br>
+        <label>Nazwisko: <input th:field="*{lastName}"></label><br>
+        <label>Wiek: <input type="number" th:field="*{age}" min="18"></label><br>
+        <button>Zapisz zmiany</button>
     </form>
 </main>
 </body>

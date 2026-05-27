@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Zarządzanie użytkownikami</title>
+</head>
+<body>
+<header><h1>Panel administracyjny</h1></header>
+<main>
+    <table>
+        <tr><th>Login</th><th>Imię</th><th>Nazwisko</th><th>Wiek</th><th>Rola</th><th>Akcja</th></tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.login}"></td>
+            <td th:text="${user.firstName}"></td>
+            <td th:text="${user.lastName}"></td>
+            <td th:text="${user.age}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <form th:action="@{/admin/users/{id}/role(id=${user.id})}" method="post">
+                    <select name="role" onchange="this.form.submit()">
+                        <option value="USER" th:selected="${user.role.name() == 'USER'}">USER</option>
+                        <option value="ADMIN" th:selected="${user.role.name() == 'ADMIN'}">ADMIN</option>
+                    </select>
+                </form>
+            </td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

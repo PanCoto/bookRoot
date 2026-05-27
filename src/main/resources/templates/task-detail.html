@@ -1,13 +1,37 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Szczegóły zadania</title>
+    <title th:text="${task.title}">Szczegóły zadania</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<header><h1>Zadanie</h1></header>
+<header>...</header>
 <main>
-    <p>Treść zadania...</p>
+    <h1 th:text="${task.title}">Tytuł</h1>
+    <p th:text="${task.content}">Treść</p>
+    <p>Kategoria: <span th:text="${task.categoryName}"></span></p>
+    <p th:if="${task.authorName != null}">Autor: <span th:text="${task.authorName}"></span></p>
+    <p th:if="${task.authorName == null}">Anonim</p>
+
+    <section id="answers">
+        <h2>Odpowiedzi</h2>
+        <div th:each="answer : ${answers}" class="answer">
+            <p th:text="${answer.content}"></p>
+            <p>Punkty: <span th:text="${answer.score}">0</span></p>
+            <span th:if="${answer.isOfficial}" class="official">Oficjalna odpowiedź</span>
+        </div>
+    </section>
+
+    <section sec:authorize="isAuthenticated()">
+        <h3>Dodaj odpowiedź</h3>
+        <form th:action="@{/tasks/{id}/answers(id=${task.id})}" method="post">
+            <textarea name="content" required minlength="10" maxlength="2000"></textarea>
+            <label><input type="checkbox" name="anonymous" checked> Anonimowo</label>
+            <button type="submit">Wyślij</button>
+        </form>
+    </section>
 </main>
 </body>
 </html>

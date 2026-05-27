@@ -8,11 +8,16 @@
 <body>
 <header><h1>Nowe zadanie</h1></header>
 <main>
-    <form method="post" th:action="@{/tasks/new}">
-        <label for="title">Tytuł</label>
-        <input type="text" id="title" name="title" required minlength="5" maxlength="150"><br>
-        <label for="content">Treść</label>
-        <textarea id="content" name="content" required minlength="20" maxlength="5000"></textarea><br>
+    <form th:action="@{/tasks/new}" th:object="${taskCreateRequest}" method="post">
+        <label for="title">Tytuł:</label>
+        <input type="text" th:field="*{title}" id="title" required><br>
+        <label for="content">Treść:</label>
+        <textarea th:field="*{content}" id="content" required></textarea><br>
+        <label for="categoryId">Kategoria:</label>
+        <select th:field="*{categoryId}" id="categoryId">
+            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+        </select><br>
+        <label>Anonimowo: <input type="checkbox" th:field="*{anonymous}"></label><br>
         <button type="submit">Zapisz szkic</button>
     </form>
 </main>

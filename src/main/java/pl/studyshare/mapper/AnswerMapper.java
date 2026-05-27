@@ -6,14 +6,18 @@ import pl.studyshare.dto.AnswerDTO;
 
 @Component
 public class AnswerMapper {
-    public AnswerDTO toDto(Answer a) {
+    public AnswerDTO toDto(Answer answer) {
+        String authorName = null;
+        if (!answer.getAnonymous() && answer.getAuthor() != null) {
+            authorName = answer.getAuthor().getLogin();
+        }
         return new AnswerDTO(
-                a.getId(),
-                a.getContent(),
-                a.getCreatedDate(),
-                a.getScore() != null ? a.getScore() : 0,
-                a.getAnonymous() ? null : a.getAuthor().getLogin(),
-                a.getIsOfficial(),
+                answer.getId(),
+                answer.getContent(),
+                answer.getCreatedDate(),
+                answer.getScore() != null ? answer.getScore() : 0,
+                authorName,
+                answer.getIsOfficial(),
                 0
         );
     }
