@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja – bookRoot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header role="banner">
+    <h1>bookRoot</h1>
+    <nav><a href="/">Strona główna</a> | <a th:href="@{/login}">Zaloguj</a></nav>
+</header>
+
+<main role="main" class="container">
+    <h2>Utwórz konto</h2>
+
+    <form th:action="@{/register}" method="post" class="form">
+        <div class="form-group">
+            <label for="firstName">Imię</label>
+            <input type="text" id="firstName" name="firstName"
+                   required aria-describedby="firstNameHelp"
+                   pattern="[A-Z][a-z]+" title="Zacznij wielką literą, tylko litery (np. Jan)">
+            <p class="help" id="firstNameHelp">Zacznij wielką literą, tylko litery (np. Jan).</p>
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Nazwisko</label>
+            <input type="text" id="lastName" name="lastName"
+                   required aria-describedby="lastNameHelp"
+                   pattern="[A-Z][a-z]+" title="Zacznij wielką literą, tylko litery (np. Kowalski)">
+            <p class="help" id="lastNameHelp">Zacznij wielką literą, tylko litery (np. Kowalski).</p>
+        </div>
+
+        <div class="form-group">
+            <label for="login">Login</label>
+            <input type="text" id="login" name="login"
+                   required pattern="[a-z]+" minlength="3" maxlength="20"
+                   aria-describedby="loginHelp">
+            <p class="help" id="loginHelp">Tylko małe litery, 3-20 znaków.</p>
+            <p th:if="${param.loginExists}" class="error" role="alert">
+                Podany login jest już zajęty.
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Hasło</label>
+            <input type="password" id="password" name="password"
+                   required minlength="5">
+        </div>
+
+        <div class="form-group">
+            <label for="age">Wiek</label>
+            <input type="number" id="age" name="age" min="18" required>
+        </div>
+
+        <button type="submit">Zarejestruj się</button>
+    </form>
+</main>
+
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
+</body>
+</html>

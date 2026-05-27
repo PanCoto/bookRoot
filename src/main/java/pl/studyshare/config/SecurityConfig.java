@@ -19,12 +19,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers("/", "/home", "/register", "/login", "/error",
                                 "/css/**", "/js/**", "/images/**",
                                 "/h2-console/**",
-                                "/share/**", "/api/shares/**")
-                        .permitAll()
+                                "/share/**", "/api/shares/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -45,7 +43,6 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/h2-console/**", "/api/**")
                 )
                 .headers(headers -> headers
-                        // Zezwolenie na ładowanie konsoli H2 w ramce
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 );
@@ -56,14 +53,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public org.springframework.security.core.userdetails.UserDetailsService inMemoryUserDetailsService() {
-        var admin = org.springframework.security.core.userdetails.User.withUsername("admin")
-                .password(passwordEncoder().encode("admin123"))
-                .roles("ADMIN")
-                .build();
-        return new org.springframework.security.provisioning.InMemoryUserDetailsManager(admin);
     }
 }

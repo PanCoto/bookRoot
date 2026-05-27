@@ -1,11 +1,9 @@
 package pl.studyshare.domain;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Entity
@@ -15,12 +13,10 @@ import java.time.LocalDate;
 @Builder
 public class Comment implements java.io.Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Treść komentarza nie może być pusta")
-    @Size(max = 500, message = "Komentarz może mieć maksymalnie 500 znaków")
+    @NotBlank @Size(max = 500)
     @Column(columnDefinition = "TEXT")
     private String content;
 

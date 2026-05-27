@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaloguj się – bookRoot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header role="banner">
+    <h1>bookRoot</h1>
+    <nav><a href="/">Strona główna</a></nav>
+</header>
+
+<main role="main" class="container">
+    <h2>Zaloguj się</h2>
+
+    <form th:action="@{/login}" method="post" class="form">
+        <div class="form-group">
+            <label for="username">Login</label>
+            <input type="text" id="username" name="username"
+                   required autofocus aria-describedby="usernameHelp">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Hasło</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit">Zaloguj</button>
+
+        <p th:if="${param.error}" class="error" role="alert">
+             Nieprawidłowy login lub hasło.
+        </p>
+    </form>
+
+    <p>Nie masz konta? <a th:href="@{/register}">Zarejestruj się</a></p>
+</main>
+
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
+</body>
+</html>

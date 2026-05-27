@@ -1,11 +1,10 @@
 package pl.studyshare.domain;
 
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import pl.studyshare.enums.Role;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,31 +19,27 @@ public class User implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Imię nie może być puste")
-    @Size(min = 3, max = 20, message = "Imię musi mieć 3-20 znaków")
-    @Pattern(regexp = "^[A-Z][a-z]*$", message = "Imię musi zaczynać się wielką literą i zawierać tylko litery")
+    @NotBlank @Size(min = 3, max = 20)
+    @Pattern(regexp = "^[A-Z][a-z]*$")
     private String firstName;
 
-    @NotBlank(message = "Nazwisko nie może być puste")
-    @Size(min = 3, max = 50, message = "Nazwisko musi mieć 3-50 znaków")
-    @Pattern(regexp = "^[A-Z][a-z]*$", message = "Nazwisko musi zaczynać się wielką literą i zawierać tylko litery")
+    @NotBlank @Size(min = 3, max = 50)
+    @Pattern(regexp = "^[A-Z][a-z]*$")
     private String lastName;
 
-    @NotBlank(message = "Login nie może być pusty")
-    @Size(min = 3, max = 20, message = "Login musi mieć 3-20 znaków")
-    @Pattern(regexp = "^[a-z]+$", message = "Login może zawierać tylko małe litery")
+    @NotBlank @Size(min = 3, max = 20)
+    @Pattern(regexp = "^[a-z]+$")
     @Column(unique = true, nullable = false)
     private String login;
 
-    @NotBlank(message = "Hasło nie może być puste")
-    @Size(min = 5, message = "Hasło musi mieć co najmniej 5 znaków")
-    private String password; // będzie kodowane BCrypt przed zapisem
+    @NotBlank @Size(min = 5)
+    private String password;
 
-    @Min(value = 18, message = "Użytkownik musi mieć co najmniej 18 lat")
+    @Min(18)
     private int age;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Rola jest wymagana")
+    @NotNull
     private Role role;
 
     @Builder.Default

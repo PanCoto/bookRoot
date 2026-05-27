@@ -1,17 +1,10 @@
-// ==============================================================================
-// Plik: src/main/java/pl/studyshare/domain/Answer.java
-// Faza: F1
-// REQ_IDS: DOMAIN_MODEL, Answer_ENTITY, FORMULA_FIELD, CRITICAL_09
-// ==============================================================================
 package pl.studyshare.domain;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Entity
@@ -21,12 +14,10 @@ import java.time.LocalDate;
 @Builder
 public class Answer implements java.io.Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Treść odpowiedzi nie może być pusta")
-    @Size(min = 10, max = 2000, message = "Odpowiedź musi mieć 10-2000 znaków")
+    @NotBlank @Size(min = 10, max = 2000)
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -40,7 +31,6 @@ public class Answer implements java.io.Serializable {
     @Builder.Default
     private Integer downvotes = 0;
 
-    // Pole wyliczane: upvotes - downvotes. Tylko do odczytu (brak settera).
     @Formula("upvotes - downvotes")
     private Integer score;
 
