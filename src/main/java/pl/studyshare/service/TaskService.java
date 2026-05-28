@@ -36,6 +36,7 @@ public class TaskService {
     public List<TaskDTO> findLatestApproved(int limit) {
         return taskRepository.findTop10ByStatusOrderByCreatedDateDesc(TaskStatus.APPROVED)
                 .stream()
+                .limit(limit)
                 .map(taskMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -56,10 +57,22 @@ public class TaskService {
         return tasks.map(taskMapper::toDto);
     }
 
+    @Transactional(readOnly = true)
+    public TaskDTO findById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
+        return taskMapper.toDto(task);
+    }
+
+    @Transactional(readOnly = true)
+    public Task findEntityById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
+    }
+
     public TaskDTO createTask(TaskCreateRequest request, String currentUserLogin) {
         User author = userRepository.findByLogin(currentUserLogin)
                 .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
-
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
 
@@ -90,19 +103,23 @@ public class TaskService {
         if (request.title() != null) task.setTitle(request.title());
         if (request.content() != null) task.setContent(request.content());
         if (request.imageUrl() != null) task.setImageUrl(request.imageUrl());
+
         if (request.categoryId() != null) {
             Category cat = categoryRepository.findById(request.categoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
             task.setCategory(cat);
         }
+
         if (request.status() != null && currentUser.getRole().name().equals("ADMIN")) {
             task.setStatus(request.status());
             if (request.status() == TaskStatus.APPROVED) {
                 task.setApprovedBy(currentUser);
             }
         }
+
         task.setLastModifiedDate(LocalDateTime.now());
-        return taskMapper.toDto(task);
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDto(saved);
     }
 
     public void approveTask(Long taskId, User admin) {
@@ -114,6 +131,7 @@ public class TaskService {
         task.setStatus(TaskStatus.APPROVED);
         task.setApprovedBy(admin);
         task.setLastModifiedDate(LocalDateTime.now());
+        taskRepository.save(task);
     }
 
     public void deleteTask(Long taskId) {

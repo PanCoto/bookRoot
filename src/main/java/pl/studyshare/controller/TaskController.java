@@ -11,17 +11,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pl.studyshare.dto.*;
+import pl.studyshare.domain.Task;
+import pl.studyshare.domain.User;
+import pl.studyshare.dto.AnswerCreateRequest;
+import pl.studyshare.dto.TaskCreateRequest;
+import pl.studyshare.dto.TaskDTO;
+import pl.studyshare.dto.TaskUpdateRequest;
+import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.repository.UserRepository;
 import pl.studyshare.service.AnswerService;
 import pl.studyshare.service.CategoryService;
 import pl.studyshare.service.TaskService;
-import pl.studyshare.repository.UserRepository;
-import pl.studyshare.domain.User;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/tasks")
@@ -42,12 +45,18 @@ public class TaskController {
                             Model model) {
         if (sortField == null) sortField = "createdDate";
         if (sortDir == null) sortDir = "desc";
-        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() :
+                Sort.by(sortField).descending();
         PageRequest pageable = PageRequest.of(page, 10, sort);
         Page<TaskDTO> tasks = taskService.findByFilters(since, categoryId, pageable);
+
         model.addAttribute("tasks", tasks);
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
         model.addAttribute("currentSort", sortField + "," + sortDir);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+
         return "task-list";
     }
 
@@ -55,7 +64,25 @@ public class TaskController {
     public String taskDetail(@PathVariable Long id,
                              @AuthenticationPrincipal UserDetails userDetails,
                              Model model) {
+        Task task = taskService.findEntityById(id);
 
+        if (task.getStatus() != TaskStatus.APPROVED) {
+            if (userDetails == null) {
+                return "redirect:/login";
+            }
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            boolean isAuthor = task.getAuthor() != null &&
+                    task.getAuthor().getLogin().equals(userDetails.getUsername());
+
+            if (!isAdmin && !isAuthor) {
+                throw new SecurityException("Brak uprawnień do przeglądania tego szkicu zadania.");
+            }
+        }
+
+        model.addAttribute("task", taskService.findById(id));
+        model.addAttribute("answers", answerService.findByTaskId(id));
+        model.addAttribute("newAnswer", new AnswerCreateRequest("", true));
         return "task-detail";
     }
 
@@ -82,7 +109,53 @@ public class TaskController {
     @GetMapping("/{id}/edit")
     public String editTaskForm(@PathVariable Long id, Model model,
                                @AuthenticationPrincipal UserDetails userDetails) {
-        User currentUser = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
-        return "task-form";
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        User currentUser = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
+        Task task = taskService.findEntityById(id);
+
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isAuthorAndDraft = task.getAuthor() != null &&
+                task.getAuthor().getLogin().equals(currentUser.getLogin()) &&
+                task.getStatus() == TaskStatus.DRAFT;
+
+        if (!isAdmin && !isAuthorAndDraft) {
+            throw new SecurityException("Nie możesz edytować tego zadania");
+        }
+
+        TaskUpdateRequest updateRequest = new TaskUpdateRequest(
+                task.getTitle(),
+                task.getContent(),
+                task.getImageUrl(),
+                task.getStatus(),
+                task.getCategory() != null ? task.getCategory().getId() : null
+        );
+
+        model.addAttribute("taskUpdateRequest", updateRequest);
+        model.addAttribute("taskId", id);
+        model.addAttribute("categories", categoryService.findAllOrderByPopularity());
+
+
+        return "task-edit-form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateTask(@PathVariable Long id,
+                             @Valid @ModelAttribute("taskUpdateRequest") TaskUpdateRequest request,
+                             BindingResult bindingResult,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("taskId", id);
+            model.addAttribute("categories", categoryService.findAllOrderByPopularity());
+            return "task-edit-form";
+        }
+        User currentUser = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
+
+        taskService.updateTask(id, request, currentUser);
+        return "redirect:/tasks/" + id;
     }
 }

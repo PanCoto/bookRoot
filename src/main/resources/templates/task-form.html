@@ -2,24 +2,69 @@
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nowe zadanie</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/task-creator.js}" defer></script>
 </head>
 <body>
-<header><h1>Nowe zadanie</h1></header>
-<main>
-    <form th:action="@{/tasks/new}" th:object="${taskCreateRequest}" method="post">
-        <label for="title">Tytuł:</label>
-        <input type="text" th:field="*{title}" id="title" required><br>
-        <label for="content">Treść:</label>
-        <textarea th:field="*{content}" id="content" required></textarea><br>
-        <label for="categoryId">Kategoria:</label>
-        <select th:field="*{categoryId}" id="categoryId">
-            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-        </select><br>
-        <label>Anonimowo: <input type="checkbox" th:field="*{anonymous}"></label><br>
-        <button type="submit">Zapisz szkic</button>
+<header role="banner">
+    <h1>Nowe zadanie</h1>
+    <nav role="navigation"><a th:href="@{/tasks}">Powrót do listy</a></nav>
+</header>
+<main role="main">
+    <form th:action="@{/tasks/new}" th:object="${taskCreateRequest}" method="post" class="form">
+
+        <div class="form-group">
+            <label for="title">Tytuł zadania:</label>
+            <input type="text" th:field="*{title}" id="title" required minlength="5" maxlength="150" placeholder="np. Kolokwium - Sortowanie szybkie">
+            <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Treść zadania:</label>
+            <textarea th:field="*{content}" id="content" required minlength="20" maxlength="5000" rows="10" placeholder="Wprowadź szczegółową treść zadania..."></textarea>
+            <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="imageUrl">Adres URL obrazka (opcjonalnie):</label>
+            <input type="url" th:field="*{imageUrl}" id="imageUrl" placeholder="https://example.com/image.png">
+            <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="categoryId">Kategoria tematyczna:</label>
+            <select th:field="*{categoryId}" id="categoryId" required>
+                <option value="">Wybierz kategorię...</option>
+                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+            </select>
+            <div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" th:field="*{anonymous}"> Opublikuj anonimowo
+            </label>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
+            <h3>Powiązane pytania testowe (opcjonalnie)</h3>
+            <p class="help">Możesz powiązać z tym zadaniem zestaw pytań weryfikacyjnych.</p>
+
+            <div id="questions-container">
+            </div>
+
+            <button type="button" id="add-question-btn" style="background-color: #555; margin-top: 15px;">+ Dodaj pytanie testowe</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <button type="submit">Prześlij do moderacji</button>
+        </div>
     </form>
 </main>
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
 </body>
 </html>

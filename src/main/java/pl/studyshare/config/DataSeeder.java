@@ -54,6 +54,7 @@ public class DataSeeder implements CommandLineRunner {
                 .lastName("Systemu")
                 .age(30)
                 .role(Role.ADMIN)
+                .enabled(true)
                 .build();
         userRepository.save(admin);
 
@@ -63,15 +64,18 @@ public class DataSeeder implements CommandLineRunner {
         createApprovedTask("Zadanie 1: Sortowanie przez scalanie",
                 "Opisz działanie algorytmu merge sort i jego złożoność obliczeniową...",
                 algorithms, admin, student1);
+
         createApprovedTask("Zadanie 2: Normalizacja bazy danych",
                 "Wyjaśnij pojęcia 1NF, 2NF, 3NF na przykładzie tabeli...",
                 databases, admin, student2);
+
         createApprovedTask("Zadanie 3: Dziedziczenie w Javie",
                 "Napisz przykład dziedziczenia klas w języku Java...",
                 programming, admin, student1);
 
         createPendingTask("Kolokwium: Drzewa binarne",
                 "Zaimplementuj przechodzenie drzewa BST...", algorithms, student1);
+
         createPendingTask("Test: Zapytania SQL",
                 "Napisz zapytanie SELECT z grupowaniem i JOIN...", databases, student2);
     }
@@ -85,6 +89,7 @@ public class DataSeeder implements CommandLineRunner {
                 .lastName(lastName)
                 .age(age)
                 .role(Role.USER)
+                .enabled(true)
                 .build();
         return userRepository.save(user);
     }

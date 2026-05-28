@@ -3,35 +3,95 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${task.title}">Szczegóły zadania</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<header>...</header>
-<main>
-    <h1 th:text="${task.title}">Tytuł</h1>
-    <p th:text="${task.content}">Treść</p>
-    <p>Kategoria: <span th:text="${task.categoryName}"></span></p>
-    <p th:if="${task.authorName != null}">Autor: <span th:text="${task.authorName}"></span></p>
-    <p th:if="${task.authorName == null}">Anonim</p>
+<header role="banner">
+    <h1>bookRoot</h1>
+    <nav role="navigation" aria-label="Menu główne">
+        <a th:href="@{/}">Główna</a>
+        <a th:href="@{/tasks}">Lista zadań</a>
+        <span sec:authorize="isAuthenticated()">
+            <a th:href="@{/tasks/new}">Dodaj zadanie</a>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <button type="submit" style="background: none; border: none; color: white; cursor: pointer; font-weight: bold;">Wyloguj</button>
+            </form>
+        </span>
+        <span sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}">Zaloguj</a>
+        </span>
+    </nav>
+</header>
+<main role="main">
+    <div class="task-card">
+        <h1 th:text="${task.title}">Tytuł</h1>
+        <p style="white-space: pre-line;" th:text="${task.content}">Treść</p>
+        <div th:if="${task.imageUrl != null && !#strings.isEmpty(task.imageUrl)}" style="margin-top: 15px;">
+            <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania" style="max-width: 100%; height: auto; border-radius: 4px;"/>
+        </div>
+        <hr/>
+        <small>
+            Kategoria: <strong th:text="${task.categoryName}">Kategoria</strong> |
+            Dodano: <span th:text="${#dates.format(task.createdDate, 'dd.MM.yyyy')}">Data</span> |
+            Autor: <span th:text="${task.authorName != null ? task.authorName : 'Anonim'}">Autor</span>
+        </small>
+    </div>
 
-    <section id="answers">
-        <h2>Odpowiedzi</h2>
-        <div th:each="answer : ${answers}" class="answer">
-            <p th:text="${answer.content}"></p>
-            <p>Punkty: <span th:text="${answer.score}">0</span></p>
-            <span th:if="${answer.isOfficial}" class="official">Oficjalna odpowiedź</span>
+    <section id="answers" style="margin-top: 30px;">
+        <h2>Odpowiedzi społeczności</h2>
+        <div th:if="${#lists.isEmpty(answers)}">
+            <p>Brak odpowiedzi do tego zadania. Bądź pierwszym, który doda rozwiązanie!</p>
+        </div>
+        <div th:each="answer : ${answers}" class="task-card" th:style="${answer.isOfficial} ? 'border-left: 5px solid #2e7d32; background-color: #f1f8e9;' : ''">
+            <div th:if="${answer.isOfficial}" style="color: #2e7d32; font-weight: bold; margin-bottom: 5px;">
+                ✓ Oficjalne rozwiązanie
+            </div>
+            <p th:text="${answer.content}" style="white-space: pre-line;"></p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <small>
+                    Dodano przez: <span th:text="${answer.authorName != null ? answer.authorName : 'Anonim'}">Autor</span> |
+                    Ocena: <strong th:text="${answer.score}">0</strong>
+                </small>
+
+                <!-- System oceniania odpowiedzi (Faza 3) -->
+                <div sec:authorize="isAuthenticated()">
+                    <form th:action="@{/answers/{id}/vote(id=${answer.id})}" method="post" style="display: inline-block; margin-right: 5px;">
+                        <input type="hidden" name="delta" value="1" />
+                        <button type="submit" style="padding: 2px 8px; background-color: #4caf50;">+1</button>
+                    </form>
+                    <form th:action="@{/answers/{id}/vote(id=${answer.id})}" method="post" style="display: inline-block;">
+                        <input type="hidden" name="delta" value="-1" />
+                        <button type="submit" style="padding: 2px 8px; background-color: #f44336;">-1</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section sec:authorize="isAuthenticated()">
-        <h3>Dodaj odpowiedź</h3>
-        <form th:action="@{/tasks/{id}/answers(id=${task.id})}" method="post">
-            <textarea name="content" required minlength="10" maxlength="2000"></textarea>
-            <label><input type="checkbox" name="anonymous" checked> Anonimowo</label>
-            <button type="submit">Wyślij</button>
+    <section sec:authorize="isAuthenticated()" style="margin-top: 30px;">
+        <h3>Dodaj swoją odpowiedź</h3>
+        <form th:action="@{/tasks/{id}/answers(id=${task.id})}" method="post" th:object="${newAnswer}">
+            <div class="form-group">
+                <textarea th:field="*{content}" required minlength="10" maxlength="2000" rows="6" placeholder="Wpisz treść rozwiązania..." class="form-control"></textarea>
+                <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label>
+                    <input type="checkbox" th:field="*{anonymous}"/> Opublikuj odpowiedź jako anonimową
+                </label>
+            </div>
+            <button type="submit" style="margin-top: 10px;">Opublikuj odpowiedź</button>
         </form>
     </section>
+
+    <section sec:authorize="!isAuthenticated()" style="margin-top: 30px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
+        <p>Tylko zalogowani użytkownicy mogą dodawać odpowiedzi. <a th:href="@{/login}">Zaloguj się teraz</a>.</p>
+    </section>
 </main>
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
 </body>
 </html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edycja zadania</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header role="banner">
+    <h1>Edycja zadania</h1>
+    <nav role="navigation"><a th:href="@{/tasks/{id}(id=${taskId})}">Anuluj</a></nav>
+</header>
+<main role="main">
+
+    <form th:action="@{/tasks/{id}/edit(id=${taskId})}" th:object="${taskUpdateRequest}" method="post" class="form">
+
+        <div class="form-group">
+            <label for="title">Tytuł zadania:</label>
+            <input type="text" th:field="*{title}" id="title" required minlength="5" maxlength="150">
+            <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Treść zadania:</label>
+            <textarea th:field="*{content}" id="content" required minlength="20" maxlength="5000" rows="10"></textarea>
+            <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="imageUrl">Adres URL obrazka (opcjonalnie):</label>
+            <input type="url" th:field="*{imageUrl}" id="imageUrl">
+            <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="categoryId">Kategoria tematyczna:</label>
+            <select th:field="*{categoryId}" id="categoryId" required>
+                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+            </select>
+            <div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="error"></div>
+        </div>
+
+        <div class="form-group" sec:authorize="hasRole('ADMIN')">
+            <label for="status">Status zadania (Moderacja):</label>
+            <select th:field="*{status}" id="status">
+                <option value="DRAFT">Szkic (DRAFT)</option>
+                <option value="PENDING">Oczekuje na zatwierdzenie (PENDING)</option>
+                <option value="APPROVED">Zatwierdzone publicznie (APPROVED)</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <button type="submit">Zapisz zmiany</button>
+        </div>
+    </form>
+</main>
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
+</body>
+</html>

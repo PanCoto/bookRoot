@@ -3,19 +3,20 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista zadań – bookRoot</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <header role="banner">
-    <h1>📚 bookRoot</h1>
-    <nav>
-        <a href="/">Główna</a>
+    <h1>bookRoot</h1>
+    <nav role="navigation" aria-label="Menu główne">
+        <a th:href="@{/}">Główna</a>
         <span sec:authorize="isAuthenticated()">
             <a th:href="@{/tasks/new}">Dodaj zadanie</a>
             <a th:href="@{/profile/edit}">Profil</a>
             <form th:action="@{/logout}" method="post" style="display:inline">
-                <button type="submit">Wyloguj</button>
+                <button type="submit" style="background: none; border: none; color: white; cursor: pointer; font-weight: bold;">Wyloguj</button>
             </form>
         </span>
         <span sec:authorize="!isAuthenticated()">
@@ -23,30 +24,30 @@
         </span>
     </nav>
 </header>
-
-<main>
+<main role="main">
     <h2>Zadania</h2>
     <form method="get" th:action="@{/tasks}" class="filters">
         <label for="category">Kategoria:</label>
         <select name="categoryId" id="category">
             <option value="">Wszystkie</option>
             <option th:each="cat : ${categories}" th:value="${cat.id}"
+                    th:selected="${param.categoryId != null && #strings.toString(cat.id) == #strings.toString(param.categoryId)}"
                     th:text="${cat.name} + ' (' + ${cat.taskCount} + ')'"></option>
         </select>
         <label for="since">Od:</label>
         <select name="since" id="since">
             <option value="">Dowolnie</option>
-            <option value="2025-01-01">Ostatni tydzień</option>
-            <option value="2024-12-01">Ostatni miesiąc</option>
+            <option value="2025-01-01" th:selected="${param.since != null && #strings.toString(param.since) == '2025-01-01'}">Ostatni tydzień</option>
+            <option value="2024-12-01" th:selected="${param.since != null && #strings.toString(param.since) == '2024-12-01'}">Ostatni miesiąc</option>
         </select>
         <button type="submit">Filtruj</button>
     </form>
 
-    <div class="sort-links">
-        Sortuj:
-        <a th:href="@{/tasks(sortField='title',sortDir='asc')}">Tytuł ▲</a>
-        <a th:href="@{/tasks(sortField='title',sortDir='desc')}">▼</a>
-        <a th:href="@{/tasks(sortField='createdDate',sortDir='desc')}">Data ▼</a>
+    <div class="sort-links" style="margin-top: 15px; margin-bottom: 15px;">
+        <span>Sortuj:</span>
+        <a th:href="@{/tasks(sortField='title',sortDir='asc',categoryId=${param.categoryId},since=${param.since})}">Tytuł ▲</a> |
+        <a th:href="@{/tasks(sortField='title',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Tytuł ▼</a> |
+        <a th:href="@{/tasks(sortField='createdDate',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Najnowsze ▼</a>
     </div>
 
     <div th:if="${#lists.isEmpty(tasks.content)}">
@@ -56,17 +57,24 @@
     <div th:each="task : ${tasks.content}" class="task-card">
         <h3><a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}">Tytuł</a></h3>
         <p th:text="${#strings.abbreviate(task.content, 150)}">Treść</p>
-        <span th:text="${task.categoryName}">kategoria</span> |
-        <span th:if="${task.authorName != null}" th:text="${task.authorName}">autor</span>
-        <span th:if="${task.authorName == null}">Anonim</span> |
-        <span th:text="${#dates.format(task.createdDate, 'dd.MM.yyyy')}">data</span>
+        <small>
+            Kategoria: <span th:text="${task.categoryName}">kategoria</span> |
+            Dodano przez: <span th:if="${task.authorName != null}" th:text="${task.authorName}">autor</span>
+            <span th:if="${task.authorName == null}">Anonim</span> |
+            Data: <span th:text="${#dates.format(task.createdDate, 'dd.MM.yyyy')}">data</span>
+        </small>
     </div>
 
-    <div th:if="${tasks.totalPages > 1}" class="pagination">
-        <a th:text="${cat.name + ' (' + cat.taskCount + ')'}"
-           th:href="@{/tasks(page=${i})}" th:text="${i+1}"></a>
+    <div th:if="${tasks.totalPages > 1}" class="pagination" style="margin-top: 20px;">
+        <span th:each="i : ${#numbers.sequence(0, tasks.totalPages - 1)}">
+            <a th:href="@{/tasks(page=${i}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir})}"
+               th:text="${i+1}"
+               th:style="${tasks.number == i} ? 'font-weight: bold; margin-right: 5px;' : 'margin-right: 5px;'">1</a>
+        </span>
     </div>
 </main>
-<footer><p>&copy; 2025 bookRoot</p></footer>
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
 </body>
 </html>
