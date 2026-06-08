@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udostępnione zadanie – bookRoot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav class="navbar navbar-dark bg-dark shadow-sm" aria-label="Nawigacja główna">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            <span style="color:#f97316;">📚</span> bookRoot
+        </a>
+        <a th:href="@{/tasks}" class="btn btn-outline-warning btn-sm"
+           aria-label="Przeglądaj wszystkie zadania">Wszystkie zadania</a>
+    </div>
+</nav>
+
+<main role="main" class="flex-grow-1 py-5">
+    <div class="container" style="max-width:700px;">
+
+        <!-- Token expired / not found -->
+        <div th:if="${task == null}"
+             class="card border-danger shadow-sm border-0 text-center p-5">
+            <div class="display-4 mb-3">⚠️</div>
+            <h1 class="h4 text-danger">Link jest nieważny lub wygasł</h1>
+            <p class="text-muted">Token udostępnienia nie istnieje lub minął jego termin ważności.</p>
+            <a th:href="@{/}" class="btn btn-outline-secondary btn-sm mt-2"
+               aria-label="Wróć do strony głównej">Strona główna</a>
+        </div>
+
+        <!-- Shared task view -->
+        <div th:unless="${task == null}">
+            <div class="alert alert-info d-flex align-items-center gap-2 mb-4" role="note">
+                <span>🔗</span>
+                <span class="small">To zadanie zostało Ci udostępnione poprzez bezpieczny link.</span>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 pt-3 px-4">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge bg-secondary" th:text="${task.categoryName}">Kategoria</span>
+                        <span class="badge bg-primary"   th:text="${task.taskType ?: 'OPEN'}">Typ</span>
+                    </div>
+                    <h1 class="h3 fw-bold" th:text="${task.title}">Tytuł zadania</h1>
+                </div>
+                <div class="card-body px-4">
+                    <div style="white-space: pre-line;" th:text="${task.content}">Treść</div>
+                </div>
+                <div class="card-footer bg-white border-top text-muted small px-4">
+                    <span>Autor: <span th:text="${task.authorName ?: 'Anonim'}">Autor</span></span>
+                    &bull;
+                    <span>Data: <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span></span>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a th:href="@{/register}" class="btn btn-warning me-2"
+                   aria-label="Zarejestruj się aby dodać odpowiedź">
+                    Zarejestruj się i odpowiedz
+                </a>
+                <a th:href="@{/login}" class="btn btn-outline-secondary"
+                   aria-label="Zaloguj się">
+                    Zaloguj się
+                </a>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer class="py-3 bg-dark text-white text-center" role="contentinfo">
+    <small class="text-white-50">&copy; 2026 bookRoot</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmxI3wH4U+VE4PVjuoFh60drI4L6N"
+        crossorigin="anonymous"></script>
+</body>
+</html>

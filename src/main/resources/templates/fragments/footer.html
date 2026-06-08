@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--/* ─────────────────────────────────────────────────────────────────
+       bookRoot – Shared Footer (Bootstrap 5)
+       Usage: <div th:replace="~{fragments/footer :: footer}"></div>
+   ───────────────────────────────────────────────────────────────── */-->
+
+<footer th:fragment="footer" class="footer mt-auto py-4 bg-dark text-white" role="contentinfo">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <span class="fw-bold" style="color:#f97316;">📚 bookRoot</span>
+                <span class="text-white-50 ms-2 small">Platforma edukacyjna dla studentów</span>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <span class="text-white-50 small">&copy; 2026 bookRoot. Wszelkie prawa zastrzeżone.</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

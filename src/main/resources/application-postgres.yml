@@ -1,0 +1,55 @@
+########################################################################
+#  bookRoot – Profil: postgres
+#  Lokalna baza PostgreSQL (development / staging)
+#
+#  Wymagania wstępne:
+#    1. PostgreSQL >= 14 zainstalowany i uruchomiony
+#    2. Baza danych 'bookroot' utworzona:
+#         CREATE DATABASE bookroot;
+#         CREATE USER bookroot_user WITH PASSWORD 'bookroot_dev';
+#         GRANT ALL PRIVILEGES ON DATABASE bookroot TO bookroot_user;
+#
+#  Uruchomienie:
+#    IntelliJ IDEA: Edit Configurations → Active Profiles: postgres
+#    CLI: java -Dspring.profiles.active=postgres -jar bookroot.jar
+#    Maven: mvn spring-boot:run -Dspring-boot.run.profiles=postgres
+########################################################################
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bookroot}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:bookroot_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:bookroot_dev}
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      minimum-idle: 2
+      pool-name: bookRoot-postgres-pool
+
+  jpa:
+    hibernate:
+      ddl-auto: update          # Hibernate zarządza schematem (dev wygoda)
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+  # H2 Console wyłączona w trybie PostgreSQL
+  h2:
+    console:
+      enabled: false
+
+logging:
+  level:
+    pl.studyshare: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO

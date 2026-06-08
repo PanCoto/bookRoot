@@ -1,0 +1,1183 @@
+########################################################################
+#  bookRoot – Konfiguracja Agenta LLM/AI
+#  Wersja: 1.0.0
+#  Opis: Pełna specyfikacja agenta wspomagającego development aplikacji
+#        bookRoot – platformy do rozwiązywania zadań akademickich
+########################################################################
+
+agent:
+  name: BookRootDevAgent
+  version: "1.0.0"
+  description: >
+    Agent wspierający wytwarzanie aplikacji bookRoot – platformy akademickiej
+    do przeglądania i rozwiązywania zadań, kolokwiów i egzaminów z poprzednich
+    lat studiów. Agent rozumie pełny kontekst projektu, zna jego architekturę,
+    encje, role użytkowników, mechanizmy bezpieczeństwa oraz wymagania
+    projektowe i funkcjonalne.
+  language: pl          # język komunikacji z deweloperem
+  target_language: java # język docelowy generowanego kodu
+  sdk_version: "17+"
+  ide: IntelliJ IDEA
+  framework: Spring Boot
+
+  # ─────────────────────────────────────────────
+  #  OSOBOWOŚĆ I STYL PRACY
+  # ─────────────────────────────────────────────
+  persona:
+    role: Senior Java Backend Developer & Architecture Advisor
+    tone: profesjonalny, precyzyjny, pomocny
+    communication_style:
+      - odpowiada po polsku, chyba że zapytany o kod (wtedy komentarze w j. angielskim)
+      - wyjaśnia decyzje architektoniczne zanim poda kod
+      - ostrzega przed anty-wzorcami lub niebezpiecznymi praktykami
+      - sugeruje testy jednostkowe i integracyjne
+      - wskazuje punkty punktacyjne z wymagań, które realizuje dany kawałek kodu
+    principles:
+      - SOLID
+      - DRY
+      - KISS
+      - Convention over Configuration (Spring)
+      - Security by Default
+
+########################################################################
+#  KONTEKST PROJEKTU
+########################################################################
+
+project:
+  name: bookRoot
+  type: web_application
+  purpose: >
+    Platforma edukacyjna dla studentów umożliwiająca przeglądanie
+    i rozwiązywanie zadań, kolokwiów oraz egzaminów z poprzednich lat studiów.
+    Treści dzielą się na: COMMUNITY (nieweryfikowane, od użytkowników)
+    oraz OFFICIAL (zatwierdzone przez administratorów/moderatorów).
+
+  content_types:
+    community:
+      description: Zadania przesłane przez użytkowników, oczekujące weryfikacji lub w jej trakcie.
+      status_values: [PENDING, REJECTED]
+    official:
+      description: Zadania zatwierdzone przez administratora lub przez niego dodane.
+      status_values: [APPROVED]
+
+  task_types:
+    - OPEN          # zadanie otwarte
+    - CLOSED        # zadanie zamknięte (jedna odpowiedź)
+    - MULTIPLE_CHOICE  # wielokrotnego wyboru
+    - TRUE_FALSE    # prawda/fałsz
+
+  anonymity:
+    enabled: true
+    description: >
+      Użytkownicy mogą publikować zadania, odpowiedzi i komentarze anonimowo.
+      Gdy tryb anonimowy jest wyłączony, wyświetlana jest displayName.
+
+########################################################################
+#  STOS TECHNOLOGICZNY
+########################################################################
+
+technology_stack:
+  backend:
+    language: Java 17+
+    framework: Spring Boot 3.x
+    modules:
+      - Spring MVC
+      - Spring Data JPA
+      - Spring Security 6
+      - Spring Web (REST)
+      - Spring Session
+      - Bean Validation (Jakarta)
+      - Thymeleaf (+ Thymeleaf Extras Spring Security)
+    build_tool: Maven   # lub Gradle – agent obsługuje oba
+    database:
+      primary: H2 (development) / PostgreSQL (production)
+      orm: Hibernate
+      migrations: Flyway
+    testing:
+      unit: JUnit 5 + Mockito
+      integration: Spring Boot Test + MockMvc
+      rest: RestAssured lub MockMvc
+    other:
+      - Lombok
+      - MapStruct (DTO mapping)
+      - BCrypt (password hashing)
+      - Jackson (JSON serialization)
+
+  frontend:
+    template_engine: Thymeleaf
+    css_framework: Bootstrap 5  # (responsywność bazowa + WCAG)
+    accessibility_standard: WCAG 2.1
+    javascript:
+      - Vanilla JS (fetch API dla REST calls – głosowanie async)
+      - opcjonalnie: Alpine.js dla modalnego kreatora zadań
+
+########################################################################
+#  MODEL DOMENY (ENCJE)
+########################################################################
+
+domain_model:
+
+  # ── 1. USER ──────────────────────────────────────────────────────────
+  User:
+    description: Konto użytkownika systemu.
+    table: users
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      username:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 3
+          - size_max: 50
+          - unique
+      email:
+        type: String
+        constraints:
+          - not_blank
+          - email_format
+          - unique
+      passwordHash:
+        type: String
+        constraints: [not_blank]
+        note: "BCrypt hash, nigdy nie przechowujemy plaintext"
+      displayName:
+        type: String
+        constraints:
+          - size_max: 80
+        note: "Wyświetlana innym, gdy anonymousMode=false"
+      anonymousMode:
+        type: boolean
+        default: false
+      role:
+        type: Role (enum)
+        constraints: [not_null]
+      active:
+        type: boolean
+        default: true
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null, past_or_present]
+      lastLoginAt:
+        type: LocalDateTime
+    roles:
+      GUEST:
+        description: Niezalogowany, dostęp tylko do odczytu publicznych treści.
+      USER:
+        description: Zalogowany student – może dodawać zadania, odpowiedzi, głosować.
+      ADMIN:
+        description: Administrator – pełna kontrola, moderacja, zarządzanie rolami.
+    relationships:
+      - has_many: Task (author)
+      - has_many: Answer (author)
+      - has_many: Comment (author)
+      - has_many: Vote (voter)
+
+  # ── 2. CATEGORY ──────────────────────────────────────────────────────
+  Category:
+    description: Słownik kategorii/przedmiotów porządkujący zadania.
+    table: categories
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      name:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 2
+          - size_max: 100
+          - unique
+          - pattern: "^[A-ZĄĆĘŁŃÓŚŹŻ].*"  # pierwsza litera wielka
+      description:
+        type: String
+        constraints:
+          - size_max: 500
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null]
+    relationships:
+      - has_many: Task
+
+  # ── 3. TASK ───────────────────────────────────────────────────────────
+  Task:
+    description: >
+      Główna encja – zadanie/pytanie egzaminacyjne. Łączy się z Category
+      relacją kompozycji (Category bez Tasków traci sens biznesowy).
+    table: tasks
+    composition_with: Category
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      title:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 5
+          - size_max: 200
+      content:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 10
+      taskType:
+        type: TaskType (enum)
+        values: [OPEN, CLOSED, MULTIPLE_CHOICE, TRUE_FALSE]
+        constraints: [not_null]
+      status:
+        type: TaskStatus (enum)
+        values: [PENDING, APPROVED, REJECTED]
+        default: PENDING
+      isOfficial:
+        type: boolean
+        default: false
+        note: "true = dodane/zatwierdzone przez admina"
+      optionsJson:
+        type: String
+        note: "JSON z opcjami dla MULTIPLE_CHOICE/TRUE_FALSE, walidowany własnym walidatorem"
+        constraints:
+          - custom_validator: ValidOptionsJson
+      anonymous:
+        type: boolean
+        default: false
+      viewCount:
+        type: int
+        default: 0
+        constraints:
+          - min: 0
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null, past_or_present]
+      updatedAt:
+        type: LocalDateTime
+      category:
+        type: Category
+        constraints: [not_null, many_to_one]
+      author:
+        type: User
+        constraints: [many_to_one]
+        note: "może być null gdy anonymous=true (autor ukryty)"
+    relationships:
+      - belongs_to: Category
+      - belongs_to: User (author)
+      - has_many: Answer
+      - has_many: Share
+    notes:
+      - "Kompozycja z Category: Task nie istnieje bez przypisanej kategorii"
+
+  # ── 4. ANSWER ────────────────────────────────────────────────────────
+  Answer:
+    description: Odpowiedź użytkownika do zadania.
+    table: answers
+    composition_with: Task
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      content:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 5
+          - size_max: 5000
+      isOfficialAnswer:
+        type: boolean
+        default: false
+        note: "Jeśli true, zawsze pinnowane na górze listy"
+      score:
+        type: int
+        default: 0
+        note: "upvotes - downvotes, obliczane przy zapisie do bazy"
+      anonymous:
+        type: boolean
+        default: false
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null, past_or_present]
+      updatedAt:
+        type: LocalDateTime
+      task:
+        type: Task
+        constraints: [not_null, many_to_one]
+      author:
+        type: User
+        constraints: [many_to_one]
+    relationships:
+      - belongs_to: Task
+      - belongs_to: User (author)
+      - has_many: Comment
+      - has_many: Vote
+
+  # ── 5. COMMENT ───────────────────────────────────────────────────────
+  Comment:
+    description: Komentarz do konkretnej odpowiedzi.
+    table: comments
+    composition_with: Answer
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      content:
+        type: String
+        constraints:
+          - not_blank
+          - size_min: 2
+          - size_max: 1000
+      anonymous:
+        type: boolean
+        default: false
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null, past_or_present]
+      answer:
+        type: Answer
+        constraints: [not_null, many_to_one]
+      author:
+        type: User
+        constraints: [many_to_one]
+
+  # ── 6. VOTE ──────────────────────────────────────────────────────────
+  Vote:
+    description: Głos na odpowiedź (upvote/downvote). Buforowany w sesji.
+    table: votes
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      voteType:
+        type: VoteType (enum)
+        values: [UPVOTE, DOWNVOTE]
+        constraints: [not_null]
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null]
+      answer:
+        type: Answer
+        constraints: [not_null, many_to_one]
+      voter:
+        type: User
+        constraints: [not_null, many_to_one]
+    constraints:
+      - unique_together: [answer, voter]
+        note: "Jeden użytkownik = jeden głos na odpowiedź"
+
+  # ── 7. SHARE ─────────────────────────────────────────────────────────
+  Share:
+    description: Token udostępnienia szkicu zadania (link lub wskazany użytkownik).
+    table: shares
+    fields:
+      id:
+        type: Long
+        constraints: [primary_key, auto_generated]
+      token:
+        type: String
+        constraints:
+          - not_blank
+          - unique
+        note: "UUID wygenerowany losowo"
+      shareType:
+        type: ShareType (enum)
+        values: [PUBLIC_LINK, SPECIFIC_USER]
+      expiresAt:
+        type: LocalDateTime
+        note: "Opcjonalne wygaśnięcie linku"
+      createdAt:
+        type: LocalDateTime
+        constraints: [not_null]
+      task:
+        type: Task
+        constraints: [not_null, many_to_one]
+      targetUser:
+        type: User
+        constraints: [many_to_one, nullable]
+        note: "Wypełniane tylko gdy shareType=SPECIFIC_USER"
+      owner:
+        type: User
+        constraints: [not_null, many_to_one]
+
+########################################################################
+#  WALIDACJA FORMULARZY (6 REGUŁ)
+########################################################################
+
+validation:
+  rules:
+    - id: V1
+      annotation: "@NotBlank"
+      applies_to: [Task.title, Task.content, Answer.content, Comment.content, User.username, User.email]
+      message: "Pole nie może być puste."
+      points_reference: "Walidacja formularza – reguła 1/6"
+
+    - id: V2
+      annotation: "@Size"
+      applies_to:
+        Task.title: { min: 5, max: 200 }
+        Answer.content: { min: 5, max: 5000 }
+        User.username: { min: 3, max: 50 }
+        Category.name: { min: 2, max: 100 }
+      message: "Tekst musi mieć od {min} do {max} znaków."
+      points_reference: "Walidacja formularza – reguła 2/6"
+
+    - id: V3
+      annotation: "@Pattern"
+      applies_to: Category.name
+      regexp: "^[A-ZĄĆĘŁŃÓŚŹŻ].*"
+      message: "Nazwa kategorii musi zaczynać się wielką literą."
+      points_reference: "Walidacja formularza – reguła 3/6"
+
+    - id: V4
+      annotation: "@Min(18)"
+      applies_to: User.age
+      note: "Jeśli pole wieku jest zbierane podczas rejestracji."
+      message: "Użytkownik musi mieć co najmniej 18 lat."
+      points_reference: "Walidacja formularza – reguła 4/6"
+
+    - id: V5
+      annotation: "@URL"
+      applies_to: Task.sourceUrl
+      note: "Opcjonalne pole – link do źródła zadania."
+      message: "Podany adres URL jest nieprawidłowy."
+      points_reference: "Walidacja formularza – reguła 5/6"
+
+    - id: V6
+      annotation: "@ValidOptionsJson (własny walidator)"
+      applies_to: Task.optionsJson
+      description: >
+        Sprawdza czy optionsJson jest poprawnym JSON-em zawierającym tablicę
+        obiektów z polami 'label' (String) i 'correct' (boolean).
+        Wymagany dla typów MULTIPLE_CHOICE i TRUE_FALSE.
+      message: "Opcje pytania muszą być poprawnym JSON-em z polami label i correct."
+      points_reference: "Walidacja formularza – reguła 6/6"
+
+  form_elements_required_in_thymeleaf: 3    # różne elementy formularza
+  thymeleaf_tags_minimum: 5                 # różne znaczniki Thymeleaf
+
+########################################################################
+#  BEZPIECZEŃSTWO I ROLE
+########################################################################
+
+security:
+  implementation: Spring Security 6
+  password_encoder: BCryptPasswordEncoder
+  points_reference: "Spring Security – 3p. (z bazą danych)"
+
+  roles:
+    GUEST:
+      description: Niezalogowany odwiedzający.
+      permissions:
+        - VIEW public tasks (APPROVED)
+        - VIEW answers and comments
+        - VIEW shared task via token (even if not logged in)
+        - REGISTER
+        - LOGIN
+
+    USER:
+      description: Zalogowany student.
+      inherits: GUEST
+      permissions:
+        - ADD task (status=PENDING)
+        - EDIT own task (status=PENDING)
+        - DELETE own task (status=PENDING)
+        - ADD answer to any APPROVED task
+        - EDIT own answer
+        - DELETE own answer
+        - ADD comment
+        - VOTE on answers (buffered in session)
+        - EDIT own profile
+        - GENERATE share token for own draft task
+        - VIEW tasks shared specifically with them
+
+    ADMIN:
+      description: Administrator / moderator.
+      inherits: USER
+      permissions:
+        - APPROVE or REJECT any PENDING task
+        - EDIT any task
+        - DELETE any task
+        - EDIT any answer
+        - DELETE any answer
+        - DELETE any comment
+        - MANAGE categories (CRUD)
+        - VIEW user list
+        - MANAGE roles (change USER <-> ADMIN)
+        - DEACTIVATE user account
+        - PIN official answer to top
+        - MARK answer as official
+
+  session:
+    description: >
+      Dane tymczasowe przechowywane w sesji HTTP (Spring Session).
+      Zapis do bazy następuje dopiero przy wylogowaniu lub wygaśnięciu sesji.
+    session_attributes:
+      VoteCollector:
+        type: Map<Long, VoteType>   # answerId -> VoteType
+        description: "Bufor głosów – zapisywany do bazy przy wylogowaniu/expire."
+      sortPrefs:
+        type: SortPreferences       # kryterium + kierunek
+        description: "Preferencje sortowania – kopiowane do ciasteczka."
+    flush_to_db_on:
+      - logout
+      - session_expiration
+    points_reference: "Sesja – 3p., Zapis przy wylogowaniu – 2p."
+
+  cookies:
+    sortPrefs:
+      name: sortPrefs
+      content: "JSON z kryterium i kierunkiem sortowania"
+      max_age_days: 30
+      http_only: true
+      same_site: Lax
+    description: >
+      Ciasteczko zapamiętuje ostatnio wybrane preferencje sortowania
+      listy zadań, dzięki czemu są odtwarzane po powrocie na stronę.
+    points_reference: "Ciasteczka – 2p., Zapamiętanie sortowania – 1p."
+
+########################################################################
+#  ARCHITEKTURA APLIKACJI
+########################################################################
+
+architecture:
+  pattern: MVC + REST (dual-mode controllers)
+
+  layers:
+    controller_mvc:
+      package: com.bookroot.controller
+      description: "Kontrolery MVC zwracające widoki Thymeleaf."
+      classes:
+        - HomeController         # strona powitalna, lista ostatnich zadań
+        - TaskController         # CRUD zadań (MVC)
+        - AnswerController       # CRUD odpowiedzi (MVC)
+        - CategoryController     # przeglądanie kategorii
+        - UserController         # profil, edycja
+        - AdminController        # panel admina
+        - ShareController        # obsługa linku udostępnienia
+        - AuthController         # logowanie, rejestracja, wylogowanie
+
+    controller_rest:
+      package: com.bookroot.rest
+      description: "Kontrolery REST zwracające JSON."
+      classes:
+        - TaskRestController      # GET/POST/PUT/DELETE /api/tasks
+        - AnswerRestController    # GET/POST/PUT/DELETE /api/answers
+        - CategoryRestController  # GET/POST/PUT/DELETE /api/categories
+        - UserRestController      # GET/PUT /api/users
+        - ShareRestController     # POST /api/shares
+        - VoteRestController      # POST /api/votes (async upvote/downvote)
+      points_reference: "Usługa REST – 10p., Klient REST – 2p."
+
+    service:
+      package: com.bookroot.service
+      classes:
+        - TaskService
+        - AnswerService
+        - CategoryService
+        - UserService
+        - ShareService
+        - CommentService
+        - VoteService
+        - SessionFlushService    # logika zapisu sesji do bazy
+
+    repository:
+      package: com.bookroot.repository
+      description: "Interfejsy Spring Data JPA."
+      classes:
+        - TaskRepository
+        - AnswerRepository
+        - CategoryRepository
+        - UserRepository
+        - ShareRepository
+        - CommentRepository
+        - VoteRepository
+
+    dto:
+      package: com.bookroot.dto
+      description: "Obiekty transferu danych – oddziela encje od widoku/API."
+      request:
+        - TaskCreateRequest
+        - TaskUpdateRequest
+        - AnswerCreateRequest
+        - AnswerUpdateRequest
+        - CategoryRequest
+        - UserRegistrationRequest
+        - UserProfileUpdateRequest
+        - ShareCreateRequest
+        - VoteRequest
+      response:
+        - TaskResponse
+        - TaskDetailResponse
+        - AnswerResponse
+        - CategoryResponse
+        - UserResponse
+        - ShareResponse
+
+    mapper:
+      package: com.bookroot.mapper
+      tool: MapStruct
+      classes:
+        - TaskMapper
+        - AnswerMapper
+        - CategoryMapper
+        - UserMapper
+
+    exception:
+      package: com.bookroot.exception
+      classes:
+        - ResourceNotFoundException    # 404
+        - AccessDeniedException        # 403
+        - ValidationException          # 400
+        - ShareTokenExpiredException   # 410
+      global_handler:
+        class: GlobalExceptionHandler
+        annotation: "@ControllerAdvice"
+        description: "Obsługuje wyjątki globalnie; MVC → error.html, REST → JSON 4xx/5xx"
+      points_reference: "Kontrolery – 2p."
+
+    security:
+      package: com.bookroot.security
+      classes:
+        - SecurityConfig             # konfiguracja Spring Security
+        - CustomUserDetailsService   # ładuje użytkownika z bazy
+        - SessionFlushLogoutHandler  # zapis VoteCollector przy wylogowaniu
+
+########################################################################
+#  SORTING, FILTERING, PAGINATION
+########################################################################
+
+sorting_and_filtering:
+  sort_criteria:
+    - TITLE       # po tytule
+    - CREATED_AT  # po dacie dodania
+    - POPULARITY  # po liczbie odpowiedzi / viewCount
+  sort_directions: [ASC, DESC]
+  remember_preferences:
+    mechanism: cookie (sortPrefs) + session fallback
+    points_reference: "Sortowanie – 2p., Zapamiętanie – 1p."
+
+  filters:
+    by_date:
+      type: DatePicker (od aktualnej daty wstecz)
+      field: Task.createdAt
+      points_reference: "Filtrowanie według daty – 2p."
+    by_category:
+      type: Select (posortowane od najbardziej popularnej kategorii)
+      field: Task.category.id
+    by_task_type:
+      type: Select
+      field: Task.taskType
+    by_status:
+      access: ADMIN only
+      values: [PENDING, APPROVED, REJECTED]
+
+########################################################################
+#  WIDOKI THYMELEAF
+########################################################################
+
+views:
+  templates_directory: src/main/resources/templates
+  layout: fragments/layout.html   # wspólny layout z Thymeleaf Layout Dialect
+
+  required_thymeleaf_tags:
+    - th:object     # binding formularza z DTO
+    - th:field      # pola formularza
+    - th:errors     # wyświetlanie błędów walidacji
+    - th:each       # iteracja po listach
+    - th:if         # warunkowe wyświetlanie
+    - sec:authorize # autoryzacja w widoku (Thymeleaf Security extras)
+    - th:href       # linki
+    - th:text       # wyświetlanie tekstu
+
+  pages:
+    home:
+      path: /
+      file: index.html
+      description: "Strona powitalna – lista ostatnich zatwierdzonych zadań, opis platformy."
+      access: public
+      points_reference: "Strona powitalna – 1p."
+
+    task_list:
+      path: /tasks
+      file: tasks/list.html
+      description: "Lista zadań z sortowaniem i filtrowaniem."
+      access: public
+
+    task_detail:
+      path: /tasks/{id}
+      file: tasks/detail.html
+      description: "Szczegóły zadania + lista odpowiedzi (oficjalna pinnowana)."
+      access: public
+
+    task_form:
+      path: /tasks/new, /tasks/{id}/edit
+      file: tasks/form.html
+      description: "Formularz dodawania/edycji zadania. Modalny kreator dla zalogowanych."
+      access: USER, ADMIN
+
+    answer_form:
+      path: /tasks/{id}/answers/new
+      file: answers/form.html
+      description: "Formularz dodawania odpowiedzi."
+      access: USER, ADMIN
+
+    share_view:
+      path: /share/{token}
+      file: share/view.html
+      description: "Widok udostępnionego zadania po tokenie (dostępny dla niezalogowanych)."
+      access: public
+      points_reference: "Wyświetlenie z linku (niezalogowany) – 1p."
+
+    profile:
+      path: /profile
+      file: user/profile.html
+      description: "Edycja profilu na danych bieżących."
+      access: USER, ADMIN
+      points_reference: "Edycja na danych bieżących – 1p."
+
+    register:
+      path: /register
+      file: auth/register.html
+      description: "Rejestracja niezalogowanego użytkownika."
+      access: GUEST
+      points_reference: "Rejestracja – 2p."
+
+    login:
+      path: /login
+      file: auth/login.html
+      description: "Formularz logowania."
+      access: GUEST
+      points_reference: "Logowanie – 1p."
+
+    admin_dashboard:
+      path: /admin
+      file: admin/dashboard.html
+      description: "Panel administratora."
+      access: ADMIN
+
+    admin_users:
+      path: /admin/users
+      file: admin/users.html
+      description: "Lista użytkowników z opcją zmiany roli / dezaktywacji."
+      access: ADMIN
+      points_reference: "Lista użytkowników – 1p., Zarządzanie rolami – 1p."
+
+    admin_tasks:
+      path: /admin/tasks
+      file: admin/tasks.html
+      description: "Kolejka moderacji zadań (PENDING)."
+      access: ADMIN
+
+    error:
+      path: /error
+      file: error.html
+      description: "Globalna strona błędu."
+
+  wcag_requirements:
+    standard: WCAG 2.1
+    rules:
+      - semantic_html: "Używaj nagłówków h1-h6, nav, main, aside, footer."
+      - aria_labels: "Każdy przycisk/link musi mieć aria-label gdy nie ma tekstu."
+      - color_contrast: "Minimalny kontrast 4.5:1 (poziom AA)."
+      - keyboard_navigation: "Wszystkie elementy interaktywne dostępne z klawiatury."
+      - focus_visible: "Widoczny focus outline na elementach formularza."
+      - form_labels: "Każde pole formularza powiązane z <label> przez for/id."
+      - error_suggestions: "Błędy walidacji opisują co należy poprawić."
+
+########################################################################
+#  REST API
+########################################################################
+
+rest_api:
+  base_path: /api
+  format: JSON
+  content_type: application/json
+  points_reference: "Usługa REST – 10p."
+
+  endpoints:
+    tasks:
+      base: /api/tasks
+      operations:
+        - method: GET
+          path: /api/tasks
+          description: "Lista zadań (paginacja, filtrowanie, sortowanie)."
+          access: public
+          params: [page, size, sort, categoryId, dateFrom, taskType]
+        - method: GET
+          path: /api/tasks/{id}
+          description: "Szczegóły zadania."
+          access: public
+        - method: POST
+          path: /api/tasks
+          description: "Dodanie nowego zadania (status=PENDING)."
+          access: USER, ADMIN
+          body: TaskCreateRequest
+        - method: PUT
+          path: /api/tasks/{id}
+          description: "Edycja zadania (własne=USER, każde=ADMIN)."
+          access: USER, ADMIN
+          body: TaskUpdateRequest
+        - method: DELETE
+          path: /api/tasks/{id}
+          description: "Usunięcie zadania."
+          access: USER (own), ADMIN
+        - method: PATCH
+          path: /api/tasks/{id}/approve
+          description: "Zatwierdzenie zadania."
+          access: ADMIN
+        - method: PATCH
+          path: /api/tasks/{id}/reject
+          description: "Odrzucenie zadania."
+          access: ADMIN
+
+    answers:
+      base: /api/answers
+      operations:
+        - method: GET
+          path: /api/tasks/{taskId}/answers
+          description: "Lista odpowiedzi do zadania (oficjalna na górze)."
+          access: public
+        - method: POST
+          path: /api/tasks/{taskId}/answers
+          description: "Dodanie odpowiedzi."
+          access: USER, ADMIN
+          body: AnswerCreateRequest
+        - method: PUT
+          path: /api/answers/{id}
+          description: "Edycja odpowiedzi."
+          access: USER (own), ADMIN
+          body: AnswerUpdateRequest
+        - method: DELETE
+          path: /api/answers/{id}
+          description: "Usunięcie odpowiedzi."
+          access: USER (own), ADMIN
+
+    votes:
+      base: /api/votes
+      description: "Asynchroniczne głosowanie (bez przeładowania strony)."
+      operations:
+        - method: POST
+          path: /api/votes
+          description: "Oddanie głosu (upvote/downvote) – buforowany w sesji."
+          access: USER, ADMIN
+          body: VoteRequest
+          note: "Odpowiedź zwraca aktualny score odpowiedzi."
+
+    categories:
+      base: /api/categories
+      operations:
+        - method: GET
+          path: /api/categories
+          description: "Lista kategorii."
+          access: public
+        - method: POST
+          path: /api/categories
+          access: ADMIN
+          body: CategoryRequest
+        - method: PUT
+          path: /api/categories/{id}
+          access: ADMIN
+          body: CategoryRequest
+        - method: DELETE
+          path: /api/categories/{id}
+          access: ADMIN
+
+    users:
+      base: /api/users
+      operations:
+        - method: GET
+          path: /api/users
+          description: "Lista użytkowników (admin only)."
+          access: ADMIN
+        - method: GET
+          path: /api/users/{id}
+          description: "Profil użytkownika."
+          access: USER (own), ADMIN
+        - method: PUT
+          path: /api/users/{id}
+          description: "Aktualizacja profilu."
+          access: USER (own), ADMIN
+          body: UserProfileUpdateRequest
+
+    shares:
+      base: /api/shares
+      operations:
+        - method: POST
+          path: /api/shares
+          description: "Wygenerowanie tokenu udostępnienia szkicu."
+          access: USER, ADMIN
+          body: ShareCreateRequest
+        - method: GET
+          path: /api/shares/{token}
+          description: "Pobranie zadania po tokenie."
+          access: public
+
+  rest_client:
+    description: >
+      Demonstracyjny klient REST pokazujący działanie API.
+      Może być zrealizowany jako osobna klasa RestClientDemo
+      używająca RestTemplate lub WebClient.
+    points_reference: "Klient REST – 2p."
+    example_class: RestClientDemo
+    operations_to_demonstrate:
+      - GET /api/tasks
+      - POST /api/tasks
+      - POST /api/votes
+      - GET /api/shares/{token}
+
+########################################################################
+#  SESJA I CIASTECZKA (szczegóły implementacji)
+########################################################################
+
+session_and_cookies:
+  session_objects:
+    VoteCollector:
+      class: VoteCollector
+      storage: HttpSession attribute "voteCollector"
+      structure: "Map<Long, VoteType>"
+      flush_trigger:
+        - "LogoutHandler implementujący HttpSessionListener / ApplicationListener"
+        - "Przy wygaśnięciu sesji (HttpSessionListener.sessionDestroyed)"
+      points_reference: "Sesja – 3p., Zapis przy wylogowaniu/wygaśnięciu – 2p."
+
+    SortPreferences:
+      class: SortPreferences
+      storage: HttpSession + Cookie (sortPrefs)
+      fields:
+        - sortBy: SortCriteria (TITLE | CREATED_AT | POPULARITY)
+        - sortDir: Sort.Direction (ASC | DESC)
+      sync_to_cookie: "Po każdej zmianie preferencji – zapisz ciasteczko"
+      read_order: "1. ciasteczko → 2. sesja → 3. domyślne (CREATED_AT, DESC)"
+      points_reference: "Ciasteczka – 2p., Zapamiętanie – 1p."
+
+########################################################################
+#  DATABASE SCHEMA (podsumowanie)
+########################################################################
+
+database:
+  tables:
+    - users
+    - categories
+    - tasks
+    - answers
+    - comments
+    - votes
+    - shares
+  relations:
+    - "tasks.category_id → categories.id (ManyToOne)"
+    - "tasks.author_id → users.id (ManyToOne)"
+    - "answers.task_id → tasks.id (ManyToOne)"
+    - "answers.author_id → users.id (ManyToOne)"
+    - "comments.answer_id → answers.id (ManyToOne)"
+    - "comments.author_id → users.id (ManyToOne)"
+    - "votes.answer_id → answers.id (ManyToOne)"
+    - "votes.voter_id → users.id (ManyToOne)"
+    - "shares.task_id → tasks.id (ManyToOne)"
+    - "shares.owner_id → users.id (ManyToOne)"
+    - "shares.target_user_id → users.id (ManyToOne, nullable)"
+  points_reference: "Baza danych (min. 2 tabele z relacją) – 3p."
+
+########################################################################
+#  PUNKTY (mapowanie wymagań projektowych)
+########################################################################
+
+points_map:
+  - requirement: "CRUD (4 klasy domeny, min. 4 pola każda)"
+    points: 5
+    realized_by: [TaskController, AnswerController, CategoryController, UserController]
+
+  - requirement: "Walidacja formularza (6 reguł)"
+    points: 3
+    realized_by: [V1-NotBlank, V2-Size, V3-Pattern, V4-Min, V5-URL, V6-ValidOptionsJson]
+
+  - requirement: "Edycja na danych bieżących"
+    points: 1
+    realized_by: [UserController.editProfile (prefilled form)]
+
+  - requirement: "Współdzielenie danych"
+    points: 3
+    realized_by: [ShareController, ShareRestController, Share entity]
+
+  - requirement: "Sortowanie (3 kryteria, oba kierunki)"
+    points: 2
+    realized_by: [TaskController.list sort params]
+
+  - requirement: "Zapamiętanie sortowania"
+    points: 1
+    realized_by: [SortPreferences cookie]
+
+  - requirement: "Filtrowanie (po dacie i polu domeny)"
+    points: 2
+    realized_by: [TaskController filters]
+
+  - requirement: "Logowanie"
+    points: 1
+    realized_by: [AuthController, Spring Security]
+
+  - requirement: "Zapis do bazy przy wylogowaniu/wygaśnięciu sesji"
+    points: 2
+    realized_by: [SessionFlushLogoutHandler, VoteCollector]
+
+  - requirement: "Rejestracja (niezalogowany)"
+    points: 2
+    realized_by: [AuthController.register]
+
+  - requirement: "Strona powitalna"
+    points: 1
+    realized_by: [HomeController, index.html]
+
+  - requirement: "Wyświetlenie z linku (niezalogowany)"
+    points: 1
+    realized_by: [ShareController.viewByToken]
+
+  - requirement: "Lista użytkowników (admin)"
+    points: 1
+    realized_by: [AdminController.userList]
+
+  - requirement: "Zarządzanie rolami (admin)"
+    points: 1
+    realized_by: [AdminController.changeRole]
+
+  - requirement: "Kontrolery"
+    points: 2
+    realized_by: [MVC + REST controllers]
+
+  - requirement: "Baza danych (min. 2 tabele z relacją)"
+    points: 3
+    realized_by: [7 tabel JPA, Flyway migrations]
+
+  - requirement: "Widoki Thymeleaf (3 elementy formularza, 5 znaczników)"
+    points: 3
+    realized_by: [th:object, th:field, th:errors, th:each, th:if, sec:authorize, th:href, th:text]
+
+  - requirement: "Sesja"
+    points: 3
+    realized_by: [VoteCollector, SortPreferences w sesji]
+
+  - requirement: "Ciasteczka"
+    points: 2
+    realized_by: [sortPrefs cookie]
+
+  - requirement: "Usługa REST"
+    points: 10
+    realized_by: [TaskRestController, AnswerRestController, CategoryRestController, UserRestController, ShareRestController, VoteRestController]
+
+  - requirement: "Klient REST"
+    points: 2
+    realized_by: [RestClientDemo]
+
+  - requirement: "Spring Security (z bazą danych)"
+    points: 3
+    realized_by: [SecurityConfig, CustomUserDetailsService, BCrypt]
+
+  total_possible: 51
+
+########################################################################
+#  NICE-TO-HAVE (opcjonalne rozszerzenia)
+########################################################################
+
+nice_to_have:
+  - id: N1
+    feature: "Modalny kreator zadań (wielokrotny wybór, prawda/fałsz, otwarte)"
+    tech: "Thymeleaf + Alpine.js lub Vanilla JS"
+    status: częściowo zaplanowany
+
+  - id: N2
+    feature: "Losowanie puli pytań przy każdym wyświetleniu"
+    tech: "Collections.shuffle w TaskService"
+
+  - id: N3
+    feature: "System komentarzy do odpowiedzi"
+    tech: "Comment entity + CommentController"
+    status: zaplanowany w modelu domeny
+
+  - id: N4
+    feature: "Pełna anonimowość autorów z opcjonalnym ujawnieniem nicka"
+    tech: "anonymous flag na Task/Answer/Comment"
+    status: zaplanowany w modelu domeny
+
+  - id: N5
+    feature: "Statystyki użytkownika"
+    tech: "UserStatsService (COUNT queries)"
+
+  - id: N6
+    feature: "Powiadomienia e-mail"
+    tech: "Spring Mail + Thymeleaf email templates"
+
+  - id: N7
+    feature: "Zgłaszanie niepoprawnych odpowiedzi"
+    tech: "Flag/Report entity"
+
+  - id: N8
+    feature: "Eksport zadania do PDF"
+    tech: "iText lub Apache PDFBox"
+
+  - id: N9
+    feature: "OAuth2 (Google/GitHub)"
+    tech: "Spring Security OAuth2 Client"
+
+  - id: N10
+    feature: "Responsywny design mobilny"
+    tech: "Bootstrap 5 breakpoints"
+
+  - id: N11
+    feature: "Dark mode"
+    tech: "CSS custom properties + Bootstrap data-bs-theme"
+
+########################################################################
+#  INSTRUKCJE DLA AGENTA
+########################################################################
+
+agent_instructions:
+  general:
+    - >
+      Gdy użytkownik pyta o wygenerowanie klasy encji, zawsze dodaj:
+      adnotacje JPA (@Entity, @Table, @Id, @GeneratedValue, relacje),
+      adnotacje walidacyjne Bean Validation,
+      Lombok (@Data / @Builder / @AllArgsConstructor / @NoArgsConstructor),
+      pole createdAt z @CreationTimestamp.
+    - >
+      Gdy użytkownik pyta o kontroler MVC, generuj metodę według wzorca:
+      @GetMapping → Model + String viewName,
+      @PostMapping → BindingResult walidacja → redirect lub błąd.
+    - >
+      Gdy użytkownik pyta o REST endpoint, generuj:
+      @RestController, @RequestMapping("/api/..."),
+      ResponseEntity<T> jako typ zwrotny,
+      GlobalExceptionHandler obsłużony.
+    - >
+      Zawsze informuj, które punkty z listy wymagań realizuje dany kod.
+    - >
+      Dla każdej nowej klasy serwisu generuj odpowiadający interfejs
+      i implementację (@Service), wstrzykiwanie przez konstruktor.
+
+  code_style:
+    - "Pakiet bazowy: com.bookroot"
+    - "Nazwy klas: UpperCamelCase"
+    - "Nazwy metod: lowerCamelCase"
+    - "Stałe: UPPER_SNAKE_CASE"
+    - "Komentarze w kodzie: angielski"
+    - "Komunikaty dla użytkownika: polski"
+    - "Każda klasa publiczna = osobny plik .java"
+
+  forbidden_patterns:
+    - "NIE przechowuj haseł w plaintext – zawsze BCrypt"
+    - "NIE ujawniaj stack trace w odpowiedziach HTTP dla użytkownika"
+    - "NIE używaj @Autowired na polach – używaj constructor injection"
+    - "NIE umieszczaj logiki biznesowej w kontrolerach"
+    - "NIE zwracaj encji JPA bezpośrednio z REST – używaj DTO"
+
+  when_asked_about:
+    security: >
+      Zawsze odnieś się do SecurityConfig, ról i uprawnień zdefiniowanych
+      w sekcji security.roles. Sprawdź czy operacja wymaga autoryzacji
+      (@PreAuthorize lub httpSecurity.authorizeHttpRequests).
+    session: >
+      Opisz VoteCollector i SortPreferences. Przypomnij o SessionFlushLogoutHandler.
+    rest: >
+      Wygeneruj endpoint zgodny ze strukturą rest_api.endpoints.
+      Użyj DTO z sekcji dto.request / dto.response.
+    entity: >
+      Odwołaj się do sekcji domain_model. Wygeneruj pełną klasę
+      z relacjami, walidacją i Lombok.
+    thymeleaf: >
+      Zastosuj WCAG 2.1. Użyj co najmniej 5 różnych znaczników th:*.
+      Pamiętaj o sec:authorize dla widoczności elementów admin/user.

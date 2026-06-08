@@ -1,0 +1,33 @@
+########################################################################
+#  bookRoot – Konfiguracja testów
+#  Używa H2 in-memory, Flyway wyłączony
+########################################################################
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # Flyway wyłączony w testach – schemat zarządzany przez ddl-auto
+  flyway:
+    enabled: false
+
+  # RestClientDemo wyłączony w testach (brak serwera na porcie 8080)
+  profiles:
+    active: test
+
+logging:
+  level:
+    pl.studyshare: WARN
+    org.springframework.security: WARN
+    org.hibernate: WARN
