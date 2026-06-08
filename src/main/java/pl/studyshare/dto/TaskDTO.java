@@ -1,6 +1,7 @@
 package pl.studyshare.dto;
 
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.enums.TaskType;
 import java.time.LocalDate;
 
 public record TaskDTO(
@@ -15,5 +16,9 @@ public record TaskDTO(
         int questionCount,
         int answerCount,
         long upvotesSummary,
-        boolean anonymous
+        boolean anonymous,
+        TaskType taskType,
+        int viewCount,
+        boolean isOfficial,
+        String sourceUrl
 ) {}

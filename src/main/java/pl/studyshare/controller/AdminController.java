@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.TaskDTO;
-import pl.studyshare.dto.UserDTO;
 import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.repository.TaskRepository;
@@ -23,10 +22,6 @@ import java.util.List;
 /**
  * MVC Controller for admin panel operations.
  * All endpoints require ADMIN role (enforced via Spring Security @PreAuthorize).
- * Covers YAML requirements:
- * - Lista użytkowników (admin) – 1p.
- * - Zarządzanie rolami (admin) – 1p.
- * - Moderacja zadań PENDING – approve/reject
  */
 @Controller
 @RequestMapping("/admin")
@@ -43,9 +38,6 @@ public class AdminController {
     //  Dashboard
     // ──────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Admin dashboard – displays statistics and quick links.
-     */
     @GetMapping
     public String dashboard(Model model) {
         long pendingCount  = taskRepository.countByStatus(TaskStatus.PENDING);
@@ -64,10 +56,6 @@ public class AdminController {
     //  User management
     // ──────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Lists all users.
-     * YAML: Lista użytkowników (admin) – 1p.
-     */
     @GetMapping("/users")
     public String listUsers(Model model) {
         List<User> users = userRepository.findAll();
@@ -76,22 +64,6 @@ public class AdminController {
         return "admin/users";
     }
 
-    /**
-     * Changes a user's role (USER ↔ ADMIN).
-     * YAML: Zarządzanie rolami (admin) – 1p.
-     */
-    @PostMapping("/users/{id}/role")
-    public String changeRole(@PathVariable Long id,
-                             @RequestParam Role role,
-                             RedirectAttributes redirectAttributes) {
-        userService.changeUserRole(id, role);
-        redirectAttributes.addFlashAttribute("successMessage", "Rola użytkownika została zmieniona.");
-        return "redirect:/admin/users";
-    }
-
-    /**
-     * Deactivates a user account (sets enabled=false).
-     */
     @PostMapping("/users/{id}/deactivate")
     public String deactivateUser(@PathVariable Long id,
                                  RedirectAttributes redirectAttributes) {
@@ -100,9 +72,6 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    /**
-     * Re-activates a previously deactivated user account.
-     */
     @PostMapping("/users/{id}/activate")
     public String activateUser(@PathVariable Long id,
                                RedirectAttributes redirectAttributes) {
@@ -114,59 +83,6 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  Task moderation queue
-    // ──────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Shows the moderation queue: all PENDING tasks.
-     */
-    @GetMapping("/tasks")
-    public String moderationQueue(Model model) {
-        List<TaskDTO> pendingTasks = taskService.findAllPending();
-        model.addAttribute("pendingTasks", pendingTasks);
-        return "admin/tasks";
-    }
-
-    /**
-     * Approves a PENDING task.
-     * Sets status=APPROVED, isOfficial=true, approvedBy=currentAdmin.
-     * YAML: APPROVE or REJECT any PENDING task
-     */
-    @PostMapping("/tasks/{id}/approve")
-    public String approveTask(@PathVariable Long id,
-                              @AuthenticationPrincipal UserDetails userDetails,
-                              RedirectAttributes redirectAttributes) {
-        User admin = userRepository.findByLogin(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono administratora"));
-        taskService.approveTask(id, admin);
-        redirectAttributes.addFlashAttribute("successMessage", "Zadanie zostało zatwierdzone.");
-        return "redirect:/admin/tasks";
-    }
-
-    /**
-     * Rejects a PENDING task.
-     * Sets status=REJECTED.
-     */
-    @PostMapping("/tasks/{id}/reject")
-    public String rejectTask(@PathVariable Long id,
-                             @AuthenticationPrincipal UserDetails userDetails,
-                             RedirectAttributes redirectAttributes) {
-        User admin = userRepository.findByLogin(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono administratora"));
-        taskService.rejectTask(id, admin);
-        redirectAttributes.addFlashAttribute("successMessage", "Zadanie zostało odrzucone.");
-        return "redirect:/admin/tasks";
-    }
-
-    // ──────────────────────────────────────────────────────────────────────────
-    //  User management
-    // ──────────────────────────────────────────────────────────────────────────
-
-    /**
-     * POST /admin/users/{id}/toggle – activates or deactivates a user account.
-     * YAML: DEACTIVATE user account
-     */
     @PostMapping("/users/{id}/toggle")
     public String toggleUserActive(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         User user = userRepository.findById(id)
@@ -179,10 +95,6 @@ public class AdminController {
         return "redirect:/admin/users?success";
     }
 
-    /**
-     * POST /admin/users/{id}/role – changes a user's role.
-     * YAML: MANAGE roles (change USER ↔ ADMIN)
-     */
     @PostMapping("/users/{id}/role")
     public String changeUserRole(@PathVariable Long id,
                                  @RequestParam String newRole,
@@ -195,5 +107,38 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Nieprawidłowa rola: " + newRole);
         }
         return "redirect:/admin/users?success";
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    //  Task moderation queue
+    // ──────────────────────────────────────────────────────────────────────────
+
+    @GetMapping("/tasks")
+    public String moderationQueue(Model model) {
+        List<TaskDTO> pendingTasks = taskService.findAllPending();
+        model.addAttribute("pendingTasks", pendingTasks);
+        return "admin/tasks";
+    }
+
+    @PostMapping("/tasks/{id}/approve")
+    public String approveTask(@PathVariable Long id,
+                              @AuthenticationPrincipal UserDetails userDetails,
+                              RedirectAttributes redirectAttributes) {
+        User admin = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono administratora"));
+        taskService.approveTask(id, admin);
+        redirectAttributes.addFlashAttribute("successMessage", "Zadanie zostało zatwierdzone.");
+        return "redirect:/admin/tasks";
+    }
+
+    @PostMapping("/tasks/{id}/reject")
+    public String rejectTask(@PathVariable Long id,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             RedirectAttributes redirectAttributes) {
+        User admin = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono administratora"));
+        taskService.rejectTask(id, admin);
+        redirectAttributes.addFlashAttribute("successMessage", "Zadanie zostało odrzucone.");
+        return "redirect:/admin/tasks";
     }
 }

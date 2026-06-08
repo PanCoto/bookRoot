@@ -23,7 +23,11 @@ public class TaskMapper {
                 task.getQuestions() != null ? task.getQuestions().size() : 0,
                 task.getAnswers() != null ? task.getAnswers().size() : 0,
                 0,
-                task.getAnonymous() != null && task.getAnonymous()
+                task.getAnonymous() != null && task.getAnonymous(),
+                task.getTaskType(),
+                task.getViewCount(),
+                Boolean.TRUE.equals(task.getIsOfficial()),
+                task.getSourceUrl()
         );
     }
 }

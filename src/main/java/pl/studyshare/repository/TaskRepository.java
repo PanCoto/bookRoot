@@ -16,6 +16,9 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
+    @Query("SELECT t FROM Task t LEFT JOIN FETCH t.author WHERE t.id = :id")
+    Optional<Task> findByIdWithAuthor(@Param("id") Long id);
+
     List<Task> findTop10ByStatusOrderByCreatedDateDesc(TaskStatus status);
 
     Page<Task> findByStatus(TaskStatus status, Pageable pageable);

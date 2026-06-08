@@ -154,7 +154,7 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public Task findEntityById(Long id) {
-        return taskRepository.findById(id)
+        return taskRepository.findByIdWithAuthor(id)
                 .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
     }
 

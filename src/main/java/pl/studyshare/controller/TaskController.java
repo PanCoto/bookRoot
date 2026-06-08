@@ -60,7 +60,7 @@ public class TaskController {
                             HttpServletResponse response,
                             HttpSession session,
                             Model model) {
-        
+
         SortPreferences finalPrefs;
 
         if (sortField != null || sortDir != null) {
@@ -145,25 +145,25 @@ public class TaskController {
         taskService.incrementViewCount(id);
 
         model.addAttribute("task", taskService.findById(id));
-
         model.addAttribute("isAuthor", isAuthor);
-        
+        model.addAttribute("isAdmin", isAdmin); // Przekazanie flagi isAdmin do widoku szczegółów
+
         List<AnswerDTO> rawAnswers = answerService.findByTaskId(id);
         List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
         Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
-        
+
         // Load comments for each answer
         Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
         for (AnswerDTO answer : rawAnswers) {
             commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
         }
-        
+
         // Load active shares if user is author or admin
         List<ShareTokenDTO> taskShares = new ArrayList<>();
         if (username != null && (isAuthor || isAdmin)) {
             taskShares = shareService.findActiveSharesByTaskId(id, username);
         }
-        
+
         model.addAttribute("answers", adjustedAnswers);
         model.addAttribute("userVotes", userVotes);
         model.addAttribute("commentsMap", commentsMap);
@@ -288,21 +288,22 @@ public class TaskController {
 
             model.addAttribute("task", taskService.findById(taskId));
             model.addAttribute("isAuthor", isAuthor);
-            
+            model.addAttribute("isAdmin", isAdmin); // Przekazanie flagi isAdmin w przypadku błędów walidacji
+
             List<AnswerDTO> rawAnswers = answerService.findByTaskId(taskId);
             List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
             Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
-            
+
             Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
             for (AnswerDTO answer : rawAnswers) {
                 commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
             }
-            
+
             List<ShareTokenDTO> taskShares = new ArrayList<>();
             if (username != null && (isAuthor || isAdmin)) {
                 taskShares = shareService.findActiveSharesByTaskId(taskId, username);
             }
-            
+
             model.addAttribute("answers", adjustedAnswers);
             model.addAttribute("userVotes", userVotes);
             model.addAttribute("commentsMap", commentsMap);
