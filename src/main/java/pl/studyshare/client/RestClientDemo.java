@@ -12,17 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-/**
- * Demonstrates REST API usage for bookRoot endpoints.
- * Runs automatically on application startup in 'dev' profile.
- * YAML requirement: Klient REST – 2p.
- *
- * Demonstrates:
- *   1. GET  /api/tasks          – list of approved tasks (public)
- *   2. POST /api/tasks          – create task (requires auth – shown with note)
- *   3. POST /api/votes          – vote on answer (requires auth – shown with note)
- *   4. GET  /api/shares/{token} – fetch task by share token (public)
- */
 @Slf4j
 @Component
 @Profile({"dev", "postgres"})
@@ -145,7 +134,6 @@ public class RestClientDemo {
             log.info("   Status: {}", response.getStatusCode());
             log.info("   Body: {}", response.getBody());
         } catch (RestClientException e) {
-            // Expected: 404 or 410 if token not found – that's fine for demo
             log.info("   Expected response for non-existing token: {}", e.getMessage());
             log.info("   Valid token would return: 200 OK + TaskDTO JSON");
         }

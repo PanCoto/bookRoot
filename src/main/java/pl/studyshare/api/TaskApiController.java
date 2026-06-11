@@ -85,7 +85,7 @@ public class TaskApiController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        // If the user isn't found in DB (e.g. mock user in tests), treat as forbidden
+
         User currentUser = userRepository.findByLogin(userDetails.getUsername())
                 .orElse(null);
 

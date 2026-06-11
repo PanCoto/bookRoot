@@ -25,22 +25,22 @@ public class VoteService {
     private final AnswerRepository answerRepository;
 
     public VoteResponse registerVote(Long answerId, VoteType newVoteType, String username, HttpSession session) {
-        // 1. Get or create VoteCollector from session
+
         VoteCollector collector = (VoteCollector) session.getAttribute("voteCollector");
         if (collector == null) {
             collector = new VoteCollector();
             session.setAttribute("voteCollector", collector);
         }
 
-        // 2. Determine base vote in database
+
         VoteType dbVote = voteRepository.findByAnswerIdAndVoterLogin(answerId, username)
                 .map(Vote::getVoteType)
                 .orElse(null);
 
-        // 3. Update session buffer
+
         collector.collect(answerId, newVoteType);
 
-        // 4. Calculate the adjusted score
+
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("Answer not found: " + answerId));
         int dbScore = answer.getScore() != null ? answer.getScore() : 0;
@@ -49,7 +49,7 @@ public class VoteService {
         int sessionVal = getVoteValue(newVoteType);
         int currentAdjustedScore = dbScore - dbVal + sessionVal;
 
-        // User vote delta is the current session value (to know which direction is highlighted)
+
         int userVoteDeltaInSession = sessionVal;
 
         return new VoteResponse(answerId, currentAdjustedScore, userVoteDeltaInSession);

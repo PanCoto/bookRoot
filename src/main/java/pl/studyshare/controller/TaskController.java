@@ -64,7 +64,7 @@ public class TaskController {
         SortPreferences finalPrefs;
 
         if (sortField != null || sortDir != null) {
-            // URL params provided - map them and update cookie + session
+
             SortCriteria sortBy = SortCriteria.CREATED_AT;
             if ("title".equalsIgnoreCase(sortField)) {
                 sortBy = SortCriteria.TITLE;
@@ -96,7 +96,7 @@ public class TaskController {
             }
         }
 
-        // Map final preferences back to parameters for model and page rendering
+
         String currentSortField = "createdDate";
         if (finalPrefs.sortBy() == SortCriteria.TITLE) {
             currentSortField = "title";
@@ -141,24 +141,24 @@ public class TaskController {
             }
         }
 
-        // Increment view counter for every visit
+
         taskService.incrementViewCount(id);
 
         model.addAttribute("task", taskService.findById(id));
         model.addAttribute("isAuthor", isAuthor);
-        model.addAttribute("isAdmin", isAdmin); // Przekazanie flagi isAdmin do widoku szczegółów
+        model.addAttribute("isAdmin", isAdmin);
 
         List<AnswerDTO> rawAnswers = answerService.findByTaskId(id);
         List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
         Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
 
-        // Load comments for each answer
+
         Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
         for (AnswerDTO answer : rawAnswers) {
             commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
         }
 
-        // Load active shares if user is author or admin
+
         List<ShareTokenDTO> taskShares = new ArrayList<>();
         if (username != null && (isAuthor || isAdmin)) {
             taskShares = shareService.findActiveSharesByTaskId(id, username);

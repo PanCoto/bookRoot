@@ -31,11 +31,10 @@ public class Task implements java.io.Serializable {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    /** Optional URL linking to the source of the task (V5 validation) */
+
     @URL(message = "Podany adres URL źródła jest nieprawidłowy.")
     private String sourceUrl;
 
-    /** Legacy image URL field – kept for backward compatibility */
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
@@ -43,31 +42,21 @@ public class Task implements java.io.Serializable {
     @Builder.Default
     private TaskStatus status = TaskStatus.DRAFT;
 
-    /**
-     * Type of task/question (YAML: task_types).
-     * OPEN, CLOSED, MULTIPLE_CHOICE, TRUE_FALSE.
-     */
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private TaskType taskType = TaskType.OPEN;
 
-    /**
-     * JSON array of answer options for MULTIPLE_CHOICE and TRUE_FALSE types.
-     * Format: [{"label": "Option A", "correct": true}, ...]
-     * Validated by @ValidOptionsJson (V6).
-     */
+
     @ValidOptionsJson
     @Column(columnDefinition = "TEXT")
     private String optionsJson;
 
-    /**
-     * True if this task was added or approved by an admin (OFFICIAL content).
-     * False means it is COMMUNITY content.
-     */
+
     @Builder.Default
     private Boolean isOfficial = false;
 
-    /** Number of views this task has received */
+
     @Min(0)
     @Builder.Default
     private int viewCount = 0;

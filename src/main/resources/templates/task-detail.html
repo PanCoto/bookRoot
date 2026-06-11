@@ -11,7 +11,7 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- CSRF tokens for AJAX voting -->
+
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -23,10 +23,10 @@
     <div class="container">
         <div class="row g-4">
 
-            <!-- ── Main content column ─────────────────────────────────── -->
+
             <div class="col-lg-8">
 
-                <!-- Task card -->
+
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white border-0 pb-0 pt-3 px-4">
                         <div class="d-flex flex-wrap gap-2 mb-2">
@@ -35,7 +35,7 @@
                             <span class="badge rounded-pill bg-primary"
                                   th:text="${task.taskType != null ? task.taskType : 'OPEN'}">Typ</span>
                             <span class="badge bg-success" th:if="${task.isOfficial}">
-                                ✓ Oficjalne
+                                 Oficjalne
                             </span>
                             <span class="badge bg-warning text-dark"
                                   th:if="${task.status != null}"
@@ -47,19 +47,19 @@
                         <div class="task-content mb-3" style="white-space: pre-line;"
                              th:text="${task.content}">Treść zadania</div>
 
-                        <!-- Image attachment -->
+
                         <div th:if="${task.imageUrl != null and !#strings.isEmpty(task.imageUrl)}"
                              class="mb-3">
                             <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania"
                                  class="img-fluid rounded shadow-sm">
                         </div>
 
-                        <!-- Source URL -->
+
                         <div th:if="${task.sourceUrl != null and !#strings.isEmpty(task.sourceUrl)}"
                              class="mb-3">
                             <a th:href="${task.sourceUrl}" target="_blank" rel="noopener noreferrer"
                                class="small text-muted" aria-label="Źródło zadania">
-                                🔗 Źródło zadania
+                                 Źródło zadania
                             </a>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                                 👁 <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
                             </small>
                             <div class="d-flex gap-2 flex-wrap" sec:authorize="isAuthenticated()">
-                                <!-- Edit (author or admin) -->
+
                                 <a th:if="${isAuthor or isAdmin}"
                                    th:href="@{/tasks/{id}/edit(id=${task.id})}"
                                    class="btn btn-sm btn-outline-secondary"
@@ -85,11 +85,11 @@
                     </div>
                 </div>
 
-                <!-- ── Share panel (for author of DRAFT) ──────────────── -->
+
                 <div th:if="${task.status != null and task.status.name() == 'DRAFT' and isAuthor}"
                      class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
                     <div class="card-body">
-                        <h2 class="h5 fw-bold mb-3">🔗 Udostępnij ten szkic</h2>
+                        <h2 class="h5 fw-bold mb-3"> Udostępnij ten szkic</h2>
                         <p class="text-muted small">
                             Ten szkic nie jest jeszcze opublikowany. Wygeneruj bezpieczny link udostępnienia:
                         </p>
@@ -120,7 +120,6 @@
                             </button>
                         </form>
 
-                        <!-- Generated links -->
                         <div th:if="${taskShares != null and !#lists.isEmpty(taskShares)}" class="mt-3">
                             <h3 class="h6 fw-semibold mb-2">Wygenerowane linki:</h3>
                             <ul class="list-unstyled mb-0">
@@ -137,22 +136,22 @@
                     </div>
                 </div>
 
-                <!-- ── Answers section ────────────────────────────────── -->
                 <section id="answers" aria-label="Odpowiedzi do zadania">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h4 fw-bold mb-0">Odpowiedzi społeczności</h2>
                     </div>
 
                     <div th:if="${#lists.isEmpty(answers)}" class="text-center py-4 text-muted">
-                        <div class="fs-1 mb-2">💬</div>
+                        <div class="fs-1 mb-2">
+                            <img src="https://c.tenor.com/UtMB7PUHGBIAAAAd/tenor.gif">
+                        </div>
                         <p>Brak odpowiedzi. Bądź pierwszym, który doda rozwiązanie!</p>
                     </div>
 
-                    <!-- Answer cards -->
                     <div th:each="answer : ${answers}" class="card shadow-sm border-0 mb-3"
                          th:classappend="${answer.isOfficial} ? ' border-start border-success border-3' : ''">
                         <div class="card-body">
-                            <!-- Official badge -->
+
                             <div th:if="${answer.isOfficial}"
                                  class="text-success fw-bold small mb-2">
                                 ✓ Oficjalne rozwiązanie
@@ -161,10 +160,10 @@
                             <div class="answer-content mb-3" style="white-space: pre-line;"
                                  th:text="${answer.content}">Treść odpowiedzi</div>
 
-                            <!-- Vote + meta row -->
+
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-                                <!-- Meta -->
+
                                 <small class="text-muted">
                                     <span th:text="${answer.authorName != null ? answer.authorName : 'Anonim'}">Autor</span>
                                     &bull;
@@ -172,7 +171,7 @@
                                                    th:text="${answer.score != null ? answer.score : 0}">0</strong>
                                 </small>
 
-                                <!-- Vote buttons (WCAG: aria-label) -->
+
                                 <div sec:authorize="isAuthenticated()"
                                      th:id="'vote-container-' + ${answer.id}"
                                      class="d-flex gap-2">
@@ -194,20 +193,20 @@
                                             th:aria-pressed="${userVotes != null and userVotes.get(answer.id) == 'DOWNVOTE'}">
                                         ▼ -1
                                     </button>
-                                    <!-- Admin: mark as official -->
+
                                     <form sec:authorize="hasRole('ADMIN')"
                                           th:unless="${answer.isOfficial}"
                                           th:action="@{/tasks/{tid}/answers/{aid}/official(tid=${task.id},aid=${answer.id})}"
                                           method="post" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-success"
                                                 aria-label="Oznacz jako oficjalne rozwiązanie">
-                                            ✓ Oznacz oficjalne
+                                             Oznacz oficjalne
                                         </button>
                                     </form>
                                 </div>
                             </div>
 
-                            <!-- Comments -->
+
                             <div class="mt-3 pt-2 border-top">
                                 <div th:if="${commentsMap != null and commentsMap.get(answer.id) != null}"
                                      th:each="comment : ${commentsMap.get(answer.id)}"
@@ -219,7 +218,7 @@
                                         <span th:text="${comment.createdDate}">Data</span>
                                     </small>
                                 </div>
-                                <!-- Add comment form -->
+
                                 <form sec:authorize="isAuthenticated()"
                                       th:action="@{/tasks/{tid}/answers/{aid}/comments(tid=${task.id},aid=${answer.id})}"
                                       method="post" class="d-flex gap-2 mt-2">
@@ -242,7 +241,7 @@
                     </div>
                 </section>
 
-                <!-- ── Add answer form (authenticated) ───────────────── -->
+
                 <section sec:authorize="isAuthenticated()" class="card shadow-sm border-0 mt-4"
                          aria-label="Formularz dodawania odpowiedzi">
                     <div class="card-header bg-white fw-bold">Dodaj swoją odpowiedź</div>
@@ -280,9 +279,9 @@
                     <a th:href="@{/login}" class="alert-link">Zaloguj się teraz</a>.
                 </div>
 
-            </div><!-- end main col -->
+            </div>
 
-            <!-- ── Sidebar ─────────────────────────────────────────────── -->
+
             <aside class="col-lg-4" aria-label="Informacje dodatkowe">
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-header bg-white fw-semibold">Informacje</div>
@@ -318,13 +317,12 @@
                 </div>
             </aside>
 
-        </div><!-- end row -->
-    </div><!-- end container -->
+        </div>
+    </div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- Vote AJAX script -->
 <script sec:authorize="isAuthenticated()">
 document.addEventListener("DOMContentLoaded", function () {
     const csrfToken  = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -353,13 +351,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 const upBtn   = container.querySelector(".btn-upvote");
                 const downBtn = container.querySelector(".btn-downvote");
 
-                // Reset both
+
                 upBtn.classList.replace("btn-success", "btn-outline-success") ||
                     upBtn.classList.remove("btn-success");
                 downBtn.classList.replace("btn-danger", "btn-outline-danger") ||
                     downBtn.classList.remove("btn-danger");
 
-                // Activate correct
+
                 if (sendType === "UPVOTE") {
                     upBtn.classList.replace("btn-outline-success", "btn-success");
                     upBtn.setAttribute("aria-pressed", "true");

@@ -26,12 +26,6 @@ public class CookieService {
     private final ObjectMapper objectMapper;
     private static final String COOKIE_NAME = "sortPrefs";
 
-    /**
-     * Reads the sort preferences from the cookie in the request.
-     *
-     * @param request the HTTP request
-     * @return Optional containing SortPreferences if cookie exists and is valid, empty otherwise
-     */
     public Optional<SortPreferences> readSortPreferences(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return Optional.empty();
@@ -52,12 +46,6 @@ public class CookieService {
                 });
     }
 
-    /**
-     * Writes the sort preferences to the response cookie.
-     *
-     * @param response the HTTP response
-     * @param prefs the sort preferences to save
-     */
     public void writeSortPreferences(HttpServletResponse response, SortPreferences prefs) {
         try {
             String json = objectMapper.writeValueAsString(prefs);

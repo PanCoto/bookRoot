@@ -57,7 +57,6 @@ public class ShareService {
                     .orElseThrow(() -> new IllegalArgumentException("Odbiorca o podanym ID nie istnieje"));
         }
 
-        // Determine shareType: SPECIFIC_USER when recipient is set, PUBLIC_LINK otherwise
         ShareType shareType = (recipient != null) ? ShareType.SPECIFIC_USER : ShareType.PUBLIC_LINK;
 
         String token = UUID.randomUUID().toString();
@@ -89,12 +88,12 @@ public class ShareService {
         Share share = shareRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Nieprawidłowy token udostępniania"));
 
-        // Check if share link has expired
+
         if (share.isExpired()) {
             throw new IllegalStateException("Link udostępniania wygasł");
         }
 
-        // Check permissions for specific user shares
+
         if (share.getRecipient() != null) {
             if (currentUsername == null) {
                 throw new SecurityException("To zadanie zostało udostępnione konkretnemu użytkownikowi. Zaloguj się, aby je zobaczyć.");

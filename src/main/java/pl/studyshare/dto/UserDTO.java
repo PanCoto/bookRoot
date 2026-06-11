@@ -4,10 +4,7 @@ import pl.studyshare.enums.Role;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO representing a user in admin panel and profile views.
- * All fields are from User entity.
- */
+
 public record UserDTO(
         Long id,
         String firstName,
@@ -19,6 +16,6 @@ public record UserDTO(
         String email,
         LocalDateTime createdAt
 ) {
-    /** Convenience alias: active reflects the user's enabled status. */
+
     public boolean isActive() { return active; }
 }

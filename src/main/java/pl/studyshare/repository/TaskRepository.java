@@ -42,13 +42,13 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t LEFT JOIN t.answers a WHERE t.category = :category AND t.status = :status GROUP BY t.id, t.title, t.content, t.imageUrl, t.status, t.createdDate, t.lastModifiedDate, t.anonymous, t.author, t.category, t.approvedBy ORDER BY COUNT(a) ASC")
     Page<Task> findByCategoryAndStatusOrderByAnswersCountAsc(@Param("category") Category category, @Param("status") TaskStatus status, Pageable pageable);
 
-    /** Returns all tasks with a specific status – used by admin moderation queue */
+
     List<Task> findAllByStatusOrderByCreatedDateAsc(TaskStatus status);
 
-    /** Counts tasks by status – used by admin dashboard statistics */
+
     long countByStatus(TaskStatus status);
 
-    // ── taskType filters ────────────────────────────────────────────────
+
 
     Page<Task> findByStatusAndTaskType(TaskStatus status, TaskType taskType, Pageable pageable);
 

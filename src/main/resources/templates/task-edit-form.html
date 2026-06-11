@@ -30,7 +30,6 @@
                       th:object="${taskUpdateRequest}"
                       method="post" novalidate>
 
-                    <!-- Tytuł -->
                     <div class="mb-3">
                         <label for="title" class="form-label fw-semibold small">Tytuł zadania</label>
                         <input type="text" id="title" th:field="*{title}"
@@ -42,7 +41,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Kategoria -->
                     <div class="mb-3">
                         <label for="categoryId" class="form-label fw-semibold small">Kategoria</label>
                         <select id="categoryId" th:field="*{categoryId}"
@@ -59,7 +57,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Treść -->
                     <div class="mb-3">
                         <label for="content" class="form-label fw-semibold small">Treść zadania</label>
                         <textarea id="content" th:field="*{content}"
@@ -71,7 +68,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Status (only for ADMIN) -->
                     <div class="mb-4" sec:authorize="hasRole('ADMIN')">
                         <label for="status" class="form-label fw-semibold small">Status (Admin)</label>
                         <select id="status" th:field="*{status}" class="form-select form-select-sm">

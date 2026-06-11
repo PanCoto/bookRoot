@@ -13,7 +13,7 @@ public record TaskUpdateRequest(
 
         String imageUrl,
 
-        TaskStatus status,       // tylko admin może zmieniać
+        TaskStatus status,
 
         Long categoryId
 ) {}

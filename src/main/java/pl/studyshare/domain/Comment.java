@@ -20,7 +20,7 @@ public class Comment implements java.io.Serializable {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    /** When true, the author's identity is hidden from other users */
+
     @Builder.Default
     private Boolean anonymous = false;
 

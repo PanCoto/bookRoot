@@ -91,10 +91,7 @@ public class TaskService {
         return tasks.map(taskMapper::toDto);
     }
 
-    /**
-     * Overload with optional taskType filter.
-     * Implements YAML filter: by_task_type (Task.taskType).
-     */
+
     @Transactional(readOnly = true)
     public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, TaskType taskType, Pageable pageable) {
         if (taskType == null) {
@@ -123,7 +120,7 @@ public class TaskService {
                 tasks = direction == org.springframework.data.domain.Sort.Direction.ASC
                         ? taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, up)
                         : taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, up);
-                // post-filter by taskType
+
                 tasks = tasks.map(t -> t.getTaskType() == taskType ? t : null);
             } else {
                 tasks = taskRepository.findByCategoryAndStatusAndTaskType(cat, TaskStatus.APPROVED, taskType, pageable);
@@ -250,7 +247,6 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    /** Rejects a pending task – only admin operation */
     public void rejectTask(Long taskId, User admin) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
@@ -262,7 +258,6 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    /** Increments the view counter for a task – called on every GET /tasks/{id} */
     public void incrementViewCount(Long taskId) {
         taskRepository.findById(taskId).ifPresent(task -> {
             task.setViewCount(task.getViewCount() + 1);
@@ -270,7 +265,6 @@ public class TaskService {
         });
     }
 
-    /** Returns all PENDING tasks ordered by creation date – for admin moderation queue */
     @Transactional(readOnly = true)
     public List<TaskDTO> findAllPending() {
         return taskRepository.findAllByStatusOrderByCreatedDateAsc(TaskStatus.PENDING)

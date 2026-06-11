@@ -58,11 +58,6 @@ public class AnswerApiController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * PATCH /api/answers/{id}/official
-     * Marks an answer as the official solution. ADMIN only.
-     * Implements YAML permission: 'MARK answer as official'
-     */
     @PatchMapping("/api/answers/{id}/official")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AnswerDTO> markAsOfficial(@PathVariable Long id) {

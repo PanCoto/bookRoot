@@ -19,10 +19,6 @@ import pl.studyshare.service.UserService;
 
 import java.util.List;
 
-/**
- * MVC Controller for admin panel operations.
- * All endpoints require ADMIN role (enforced via Spring Security @PreAuthorize).
- */
 @Controller
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -34,9 +30,6 @@ public class AdminController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  Dashboard
-    // ──────────────────────────────────────────────────────────────────────────
 
     @GetMapping
     public String dashboard(Model model) {
@@ -51,10 +44,6 @@ public class AdminController {
         model.addAttribute("userCount",     userCount);
         return "admin/dashboard";
     }
-
-    // ──────────────────────────────────────────────────────────────────────────
-    //  User management
-    // ──────────────────────────────────────────────────────────────────────────
 
     @GetMapping("/users")
     public String listUsers(Model model) {
@@ -108,10 +97,6 @@ public class AdminController {
         }
         return "redirect:/admin/users?success";
     }
-
-    // ──────────────────────────────────────────────────────────────────────────
-    //  Task moderation queue
-    // ──────────────────────────────────────────────────────────────────────────
 
     @GetMapping("/tasks")
     public String moderationQueue(Model model) {

@@ -95,16 +95,11 @@ public class AnswerService {
         answerRepository.delete(answer);
     }
 
-    /**
-     * Marks an answer as the official solution (isOfficialAnswer=true).
-     * Demotes any previously official answer for the same task.
-     * Implements ADMIN permission: 'MARK answer as official'
-     */
+
     public AnswerDTO markAsOfficial(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));
 
-        // Demote any existing official answer for this task
         answerRepository.findByTaskIdWithSorting(answer.getTask().getId()).stream()
                 .filter(a -> Boolean.TRUE.equals(a.getIsOfficial()))
                 .forEach(a -> {

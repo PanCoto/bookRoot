@@ -72,11 +72,9 @@ public class SessionFlushService {
                 }
             }
 
-            // Update Answer upvotes and downvotes count
             updateAnswerAggregates(answerId);
         }
 
-        // Clear the collector votes after successful database flush
         collector.getVotes().clear();
     }
 
@@ -87,8 +85,7 @@ public class SessionFlushService {
             int downvotes = (int) voteRepository.countByAnswerIdAndVoteType(answerId, VoteType.DOWNVOTE);
             answer.setUpvotes(upvotes);
             answer.setDownvotes(downvotes);
-            // saveAndFlush + refresh ensures @Formula score is re-evaluated from DB
-            // when the entity is loaded again in the same Hibernate session
+
             answerRepository.saveAndFlush(answer);
             entityManager.refresh(answer);
         }

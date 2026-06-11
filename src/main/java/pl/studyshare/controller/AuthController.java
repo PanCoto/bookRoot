@@ -29,7 +29,6 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerForm(Model model) {
-        // Przekazujemy pusty String dla pola email jako 4. parametr
         model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", "", 18));
         return "register";
     }
@@ -52,7 +51,7 @@ public class AuthController {
                 .firstName(userRegisterRequest.firstName())
                 .lastName(userRegisterRequest.lastName())
                 .login(userRegisterRequest.login())
-                .email(userRegisterRequest.email()) // Przypisanie pola email do encji User
+                .email(userRegisterRequest.email())
                 .password(passwordEncoder.encode(userRegisterRequest.password()))
                 .age(userRegisterRequest.age())
                 .role(Role.USER)

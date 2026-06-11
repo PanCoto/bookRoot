@@ -49,9 +49,6 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    /**
-     * Overload with anonymous flag – used by REST API and MVC controllers.
-     */
     public CommentDTO addComment(Long answerId, String content, boolean anonymous, String authorUsername) {
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Komentarz nie może być pusty");
@@ -85,15 +82,12 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    /** Alias used by CommentApiController. */
     @Transactional(readOnly = true)
     public List<CommentDTO> findByAnswerId(Long answerId) {
         return findCommentsByAnswerId(answerId);
     }
 
-    /**
-     * Deletes a comment. User can delete own comment; ADMIN can delete any.
-     */
+
     public void deleteComment(Long commentId, String username) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Komentarz nie istnieje: " + commentId));

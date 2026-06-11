@@ -12,13 +12,6 @@ import pl.studyshare.service.CommentService;
 
 import java.util.List;
 
-/**
- * REST API for comments on answers.
- *
- * GET    /api/answers/{answerId}/comments   – public list of comments
- * POST   /api/answers/{answerId}/comments   – add comment (USER, ADMIN)
- * DELETE /api/comments/{id}                  – delete own comment or any if ADMIN
- */
 @RestController
 @RequiredArgsConstructor
 public class CommentApiController {
@@ -52,8 +45,7 @@ public class CommentApiController {
         commentService.deleteComment(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
-
-    /** Inner request DTO – avoids creating a separate file for a simple payload. */
+    
     record CommentCreateApiRequest(
             @jakarta.validation.constraints.NotBlank
             @jakarta.validation.constraints.Size(min = 2, max = 1000)

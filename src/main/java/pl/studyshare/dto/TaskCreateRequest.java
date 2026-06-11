@@ -9,16 +9,7 @@ import pl.studyshare.validation.ValidOptionsJson;
 
 import java.util.List;
 
-/**
- * DTO for creating a new Task.
- * Implements YAML validation rules V1–V6:
- *   V1: title @NotBlank @Size(5-150)
- *   V2: content @NotBlank @Size(10-5000)
- *   V3: categoryId @NotNull
- *   V4: anonymous bool (optional)
- *   V5: sourceUrl @URL (optional)
- *   V6: optionsJson @ValidOptionsJson (required for MULTIPLE_CHOICE / TRUE_FALSE)
- */
+
 public record TaskCreateRequest(
 
         // V1

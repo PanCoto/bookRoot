@@ -29,7 +29,6 @@
                       th:object="${taskCreateRequest}"
                       method="post" novalidate>
 
-                    <!-- Tytuł (V1, V2) -->
                     <div class="mb-3">
                         <label for="title" class="form-label fw-semibold small">Tytuł zadania</label>
                         <input type="text" id="title" th:field="*{title}"
@@ -42,7 +41,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Kategoria -->
                     <div class="mb-3">
                         <label for="categoryId" class="form-label fw-semibold small">Kategoria</label>
                         <select id="categoryId" th:field="*{categoryId}"
@@ -59,7 +57,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Typ zadania -->
                     <div class="mb-3">
                         <label for="taskType" class="form-label fw-semibold small">Typ zadania</label>
                         <select id="taskType" th:field="*{taskType}"
@@ -76,7 +73,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Treść (V1) -->
                     <div class="mb-3">
                         <label for="content" class="form-label fw-semibold small">Treść zadania</label>
                         <textarea id="content" th:field="*{content}"
@@ -89,7 +85,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Opcje JSON (V6) – dla MULTIPLE_CHOICE / TRUE_FALSE -->
                     <div class="mb-3" id="optionsJsonSection">
                         <label for="optionsJson" class="form-label fw-semibold small">
                             Opcje odpowiedzi (JSON)
@@ -110,7 +105,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Źródło URL (V5) -->
                     <div class="mb-3">
                         <label for="sourceUrl" class="form-label fw-semibold small">
                             Źródło / Link <span class="text-muted fw-normal">(opcjonalne)</span>
@@ -124,7 +118,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Anonimowość -->
                     <div class="mb-4 form-check">
                         <input type="checkbox" class="form-check-input"
                                th:field="*{anonymous}" id="anonymous">
