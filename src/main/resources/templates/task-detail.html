@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${task.title}">Szczegóły zadania</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 <header role="banner">
@@ -39,6 +41,41 @@
         </small>
     </div>
 
+    <!-- Panel udostępniania szkicu zadania dla autora (Faza 4) -->
+    <div th:if="${task.status.name() == 'DRAFT' && isAuthor}" style="margin-top: 20px; padding: 15px; background-color: #fff3e0; border-radius: 4px; border: 1px solid #ffe0b2;">
+        <h3 style="margin-top: 0;">Udostępnij ten szkic</h3>
+        <p style="margin-top: 0; font-size: 0.9em; color: #555;">Ten szkic nie jest jeszcze opublikowany. Możesz wygenerować bezpieczny link udostępnienia:</p>
+        
+        <form th:action="@{/tasks/{id}/share(id=${task.id})}" method="post" style="margin-bottom: 15px;">
+            <div style="margin-bottom: 10px;">
+                <label>
+                    <input type="radio" name="shareType" value="PUBLIC" checked onclick="document.getElementById('recipient-input-container').style.display='none';"/> Link publiczny (dostępny dla każdego)
+                </label>
+                <br/>
+                <label>
+                    <input type="radio" name="shareType" value="SPECIFIC" onclick="document.getElementById('recipient-input-container').style.display='block';"/> Link dla konkretnego użytkownika
+                </label>
+            </div>
+            
+            <div id="recipient-input-container" style="display: none; margin-bottom: 10px; padding-left: 20px;">
+                <label for="recipientLogin">Login użytkownika:</label>
+                <input type="text" name="recipientLogin" id="recipientLogin" placeholder="Wpisz login..." style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;"/>
+            </div>
+            
+            <button type="submit" style="background-color: #ef6c00; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Generuj link</button>
+        </form>
+        
+        <div th:if="${taskShares != null && !#lists.isEmpty(taskShares)}">
+            <h4 style="margin-bottom: 5px;">Wygenerowane linki udostępniania (ważne 7 dni):</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li th:each="share : ${taskShares}" style="margin-bottom: 5px;">
+                    <a th:href="@{/share/{token}(token=${share.token})}" th:text="'http://localhost:8080/share/' + ${share.token}" target="_blank" style="color: #d84315; font-weight: bold;">Link</a>
+                    <span th:if="${share.recipientName != null}" th:text="' - tylko dla użytkownika: ' + ${share.recipientName}" style="color: #666; font-style: italic;"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <section id="answers" style="margin-top: 30px;">
         <h2>Odpowiedzi społeczności</h2>
         <div th:if="${#lists.isEmpty(answers)}">
@@ -52,19 +89,43 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                 <small>
                     Dodano przez: <span th:text="${answer.authorName != null ? answer.authorName : 'Anonim'}">Autor</span> |
-                    Ocena: <strong th:text="${answer.score}">0</strong>
+                    Ocena: <strong th:id="'score-' + ${answer.id}" th:text="${answer.score}">0</strong>
                 </small>
 
-                <!-- System oceniania odpowiedzi (Faza 3) -->
-                <div sec:authorize="isAuthenticated()">
-                    <form th:action="@{/answers/{id}/vote(id=${answer.id})}" method="post" style="display: inline-block; margin-right: 5px;">
-                        <input type="hidden" name="delta" value="1" />
-                        <button type="submit" style="padding: 2px 8px; background-color: #4caf50;">+1</button>
+                <!-- System oceniania odpowiedzi (Faza 3 - AJAX) -->
+                <div sec:authorize="isAuthenticated()" th:id="'vote-container-' + ${answer.id}">
+                    <button class="vote-btn btn-upvote" 
+                            th:data-answer-id="${answer.id}" 
+                            th:data-vote-type="UPVOTE"
+                            th:style="${userVotes != null && userVotes.get(answer.id) == 'UPVOTE'} ? 'padding: 4px 10px; background-color: #2e7d32; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;' : 'padding: 4px 10px; background-color: #e0e0e0; color: #333; border: 1px solid #ccc; cursor: pointer; border-radius: 4px;'">
+                        ▲ +1
+                    </button>
+                    <button class="vote-btn btn-downvote" 
+                            th:data-answer-id="${answer.id}" 
+                            th:data-vote-type="DOWNVOTE"
+                            th:style="${userVotes != null && userVotes.get(answer.id) == 'DOWNVOTE'} ? 'padding: 4px 10px; background-color: #c62828; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;' : 'padding: 4px 10px; background-color: #e0e0e0; color: #333; border: 1px solid #ccc; cursor: pointer; border-radius: 4px;'">
+                        ▼ -1
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sekcja komentarzy (Faza 4) -->
+            <div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
+                <div th:if="${commentsMap != null && commentsMap.get(answer.id) != null}" th:each="comment : ${commentsMap.get(answer.id)}" style="margin-bottom: 10px; padding-left: 10px; border-left: 2px solid #bdbdbd;">
+                    <p th:text="${comment.content}" style="margin: 0; font-size: 0.9em;"></p>
+                    <small style="color: #666; font-size: 0.8em;">
+                        Autor: <span th:text="${comment.authorName != null ? comment.authorName : 'Anonim'}">Autor</span> |
+                        Data: <span th:text="${comment.createdDate}">Data</span>
+                    </small>
+                </div>
+                
+                <!-- Formularz dodawania komentarza -->
+                <div sec:authorize="isAuthenticated()" style="margin-top: 10px;">
+                    <form th:action="@{/tasks/{taskId}/answers/{answerId}/comments(taskId=${task.id}, answerId=${answer.id})}" method="post" style="display: flex; gap: 10px;">
+                        <input type="text" name="content" required placeholder="Dodaj komentarz..." style="flex-grow: 1; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9em;"/>
+                        <button type="submit" style="padding: 4px 12px; font-size: 0.9em; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">Wyślij</button>
                     </form>
-                    <form th:action="@{/answers/{id}/vote(id=${answer.id})}" method="post" style="display: inline-block;">
-                        <input type="hidden" name="delta" value="-1" />
-                        <button type="submit" style="padding: 2px 8px; background-color: #f44336;">-1</button>
-                    </form>
+                    <div th:if="${commentErrorAnswerId == answer.id}" class="error" th:text="${commentError}" style="margin-top: 5px;"></div>
                 </div>
             </div>
         </div>
@@ -93,5 +154,88 @@
 <footer role="contentinfo">
     <p>&copy; 2026 bookRoot</p>
 </footer>
+
+<script sec:authorize="isAuthenticated()">
+document.addEventListener("DOMContentLoaded", function() {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    document.querySelectorAll(".vote-btn").forEach(button => {
+        button.addEventListener("click", function() {
+            const answerId = parseInt(this.getAttribute("data-answer-id"));
+            const clickedVoteType = this.getAttribute("data-vote-type");
+            
+            // Check if this button is already active
+            const isAlreadyActive = this.style.backgroundColor.includes("rgb(46, 125, 50)") || 
+                                    this.style.backgroundColor.includes("rgb(198, 40, 40)") || 
+                                    this.style.fontWeight === "bold";
+
+            const voteTypeToSend = isAlreadyActive ? null : clickedVoteType;
+
+            fetch("/api/votes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({
+                    answerId: answerId,
+                    voteType: voteTypeToSend
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update score in DOM
+                const scoreEl = document.getElementById("score-" + answerId);
+                if (scoreEl) {
+                    scoreEl.textContent = data.currentScore;
+                }
+
+                // Update button styles inside the container
+                const container = document.getElementById("vote-container-" + answerId);
+                if (container) {
+                    const upbtn = container.querySelector(".btn-upvote");
+                    const downbtn = container.querySelector(".btn-downvote");
+
+                    // Reset both styles
+                    resetBtnStyle(upbtn);
+                    resetBtnStyle(downbtn);
+
+                    // Apply active style to the correct button
+                    if (data.userVoteDeltaInSession === 1 && clickedVoteType === "UPVOTE" && voteTypeToSend !== null) {
+                        applyActiveStyle(upbtn, "#2e7d32");
+                    } else if (data.userVoteDeltaInSession === -1 && clickedVoteType === "DOWNVOTE" && voteTypeToSend !== null) {
+                        applyActiveStyle(downbtn, "#c62828");
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error submitting vote:", error);
+            });
+        });
+    });
+
+    function resetBtnStyle(btn) {
+        btn.style.padding = "4px 10px";
+        btn.style.backgroundColor = "#e0e0e0";
+        btn.style.color = "#333";
+        btn.style.border = "1px solid #ccc";
+        btn.style.fontWeight = "normal";
+    }
+
+    function applyActiveStyle(btn, color) {
+        btn.style.padding = "4px 10px";
+        btn.style.backgroundColor = color;
+        btn.style.color = "white";
+        btn.style.border = "none";
+        btn.style.fontWeight = "bold";
+    }
+});
+</script>
 </body>
 </html>

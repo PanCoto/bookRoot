@@ -9,9 +9,12 @@
 <header><h1>Edycja profilu</h1></header>
 <main>
     <form th:action="@{/profile/edit}" th:object="${userProfile}" method="post">
-        <label>Imię: <input th:field="*{firstName}"></label><br>
-        <label>Nazwisko: <input th:field="*{lastName}"></label><br>
-        <label>Wiek: <input type="number" th:field="*{age}" min="18"></label><br>
+        <label>Imię: <input th:field="*{firstName}"></label>
+        <div th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="error"></div><br>
+        <label>Nazwisko: <input th:field="*{lastName}"></label>
+        <div th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="error"></div><br>
+        <label>Wiek: <input type="number" th:field="*{age}" min="18"></label>
+        <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="error"></div><br>
         <button>Zapisz zmiany</button>
     </form>
 </main>

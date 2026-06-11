@@ -47,7 +47,10 @@
         <span>Sortuj:</span>
         <a th:href="@{/tasks(sortField='title',sortDir='asc',categoryId=${param.categoryId},since=${param.since})}">Tytuł ▲</a> |
         <a th:href="@{/tasks(sortField='title',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Tytuł ▼</a> |
-        <a th:href="@{/tasks(sortField='createdDate',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Najnowsze ▼</a>
+        <a th:href="@{/tasks(sortField='createdDate',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Najnowsze ▼</a> |
+        <a th:href="@{/tasks(sortField='createdDate',sortDir='asc',categoryId=${param.categoryId},since=${param.since})}">Najstarsze ▲</a> |
+        <a th:href="@{/tasks(sortField='popularity',sortDir='desc',categoryId=${param.categoryId},since=${param.since})}">Popularność ▼</a> |
+        <a th:href="@{/tasks(sortField='popularity',sortDir='asc',categoryId=${param.categoryId},since=${param.since})}">Popularność ▲</a>
     </div>
 
     <div th:if="${#lists.isEmpty(tasks.content)}">

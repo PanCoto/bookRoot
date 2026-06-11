@@ -14,7 +14,8 @@
 
 <main role="main" class="container error-page">
     <h2>Wystąpił błąd</h2>
-    <p>Przepraszamy, coś poszło nie tak.</p>
+    <p th:if="${message}" th:text="${message}" class="error-message"></p>
+    <p th:unless="${message}">Przepraszamy, coś poszło nie tak.</p>
     <p th:if="${status}" class="status-code" th:text="${status}">404</p>
     <p>Wróć do <a href="/">strony głównej</a>.</p>
 </main>

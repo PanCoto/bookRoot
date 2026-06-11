@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${task.title}">Współdzielone zadanie</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header role="banner">
+    <h1>bookRoot</h1>
+    <nav role="navigation" aria-label="Menu główne">
+        <a th:href="@{/}">Główna</a>
+        <a th:href="@{/tasks}">Lista zadań</a>
+    </nav>
+</header>
+<main role="main">
+    <div style="margin-top: 15px; padding: 10px; background-color: #e3f2fd; color: #0d47a1; border-radius: 4px; font-weight: bold; margin-bottom: 20px;">
+        ℹ️ Oglądasz współdzielony szkic zadania z linku tymczasowego.
+    </div>
+
+    <div class="task-card">
+        <h1 th:text="${task.title}">Tytuł</h1>
+        <p style="white-space: pre-line;" th:text="${task.content}">Treść</p>
+        <div th:if="${task.imageUrl != null && !#strings.isEmpty(task.imageUrl)}" style="margin-top: 15px;">
+            <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania" style="max-width: 100%; height: auto; border-radius: 4px;"/>
+        </div>
+        <hr/>
+        <small>
+            Kategoria: <strong th:text="${task.categoryName}">Kategoria</strong> |
+            Dodano: <span th:text="${task.createdDate}">Data</span> |
+            Autor: <span th:text="${task.authorName != null ? task.authorName : 'Anonim'}">Autor</span>
+        </small>
+    </div>
+</main>
+<footer role="contentinfo">
+    <p>&copy; 2026 bookRoot</p>
+</footer>
+</body>
+</html>
