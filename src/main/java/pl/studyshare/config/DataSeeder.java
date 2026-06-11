@@ -15,7 +15,7 @@ import pl.studyshare.repository.UserRepository;
 import java.time.LocalDate;
 
 @Component
-@Profile({"dev", "postgres"})
+@Profile({"dev", "postgres", "docker"})
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.TaskDTO;
+import pl.studyshare.dto.UserDTO;
 import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.repository.TaskRepository;
@@ -47,7 +48,9 @@ public class AdminController {
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        List<User> users = userRepository.findAll();
+        // Przekazujemy UserDTO zamiast encji User –
+        // widok używa user.active, które istnieje tylko w UserDTO (nie w encji)
+        List<UserDTO> users = userService.findAllUsers();
         model.addAttribute("users", users);
         model.addAttribute("roles", Role.values());
         return "admin/users";

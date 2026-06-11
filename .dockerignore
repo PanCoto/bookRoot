@@ -1,0 +1,29 @@
+# Katalogi które nie są potrzebne podczas budowania obrazu
+.git
+.gitignore
+.idea
+*.iml
+*.ipr
+*.iws
+.antigravity
+.vscode
+
+# Lokalne buildy – skopiujemy świeży JAR z etapu buildera
+target/
+
+# Pliki dokumentacji
+README.md
+*.md
+docs/
+
+# Pliki środowiskowe – nie trafiają do obrazu
+.env
+.env.*
+
+# Logi
+*.log
+logs/
+
+# OS artefakty
+.DS_Store
+Thumbs.db

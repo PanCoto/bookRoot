@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/bookroot}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:bookroot_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:bookroot_dev}
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      minimum-idle: 2
+      pool-name: bookRoot-docker-pool
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+
+  flyway:
+    enabled: false
+
+
+  h2:
+    console:
+      enabled: false
+
+  devtools:
+    restart:
+      enabled: false
+
+logging:
+  level:
+    pl.studyshare: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
