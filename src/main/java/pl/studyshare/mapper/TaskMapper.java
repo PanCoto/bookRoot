@@ -22,7 +22,8 @@ public class TaskMapper {
                 task.getCategory() != null ? task.getCategory().getName() : null,
                 task.getQuestions() != null ? task.getQuestions().size() : 0,
                 task.getAnswers() != null ? task.getAnswers().size() : 0,
-                0
+                0,
+                task.getAnonymous() != null && task.getAnonymous()
         );
     }
 }

@@ -14,5 +14,6 @@ public record TaskDTO(
         String categoryName,
         int questionCount,
         int answerCount,
-        long upvotesSummary
+        long upvotesSummary,
+        boolean anonymous
 ) {}

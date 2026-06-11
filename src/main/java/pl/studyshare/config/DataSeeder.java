@@ -58,8 +58,8 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
         userRepository.save(admin);
 
-        User student1 = createStudent("student1", "pass123", "Jan", "Kowalski", 20);
-        User student2 = createStudent("student2", "pass123", "Anna", "Nowak", 21);
+        User student1 = createStudent("studentjan", "pass123", "Jan", "Kowalski", 20);
+        User student2 = createStudent("studentanna", "pass123", "Anna", "Nowak", 21);
 
         createApprovedTask("Zadanie 1: Sortowanie przez scalanie",
                 "Opisz działanie algorytmu merge sort i jego złożoność obliczeniową...",

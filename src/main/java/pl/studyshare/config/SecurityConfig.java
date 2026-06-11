@@ -10,10 +10,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
+import lombok.RequiredArgsConstructor;
+import pl.studyshare.security.SessionFlushLogoutHandler;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final SessionFlushLogoutHandler sessionFlushLogoutHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,6 +42,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
+                        .addLogoutHandler(sessionFlushLogoutHandler)
                         .logoutSuccessUrl("/")
                         .permitAll()
                 )

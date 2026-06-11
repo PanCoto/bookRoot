@@ -33,6 +33,20 @@ public class CategoryService {
         return toDto(categoryRepository.save(category));
     }
 
+    @Transactional
+    public CategoryDTO updateCategory(Long id, CategoryCreateRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Kategoria nie istnieje: " + id));
+        category.setName(request.name());
+        category.setDescription(request.description());
+        return toDto(categoryRepository.save(category));
+    }
+
+    @Transactional
+    public void deleteCategory(Long id) {
+        categoryRepository.deleteById(id);
+    }
+
     private CategoryDTO toDto(Category c) {
         long count = categoryRepository.countByCategory(c);
         return new CategoryDTO(c.getId(), c.getName(), count);

@@ -8,6 +8,8 @@ import pl.studyshare.domain.Task;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.AnswerCreateRequest;
 import pl.studyshare.dto.AnswerDTO;
+import pl.studyshare.dto.AnswerUpdateRequest;
+import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.mapper.AnswerMapper;
 import pl.studyshare.repository.AnswerRepository;
@@ -52,5 +54,44 @@ public class AnswerService {
 
         Answer saved = answerRepository.save(answer);
         return answerMapper.toDto(saved);
+    }
+
+    public AnswerDTO updateAnswer(Long answerId, AnswerUpdateRequest request, String username) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));
+
+        User user = userRepository.findByLogin(username)
+                .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
+
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean isAuthor = answer.getAuthor() != null && answer.getAuthor().getLogin().equals(username);
+
+        if (!isAdmin && !isAuthor) {
+            throw new SecurityException("Brak uprawnień do edycji tej odpowiedzi");
+        }
+
+        answer.setContent(request.content());
+        if (request.anonymous() != null) {
+            answer.setAnonymous(request.anonymous());
+        }
+
+        return answerMapper.toDto(answerRepository.save(answer));
+    }
+
+    public void deleteAnswer(Long answerId, String username) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));
+
+        User user = userRepository.findByLogin(username)
+                .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
+
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean isAuthor = answer.getAuthor() != null && answer.getAuthor().getLogin().equals(username);
+
+        if (!isAdmin && !isAuthor) {
+            throw new SecurityException("Brak uprawnień do usunięcia tej odpowiedzi");
+        }
+
+        answerRepository.delete(answer);
     }
 }

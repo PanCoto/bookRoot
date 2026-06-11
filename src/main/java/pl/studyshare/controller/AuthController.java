@@ -7,9 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.User;
+import pl.studyshare.dto.UserRegisterRequest;
 import pl.studyshare.dto.UserUpdateRequest;
 import pl.studyshare.enums.Role;
 import pl.studyshare.repository.UserRepository;
@@ -28,32 +30,30 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerForm(Model model) {
-        model.addAttribute("user", new UserUpdateRequest("", "", 18)); // pusty obiekt dla th:object
+        model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", 18));
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid UserUpdateRequest userRequest,
+    public String registerUser(@Valid @ModelAttribute("userRegisterRequest") UserRegisterRequest userRegisterRequest,
                                BindingResult bindingResult,
                                Model model,
-                               RedirectAttributes redirectAttributes,
-                               String login,
-                               String password) {
+                               RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        if (userRepository.existsByLogin(login)) {
+        if (userRepository.existsByLogin(userRegisterRequest.login())) {
             model.addAttribute("loginExists", true);
             return "register";
         }
 
         User newUser = User.builder()
-                .firstName(userRequest.firstName())
-                .lastName(userRequest.lastName())
-                .login(login)
-                .password(passwordEncoder.encode(password))
-                .age(userRequest.age())
+                .firstName(userRegisterRequest.firstName())
+                .lastName(userRegisterRequest.lastName())
+                .login(userRegisterRequest.login())
+                .password(passwordEncoder.encode(userRegisterRequest.password()))
+                .age(userRegisterRequest.age())
                 .role(Role.USER)
                 .enabled(true)
                 .build();

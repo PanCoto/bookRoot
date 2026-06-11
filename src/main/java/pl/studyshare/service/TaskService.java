@@ -42,17 +42,50 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, Pageable pageable) {
+    public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, org.springframework.data.domain.Pageable pageable) {
         Page<Task> tasks;
+        
+        boolean isPopularity = false;
+        org.springframework.data.domain.Sort.Direction direction = org.springframework.data.domain.Sort.Direction.DESC;
+        if (pageable.getSort().isSorted()) {
+            for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
+                if ("popularity".equalsIgnoreCase(order.getProperty()) || "answers".equalsIgnoreCase(order.getProperty())) {
+                    isPopularity = true;
+                    direction = order.getDirection();
+                    break;
+                }
+            }
+        }
+
         if (categoryId != null) {
             Category cat = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
-            tasks = taskRepository.findByCategoryAndStatus(cat, TaskStatus.APPROVED, pageable);
+            if (isPopularity) {
+                org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+                if (direction == org.springframework.data.domain.Sort.Direction.ASC) {
+                    tasks = taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, unsortedPageable);
+                } else {
+                    tasks = taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, unsortedPageable);
+                }
+            } else {
+                tasks = taskRepository.findByCategoryAndStatus(cat, TaskStatus.APPROVED, pageable);
+            }
         } else {
-            tasks = taskRepository.findByStatus(TaskStatus.APPROVED, pageable);
+            if (isPopularity) {
+                org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+                if (direction == org.springframework.data.domain.Sort.Direction.ASC) {
+                    tasks = taskRepository.findByStatusOrderByAnswersCountAsc(TaskStatus.APPROVED, unsortedPageable);
+                } else {
+                    tasks = taskRepository.findByStatusOrderByAnswersCountDesc(TaskStatus.APPROVED, unsortedPageable);
+                }
+            } else {
+                tasks = taskRepository.findByStatus(TaskStatus.APPROVED, pageable);
+            }
         }
         if (since != null) {
-            tasks = tasks.map(t -> t.getCreatedDate().isAfter(since) ? t : null);
+            tasks = tasks.map(t -> t != null && t.getCreatedDate().isAfter(since) ? t : null);
         }
         return tasks.map(taskMapper::toDto);
     }
@@ -81,6 +114,27 @@ public class TaskService {
                 .content(request.content())
                 .imageUrl(request.imageUrl())
                 .status(TaskStatus.DRAFT)
+                .createdDate(LocalDate.now())
+                .author(author)
+                .category(category)
+                .anonymous(request.anonymous() != null ? request.anonymous() : true)
+                .build();
+
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDto(saved);
+    }
+
+    public TaskDTO createPendingTask(TaskCreateRequest request, String currentUserLogin) {
+        User author = userRepository.findByLogin(currentUserLogin)
+                .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
+
+        Task task = Task.builder()
+                .title(request.title())
+                .content(request.content())
+                .imageUrl(request.imageUrl())
+                .status(TaskStatus.PENDING)
                 .createdDate(LocalDate.now())
                 .author(author)
                 .category(category)
