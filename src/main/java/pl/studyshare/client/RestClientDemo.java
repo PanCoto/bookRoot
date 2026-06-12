@@ -40,10 +40,6 @@ public class RestClientDemo {
         log.info("══════════ REST CLIENT DEMO COMPLETED ══════════");
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  1. GET /api/tasks – public list of approved tasks
-    // ──────────────────────────────────────────────────────────────────────────
-
     private void demoGetTasks() {
         String url = BASE_URL + "/api/tasks?page=0&size=5";
         log.info("──────────────────────────────────────────");
@@ -67,10 +63,6 @@ public class RestClientDemo {
         }
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  2. GET /api/tasks with sort and category filter
-    // ──────────────────────────────────────────────────────────────────────────
-
     private void demoGetTasksWithFilters() {
         String url = BASE_URL + "/api/tasks?page=0&size=3&sort=createdDate,desc";
         log.info("──────────────────────────────────────────");
@@ -84,10 +76,6 @@ public class RestClientDemo {
             log.warn("   Could not reach server: {}", e.getMessage());
         }
     }
-
-    // ──────────────────────────────────────────────────────────────────────────
-    //  3. POST /api/tasks – requires authentication (informational note)
-    // ──────────────────────────────────────────────────────────────────────────
 
     private void demoPostTaskNote() {
         log.info("──────────────────────────────────────────");
@@ -104,10 +92,6 @@ public class RestClientDemo {
         log.info("   Note: Send with session cookie or Basic Auth header.");
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  4. POST /api/votes – requires authentication (informational note)
-    // ──────────────────────────────────────────────────────────────────────────
-
     private void demoPostVoteNote() {
         log.info("──────────────────────────────────────────");
         log.info("4. POST /api/votes (requires USER authentication – buffered in session)");
@@ -120,12 +104,8 @@ public class RestClientDemo {
         log.info("   Note: Vote is stored in HttpSession and flushed to DB on logout.");
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  5. GET /api/shares/{token} – public
-    // ──────────────────────────────────────────────────────────────────────────
-
     private void demoGetShare() {
-        // We try to call with a non-existing token to demonstrate the endpoint structure
+
         String url = BASE_URL + "/api/shares/demo-token-not-exist";
         log.info("──────────────────────────────────────────");
         log.info("5. GET {} (public – fetch task by share token)", url);

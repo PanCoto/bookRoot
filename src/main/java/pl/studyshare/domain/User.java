@@ -41,15 +41,12 @@ public class User implements java.io.Serializable {
     @Min(18)
     private int age;
 
-
     @Size(max = 80, message = "Nazwa wyświetlana może mieć maksymalnie 80 znaków")
     private String displayName;
-
 
     @Email(message = "Podany adres e-mail jest nieprawidłowy.")
     @Column(unique = true)
     private String email;
-
 
     @Builder.Default
     private Boolean anonymousMode = false;
@@ -61,11 +58,9 @@ public class User implements java.io.Serializable {
     @Builder.Default
     private Boolean enabled = true;
 
-
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
 
     private LocalDateTime lastLoginAt;
 

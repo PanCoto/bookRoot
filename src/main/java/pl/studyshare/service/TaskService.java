@@ -45,7 +45,7 @@ public class TaskService {
     @Transactional(readOnly = true)
     public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, org.springframework.data.domain.Pageable pageable) {
         Page<Task> tasks;
-        
+
         boolean isPopularity = false;
         org.springframework.data.domain.Sort.Direction direction = org.springframework.data.domain.Sort.Direction.DESC;
         if (pageable.getSort().isSorted()) {
@@ -90,7 +90,6 @@ public class TaskService {
         }
         return tasks.map(taskMapper::toDto);
     }
-
 
     @Transactional(readOnly = true)
     public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, TaskType taskType, Pageable pageable) {

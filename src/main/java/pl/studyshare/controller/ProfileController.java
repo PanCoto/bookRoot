@@ -15,7 +15,6 @@ import pl.studyshare.domain.User;
 import pl.studyshare.dto.UserUpdateRequest;
 import pl.studyshare.repository.UserRepository;
 
-
 @Controller
 @RequestMapping("/profile")
 @RequiredArgsConstructor
@@ -23,11 +22,9 @@ public class ProfileController {
 
     private final UserRepository userRepository;
 
-
     @GetMapping("/edit")
     public String editProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
-
 
         UserUpdateRequest profile = new UserUpdateRequest(
                 user.getFirstName(),
@@ -41,7 +38,6 @@ public class ProfileController {
         model.addAttribute("userProfile", profile);
         return "profile-edit";
     }
-
 
     @PostMapping("/edit")
     public String updateProfile(@AuthenticationPrincipal UserDetails userDetails,

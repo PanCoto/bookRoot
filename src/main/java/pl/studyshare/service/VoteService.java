@@ -32,14 +32,11 @@ public class VoteService {
             session.setAttribute("voteCollector", collector);
         }
 
-
         VoteType dbVote = voteRepository.findByAnswerIdAndVoterLogin(answerId, username)
                 .map(Vote::getVoteType)
                 .orElse(null);
 
-
         collector.collect(answerId, newVoteType);
-
 
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("Answer not found: " + answerId));
@@ -48,7 +45,6 @@ public class VoteService {
         int dbVal = getVoteValue(dbVote);
         int sessionVal = getVoteValue(newVoteType);
         int currentAdjustedScore = dbScore - dbVal + sessionVal;
-
 
         int userVoteDeltaInSession = sessionVal;
 

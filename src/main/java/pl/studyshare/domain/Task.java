@@ -31,7 +31,6 @@ public class Task implements java.io.Serializable {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-
     @URL(message = "Podany adres URL źródła jest nieprawidłowy.")
     private String sourceUrl;
 
@@ -42,20 +41,16 @@ public class Task implements java.io.Serializable {
     @Builder.Default
     private TaskStatus status = TaskStatus.DRAFT;
 
-
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private TaskType taskType = TaskType.OPEN;
-
 
     @ValidOptionsJson
     @Column(columnDefinition = "TEXT")
     private String optionsJson;
 
-
     @Builder.Default
     private Boolean isOfficial = false;
-
 
     @Min(0)
     @Builder.Default

@@ -97,14 +97,14 @@ public class TaskRestApiTest {
     @WithMockUser(username = "kamilkowal", roles = "USER")
     public void shouldCreateTaskInPendingStatus() throws Exception {
         TaskCreateRequest request = new TaskCreateRequest(
-                "Nowe zadanie z optyki",                               // title
-                "Oblicz kąt załamania światła na granicy ośrodków...", // content
-                null,                                                  // imageUrl
-                category.getId(),                                      // categoryId
-                true,                                                  // anonymous
-                null,                                                  // questions
-                pl.studyshare.enums.TaskType.OPEN,                     // taskType (dodany)
-                null,                                                  // optionsJson (dodany)
+                "Nowe zadanie z optyki",
+                "Oblicz kąt załamania światła na granicy ośrodków...",
+                null,
+                category.getId(),
+                true,
+                null,
+                pl.studyshare.enums.TaskType.OPEN,
+                null,
                 null
         );
 

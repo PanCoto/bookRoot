@@ -8,19 +8,13 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Validator for @ValidOptionsJson annotation.
- * Validates that the optionsJson string is a JSON array of objects,
- * each containing 'label' (String) and 'correct' (boolean) fields.
- * Null or empty values are considered valid (use @NotBlank for required check).
- */
 public class ValidOptionsJsonValidator implements ConstraintValidator<ValidOptionsJson, String> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public boolean isValid(String optionsJson, ConstraintValidatorContext context) {
-        // Null/blank is allowed — use @NotBlank separately if required
+
         if (optionsJson == null || optionsJson.isBlank()) {
             return true;
         }

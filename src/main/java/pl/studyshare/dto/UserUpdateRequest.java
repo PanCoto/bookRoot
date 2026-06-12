@@ -17,10 +17,8 @@ public record UserUpdateRequest(
         @Min(value = 18, message = "Wiek musi wynosić co najmniej 18 lat")
         int age,
 
-
         @Size(max = 80, message = "Nazwa wyświetlana może mieć maksymalnie 80 znaków")
         String displayName,
-
 
         @Email(message = "Podany adres e-mail jest nieprawidłowy")
         String email,

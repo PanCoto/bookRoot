@@ -50,3 +50,6 @@ buildNumber.properties
 
 /target/
 src/test/
+.antigravity
+.idea
+.vscode

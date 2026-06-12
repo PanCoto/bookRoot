@@ -9,7 +9,6 @@ import pl.studyshare.enums.ShareType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-
 @Entity
 @Table(name = "shares")
 @Getter @Setter
@@ -21,12 +20,10 @@ public class Share implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @NotBlank
     @Column(unique = true, nullable = false)
     @Builder.Default
     private String token = UUID.randomUUID().toString();
-
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -48,7 +45,6 @@ public class Share implements java.io.Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")

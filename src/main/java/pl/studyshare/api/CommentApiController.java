@@ -45,7 +45,7 @@ public class CommentApiController {
         commentService.deleteComment(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
-    
+
     record CommentCreateApiRequest(
             @jakarta.validation.constraints.NotBlank
             @jakarta.validation.constraints.Size(min = 2, max = 1000)

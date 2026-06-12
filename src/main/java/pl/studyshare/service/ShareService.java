@@ -88,11 +88,9 @@ public class ShareService {
         Share share = shareRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Nieprawidłowy token udostępniania"));
 
-
         if (share.isExpired()) {
             throw new IllegalStateException("Link udostępniania wygasł");
         }
-
 
         if (share.getRecipient() != null) {
             if (currentUsername == null) {

@@ -95,7 +95,6 @@ public class AnswerService {
         answerRepository.delete(answer);
     }
 
-
     public AnswerDTO markAsOfficial(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));

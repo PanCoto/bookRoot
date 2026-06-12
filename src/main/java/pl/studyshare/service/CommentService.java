@@ -87,7 +87,6 @@ public class CommentService {
         return findCommentsByAnswerId(answerId);
     }
 
-
     public void deleteComment(Long commentId, String username) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Komentarz nie istnieje: " + commentId));

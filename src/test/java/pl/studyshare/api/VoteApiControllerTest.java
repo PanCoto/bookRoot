@@ -62,7 +62,7 @@ public class VoteApiControllerTest {
 
     @BeforeEach
     public void setup() {
-        // Create test user
+
         testUser = userRepository.save(User.builder()
                 .firstName("Jan")
                 .lastName("Kowalski")
@@ -73,13 +73,11 @@ public class VoteApiControllerTest {
                 .enabled(true)
                 .build());
 
-        // Create test category
         Category testCategory = categoryRepository.save(Category.builder()
                 .name("Analiza Matematyczna")
                 .description("Matematyka wyższa")
                 .build());
 
-        // Create test task
         Task testTask = taskRepository.save(Task.builder()
                 .title("Zadanie domowe 1")
                 .content("Oblicz granicę ciągu o wyrazie ogólnym...")
@@ -88,7 +86,6 @@ public class VoteApiControllerTest {
                 .createdDate(LocalDate.now())
                 .build());
 
-        // Create test answer
         testAnswer = answerRepository.save(Answer.builder()
                 .content("Oto poprawna odpowiedź: granica wynosi 2.")
                 .task(testTask)
@@ -106,7 +103,6 @@ public class VoteApiControllerTest {
 
         MockHttpSession session = new MockHttpSession();
 
-        // 1. Post vote request
         MvcResult result = mockMvc.perform(post("/api/votes")
                         .with(csrf())
                         .session(session)
@@ -115,24 +111,19 @@ public class VoteApiControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // 2. Verify vote is in session collector
         VoteCollector collector = (VoteCollector) session.getAttribute("voteCollector");
         assertThat(collector).isNotNull();
         assertThat(collector.getVotes().get(testAnswer.getId())).isEqualTo(VoteType.UPVOTE);
 
-        // 3. Verify vote is NOT in the database yet
         Optional<Vote> dbVoteBeforeFlush = voteRepository.findByAnswerIdAndVoterLogin(testAnswer.getId(), "jankowalski");
         assertThat(dbVoteBeforeFlush).isNotPresent();
 
-        // 4. Manually trigger flush (which is called by SessionFlushLogoutHandler or SessionDestroyedListener)
         sessionFlushService.flushVotes(session, "jankowalski");
 
-        // 5. Verify vote IS now in the database
         Optional<Vote> dbVoteAfterFlush = voteRepository.findByAnswerIdAndVoterLogin(testAnswer.getId(), "jankowalski");
         assertThat(dbVoteAfterFlush).isPresent();
         assertThat(dbVoteAfterFlush.get().getVoteType()).isEqualTo(VoteType.UPVOTE);
 
-        // 6. Verify answer score was updated
         Answer updatedAnswer = answerRepository.findById(testAnswer.getId()).orElseThrow();
         assertThat(updatedAnswer.getUpvotes()).isEqualTo(1);
         assertThat(updatedAnswer.getScore()).isEqualTo(1);
@@ -142,11 +133,10 @@ public class VoteApiControllerTest {
     public void shouldReturnForbiddenOrUnauthorizedForAnonymousUser() throws Exception {
         VoteRequest voteRequest = new VoteRequest(testAnswer.getId(), VoteType.UPVOTE);
 
-        // Without @WithMockUser, request should be denied
         mockMvc.perform(post("/api/votes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(voteRequest)))
-                .andExpect(status().is3xxRedirection()); // Redirects to /login by default form login configuration
+                .andExpect(status().is3xxRedirection());
     }
 }

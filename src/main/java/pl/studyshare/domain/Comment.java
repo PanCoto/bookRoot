@@ -20,7 +20,6 @@ public class Comment implements java.io.Serializable {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-
     @Builder.Default
     private Boolean anonymous = false;
 

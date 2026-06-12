@@ -31,7 +31,6 @@ public class AdminController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
 
-
     @GetMapping
     public String dashboard(Model model) {
         long pendingCount  = taskRepository.countByStatus(TaskStatus.PENDING);
@@ -48,8 +47,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        // Przekazujemy UserDTO zamiast encji User –
-        // widok używa user.active, które istnieje tylko w UserDTO (nie w encji)
+
         List<UserDTO> users = userService.findAllUsers();
         model.addAttribute("users", users);
         model.addAttribute("roles", Role.values());

@@ -29,7 +29,7 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**",
                                 "/h2-console/**",
                                 "/share/**", "/api/shares/**",
-                                // GUEST can browse public tasks (YAML: GUEST permissions)
+
                                 "/tasks", "/tasks/{id}").permitAll()
                         .requestMatchers("/api/tasks", "/api/tasks/**",
                                 "/api/categories", "/api/categories/**").permitAll()

@@ -4,7 +4,6 @@ import pl.studyshare.enums.Role;
 
 import java.time.LocalDateTime;
 
-
 public record UserDTO(
         Long id,
         String firstName,
@@ -12,7 +11,7 @@ public record UserDTO(
         String login,
         int age,
         Role role,
-        boolean active,          // maps from User.enabled
+        boolean active,
         String email,
         LocalDateTime createdAt
 ) {

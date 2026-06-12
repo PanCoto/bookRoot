@@ -1,6 +1,5 @@
 package pl.studyshare.enums;
 
-
 public enum TaskType {
 
     OPEN,

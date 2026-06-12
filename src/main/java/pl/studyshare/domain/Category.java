@@ -27,7 +27,6 @@ public class Category implements java.io.Serializable {
     @Size(max = 500)
     private String description;
 
-
     @CreationTimestamp
     @Column(updatable = false)
     @NotNull

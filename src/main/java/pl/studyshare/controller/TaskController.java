@@ -81,7 +81,7 @@ public class TaskController {
             session.setAttribute("sortPrefs", finalPrefs);
             cookieService.writeSortPreferences(response, finalPrefs);
         } else {
-            // No URL params - read from cookie -> session -> default
+
             Optional<SortPreferences> cookiePrefs = cookieService.readSortPreferences(request);
             if (cookiePrefs.isPresent()) {
                 finalPrefs = cookiePrefs.get();
@@ -95,7 +95,6 @@ public class TaskController {
                 }
             }
         }
-
 
         String currentSortField = "createdDate";
         if (finalPrefs.sortBy() == SortCriteria.TITLE) {
@@ -141,7 +140,6 @@ public class TaskController {
             }
         }
 
-
         taskService.incrementViewCount(id);
 
         model.addAttribute("task", taskService.findById(id));
@@ -152,12 +150,10 @@ public class TaskController {
         List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
         Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
 
-
         Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
         for (AnswerDTO answer : rawAnswers) {
             commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
         }
-
 
         List<ShareTokenDTO> taskShares = new ArrayList<>();
         if (username != null && (isAuthor || isAdmin)) {
@@ -214,7 +210,7 @@ public class TaskController {
             model.addAttribute("categories", categoryService.findAllOrderByPopularity());
             return "task-form";
         }
-        taskService.createTask(request, userDetails.getUsername());
+        taskService.createPendingTask(request, userDetails.getUsername());
         return "redirect:/tasks";
     }
 
@@ -248,7 +244,6 @@ public class TaskController {
         model.addAttribute("taskUpdateRequest", updateRequest);
         model.addAttribute("taskId", id);
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
-
 
         return "task-edit-form";
     }
@@ -288,7 +283,7 @@ public class TaskController {
 
             model.addAttribute("task", taskService.findById(taskId));
             model.addAttribute("isAuthor", isAuthor);
-            model.addAttribute("isAdmin", isAdmin); // Przekazanie flagi isAdmin w przypadku błędów walidacji
+            model.addAttribute("isAdmin", isAdmin);
 
             List<AnswerDTO> rawAnswers = answerService.findByTaskId(taskId);
             List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
