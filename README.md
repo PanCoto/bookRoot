@@ -1,3 +1,1 @@
 # bookRoot
-# najfajnieszjaaplikacja
-# FENTANYLOWAAPA
