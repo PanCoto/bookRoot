@@ -60,7 +60,7 @@
 
         <!-- Quick actions -->
         <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <h2 class="h5 fw-bold mb-2">Moderacja zadań</h2>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <h2 class="h5 fw-bold mb-2">Użytkownicy</h2>
@@ -84,7 +84,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h5 fw-bold mb-2">Kategorie</h2>
+                        <p class="text-muted small">Zarządzaj kategoriami zadań w systemie.</p>
+                        <a th:href="@{/admin/categories}" class="btn btn-success btn-sm text-white"
+                           aria-label="Przejdź do zarządzania kategoriami">
+                            Kategorie →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <h2 class="h5 fw-bold mb-2">Zadania (wszystkie)</h2>
