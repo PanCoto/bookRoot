@@ -107,4 +107,16 @@ public class CommentService {
         String authorName = (Boolean.TRUE.equals(c.getAnonymous()) || c.getAuthor() == null) ? null : c.getAuthor().getLogin();
         return new CommentDTO(c.getId(), c.getContent(), c.getCreatedDate(), authorName);
     }
+
+    @Transactional(readOnly = true)
+    public List<Long> getDeletableCommentIds(List<Long> answerIds, String username) {
+        if (username == null || answerIds == null || answerIds.isEmpty()) {
+            return List.of();
+        }
+        return answerIds.stream()
+                .flatMap(aid -> commentRepository.findByAnswerIdOrderByCreatedDateAsc(aid).stream())
+                .filter(c -> c.getAuthor() != null && username.equals(c.getAuthor().getLogin()))
+                .map(Comment::getId)
+                .collect(Collectors.toList());
+    }
 }

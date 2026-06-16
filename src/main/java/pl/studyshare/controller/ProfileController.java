@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.UserUpdateRequest;
+import pl.studyshare.dto.ChangePasswordRequest;
 import pl.studyshare.repository.UserRepository;
+import pl.studyshare.service.UserService;
 
 @Controller
 @RequestMapping("/profile")
@@ -21,6 +23,7 @@ import pl.studyshare.repository.UserRepository;
 public class ProfileController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/edit")
     public String editProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -58,5 +61,31 @@ public class ProfileController {
 
         userRepository.save(user);
         return "redirect:/profile/edit?success";
+    }
+
+    @GetMapping("/password")
+    public String changePasswordForm(Model model) {
+        model.addAttribute("changePasswordRequest", new ChangePasswordRequest("", "", ""));
+        return "profile-password";
+    }
+
+    @PostMapping("/password")
+    public String changePassword(@AuthenticationPrincipal UserDetails userDetails,
+                                 @Valid @ModelAttribute("changePasswordRequest") ChangePasswordRequest request,
+                                 BindingResult bindingResult,
+                                 Model model) {
+        if (bindingResult.hasErrors()) {
+            return "profile-password";
+        }
+
+        User user = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
+        try {
+            userService.changePassword(user.getId(), request, userDetails.getUsername());
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("currentPassword", "error.changePasswordRequest", e.getMessage());
+            return "profile-password";
+        }
+
+        return "redirect:/profile/password?success";
     }
 }

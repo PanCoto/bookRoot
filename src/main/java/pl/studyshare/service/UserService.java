@@ -3,6 +3,7 @@ package pl.studyshare.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.UserDTO;
 import pl.studyshare.dto.UserUpdateRequest;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<UserDTO> findAllUsers() {
@@ -84,5 +86,30 @@ public class UserService {
                 u.getEmail(),
                 u.getCreatedAt()
         );
+    }
+
+    public void changePassword(Long userId, pl.studyshare.dto.ChangePasswordRequest request, String currentUsername) {
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new IllegalArgumentException("Nowe hasło i potwierdzenie nie są identyczne");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje: " + userId));
+
+        User currentUser = userRepository.findByLogin(currentUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
+
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isOwner = user.getLogin().equals(currentUsername);
+
+        if (!isAdmin && !isOwner) {
+            throw new SecurityException("Brak uprawnień do zmiany hasła tego użytkownika");
+        }
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Aktualne hasło jest niepoprawne");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.Task;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.AnswerCreateRequest;
@@ -160,10 +161,16 @@ public class TaskController {
             taskShares = shareService.findActiveSharesByTaskId(id, username);
         }
 
+        List<Long> deletableAnswerIds = answerService.getDeletableAnswerIds(id, username);
+        List<Long> answerIds = rawAnswers.stream().map(AnswerDTO::id).toList();
+        List<Long> deletableCommentIds = commentService.getDeletableCommentIds(answerIds, username);
+
         model.addAttribute("answers", adjustedAnswers);
         model.addAttribute("userVotes", userVotes);
         model.addAttribute("commentsMap", commentsMap);
         model.addAttribute("taskShares", taskShares);
+        model.addAttribute("deletableAnswerIds", deletableAnswerIds);
+        model.addAttribute("deletableCommentIds", deletableCommentIds);
         model.addAttribute("newAnswer", new AnswerCreateRequest("", true));
         return "task-detail";
     }
@@ -299,13 +306,50 @@ public class TaskController {
                 taskShares = shareService.findActiveSharesByTaskId(taskId, username);
             }
 
+            List<Long> deletableAnswerIds = answerService.getDeletableAnswerIds(taskId, username);
+            List<Long> answerIds = rawAnswers.stream().map(AnswerDTO::id).toList();
+            List<Long> deletableCommentIds = commentService.getDeletableCommentIds(answerIds, username);
+
             model.addAttribute("answers", adjustedAnswers);
             model.addAttribute("userVotes", userVotes);
             model.addAttribute("commentsMap", commentsMap);
             model.addAttribute("taskShares", taskShares);
+            model.addAttribute("deletableAnswerIds", deletableAnswerIds);
+            model.addAttribute("deletableCommentIds", deletableCommentIds);
             return "task-detail";
         }
         answerService.saveAnswer(taskId, request, userDetails.getUsername());
         return "redirect:/tasks/" + taskId + "#answers";
+    }
+
+    @PostMapping("/{taskId}/answers/{answerId}/official")
+    public String markAnswerAsOfficial(@PathVariable Long taskId, @PathVariable Long answerId, RedirectAttributes ra) {
+        answerService.markAsOfficial(answerId);
+        ra.addFlashAttribute("successMessage", "Odpowiedź oznaczona jako oficjalna.");
+        return "redirect:/tasks/" + taskId;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteTask(@PathVariable Long id,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             RedirectAttributes ra) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        User currentUser = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
+        Task task = taskService.findEntityById(id);
+
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isAuthor = task.getAuthor() != null &&
+                task.getAuthor().getLogin().equals(currentUser.getLogin());
+
+        if (!isAdmin && !isAuthor) {
+            throw new SecurityException("Brak uprawnień do usunięcia tego zadania");
+        }
+
+        taskService.deleteTask(id);
+        ra.addFlashAttribute("successMessage", "Zadanie zostało pomyślnie usunięte.");
+        return "redirect:/tasks";
     }
 }

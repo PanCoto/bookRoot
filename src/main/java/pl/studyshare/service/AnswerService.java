@@ -95,6 +95,17 @@ public class AnswerService {
         answerRepository.delete(answer);
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getDeletableAnswerIds(Long taskId, String username) {
+        if (username == null) {
+            return List.of();
+        }
+        return answerRepository.findByTaskId(taskId).stream()
+                .filter(a -> a.getAuthor() != null && username.equals(a.getAuthor().getLogin()))
+                .map(Answer::getId)
+                .collect(Collectors.toList());
+    }
+
     public AnswerDTO markAsOfficial(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));
