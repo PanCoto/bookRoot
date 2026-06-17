@@ -3,7 +3,10 @@ package pl.studyshare.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.validator.constraints.URL;
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.enums.TaskType;
+import pl.studyshare.validation.ValidOptionsJson;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,9 +27,12 @@ public class Task implements java.io.Serializable {
     @Column(nullable = false, length = 150)
     private String title;
 
-    @NotBlank @Size(min = 20, max = 5000)
+    @NotBlank @Size(min = 10, max = 5000)
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @URL(message = "Podany adres URL źródła jest nieprawidłowy.")
+    private String sourceUrl;
 
     private String imageUrl;
 
@@ -34,6 +40,21 @@ public class Task implements java.io.Serializable {
     @NotNull
     @Builder.Default
     private TaskStatus status = TaskStatus.DRAFT;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private TaskType taskType = TaskType.OPEN;
+
+    @ValidOptionsJson
+    @Column(columnDefinition = "TEXT")
+    private String optionsJson;
+
+    @Builder.Default
+    private Boolean isOfficial = false;
+
+    @Min(0)
+    @Builder.Default
+    private int viewCount = 0;
 
     @NotNull
     @Builder.Default

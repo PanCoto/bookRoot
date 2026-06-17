@@ -1,28 +1,121 @@
 package pl.studyshare.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import pl.studyshare.dto.TaskCreateRequest;
+
+import java.util.Map;
 
 @Slf4j
+@Component
+@Profile({"dev", "postgres"})
 public class RestClientDemo {
 
-    public static void main(String[] args) {
-        log.info("=== STARTING REST CLIENT DEMO ===");
-        RestTemplate restTemplate = new RestTemplate();
-        String baseUrl = "http://localhost:8080/api/tasks";
+    private static final String BASE_URL = "http://localhost:8080";
 
+    private final RestTemplate restTemplate;
+
+    public RestClientDemo() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void runDemo() {
+        log.info("╔══════════════════════════════════════════╗");
+        log.info("║     bookRoot REST CLIENT DEMO            ║");
+        log.info("╚══════════════════════════════════════════╝");
+
+        demoGetTasks();
+        demoGetTasksWithFilters();
+        demoPostTaskNote();
+        demoPostVoteNote();
+        demoGetShare();
+
+        log.info("══════════ REST CLIENT DEMO COMPLETED ══════════");
+    }
+
+    private void demoGetTasks() {
+        String url = BASE_URL + "/api/tasks?page=0&size=5";
+        log.info("──────────────────────────────────────────");
+        log.info("1. GET {} (public – no auth required)", url);
         try {
-            log.info("Calling GET {}...", baseUrl);
-            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
-            log.info("GET Response Code: {}", response.getStatusCode());
-            log.info("GET Response Body snippet: {}", 
-                    response.getBody() != null ? response.getBody().substring(0, Math.min(300, response.getBody().length())) : "null");
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+            log.info("   Status: {}", response.getStatusCode());
+            if (response.getBody() != null) {
+                Object totalElements = response.getBody().get("totalElements");
+                Object content = response.getBody().get("content");
+                log.info("   Total tasks: {}", totalElements);
+                log.info("   Content (page 0): {}", content);
+            }
+        } catch (RestClientException e) {
+            log.warn("   Could not reach server: {}", e.getMessage());
+        }
+    }
 
-            log.info("To perform POST /api/tasks or other protected requests, configure basic authentication or pass session cookies in the headers.");
-        } catch (Exception e) {
-            log.error("Failed to execute REST Client Demo. Make sure the application is running on port 8080: {}", e.getMessage());
+    private void demoGetTasksWithFilters() {
+        String url = BASE_URL + "/api/tasks?page=0&size=3&sort=createdDate,desc";
+        log.info("──────────────────────────────────────────");
+        log.info("2. GET {} (sorted by date DESC)", url);
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            log.info("   Status: {}", response.getStatusCode());
+            String body = response.getBody();
+            log.info("   Body snippet: {}", body != null ? body.substring(0, Math.min(250, body.length())) : "null");
+        } catch (RestClientException e) {
+            log.warn("   Could not reach server: {}", e.getMessage());
+        }
+    }
+
+    private void demoPostTaskNote() {
+        log.info("──────────────────────────────────────────");
+        log.info("3. POST /api/tasks (requires USER or ADMIN authentication)");
+        log.info("   Example request body:");
+        log.info("   {{");
+        log.info("     \"title\":      \"Przykładowe zadanie z algebry\",");
+        log.info("     \"content\":    \"Oblicz wyznacznik macierzy 3x3...\",");
+        log.info("     \"categoryId\": 1,");
+        log.info("     \"anonymous\":  false,");
+        log.info("     \"taskType\":   \"OPEN\"");
+        log.info("   }}");
+        log.info("   Response: 201 Created + TaskDTO JSON");
+        log.info("   Note: Send with session cookie or Basic Auth header.");
+    }
+
+    private void demoPostVoteNote() {
+        log.info("──────────────────────────────────────────");
+        log.info("4. POST /api/votes (requires USER authentication – buffered in session)");
+        log.info("   Example request body:");
+        log.info("   {{");
+        log.info("     \"answerId\": 1,");
+        log.info("     \"voteType\": \"UPVOTE\"");
+        log.info("   }}");
+        log.info("   Response: 200 OK + {{ \"answerId\": 1, \"score\": 1 }}");
+        log.info("   Note: Vote is stored in HttpSession and flushed to DB on logout.");
+    }
+
+    private void demoGetShare() {
+
+        String url = BASE_URL + "/api/shares/demo-token-not-exist";
+        log.info("──────────────────────────────────────────");
+        log.info("5. GET {} (public – fetch task by share token)", url);
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            log.info("   Status: {}", response.getStatusCode());
+            log.info("   Body: {}", response.getBody());
+        } catch (RestClientException e) {
+            log.info("   Expected response for non-existing token: {}", e.getMessage());
+            log.info("   Valid token would return: 200 OK + TaskDTO JSON");
         }
     }
 }

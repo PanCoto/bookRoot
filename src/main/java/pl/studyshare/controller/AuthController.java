@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.UserRegisterRequest;
-import pl.studyshare.dto.UserUpdateRequest;
 import pl.studyshare.enums.Role;
 import pl.studyshare.repository.UserRepository;
 
@@ -30,7 +29,7 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerForm(Model model) {
-        model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", 18));
+        model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", "", 18));
         return "register";
     }
 
@@ -52,6 +51,7 @@ public class AuthController {
                 .firstName(userRegisterRequest.firstName())
                 .lastName(userRegisterRequest.lastName())
                 .login(userRegisterRequest.login())
+                .email(userRegisterRequest.email())
                 .password(passwordEncoder.encode(userRegisterRequest.password()))
                 .age(userRegisterRequest.age())
                 .role(Role.USER)

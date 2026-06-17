@@ -1,138 +1,75 @@
-*, *::before, *::after {
-    box-sizing: border-box;
-}
+/* ============================================================
+   bookRoot – Customizations on top of Bootstrap 5
+   All layout/typography handled by Bootstrap; this file
+   adds micro-animations, card hover effects, and brand styles.
+   ============================================================ */
+
+/* ── Typography ────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #222;
-    background: #fafafa;
-    margin: 0;
-    padding: 0;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-header {
-    background: #1e3c72;
-    color: #fff;
-    padding: 1rem 2rem;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-nav {
-    margin-top: 0.5rem;
-}
-
-nav a, nav button {
-    color: #fff;
-    margin-right: 1rem;
-    text-decoration: none;
-    font-weight: bold;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-nav a:hover, nav button:hover {
-    text-decoration: underline;
-}
-
-main {
-    max-width: 960px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-h2 {
-    border-bottom: 2px solid #1e3c72;
-    padding-bottom: 0.3rem;
-}
-
+/* ── Task cards ─────────────────────────────────────────────── */
 .task-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.task-card h3 {
-    margin-top: 0;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-}
-
-input, textarea, select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-input:focus, textarea:focus, select:focus {
-    outline: 2px solid #1e3c72;
-    border-color: #1e3c72;
-}
-
-button {
-    background: #1e3c72;
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #2a4d8c;
-}
-
-.error {
-    color: #d32f2f;
-    background: #fdecea;
-    padding: 0.5rem;
-    border-left: 4px solid #d32f2f;
-    margin: 0.5rem 0;
-}
-
-.error-page .status-code {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #1e3c72;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 
-footer {
-    text-align: center;
-    padding: 1rem;
-    background: #eee;
-    margin-top: 2rem;
-    font-size: 0.9rem;
+/* ── Navbar brand orange accent ─────────────────────────────── */
+.navbar-brand {
+    letter-spacing: -0.3px;
 }
 
-
-.container {
-    padding: 1rem 0;
+/* ── Vote buttons ────────────────────────────────────────────── */
+.vote-btn {
+    transition: all 0.15s ease;
+    font-weight: 600;
 }
 
-.help {
+.vote-btn:hover {
+    transform: scale(1.08);
+}
+
+/* ── Hero gradient section ───────────────────────────────────── */
+.hero-section {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* ── Monospace textarea for JSON ─────────────────────────────── */
+.font-monospace {
     font-size: 0.85rem;
-    color: #555;
-    margin-top: 0.2rem;
+}
+
+/* ── Answer card official indicator ─────────────────────────── */
+.border-start.border-success {
+    border-left-width: 4px !important;
+}
+
+/* ── Smooth fade-in on page load ─────────────────────────────── */
+main {
+    animation: fadeIn 0.25s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Admin badge pulse animation ─────────────────────────────── */
+.badge.bg-danger {
+    animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70%  { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* ── WCAG focus ring ─────────────────────────────────────────── */
+:focus-visible {
+    outline: 3px solid #f97316;
+    outline-offset: 2px;
 }

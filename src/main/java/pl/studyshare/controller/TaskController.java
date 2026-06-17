@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.Task;
 import pl.studyshare.domain.User;
 import pl.studyshare.dto.AnswerCreateRequest;
@@ -19,6 +20,7 @@ import pl.studyshare.dto.TaskDTO;
 import pl.studyshare.dto.TaskUpdateRequest;
 import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.enums.TaskType;
 import pl.studyshare.repository.UserRepository;
 import pl.studyshare.service.*;
 import pl.studyshare.dto.*;
@@ -53,15 +55,17 @@ public class TaskController {
                             @RequestParam(required = false) String sortDir,
                             @RequestParam(required = false) LocalDate since,
                             @RequestParam(required = false) Long categoryId,
+                            @RequestParam(required = false) TaskType taskType,
                             @RequestParam(defaultValue = "0") int page,
                             HttpServletRequest request,
                             HttpServletResponse response,
                             HttpSession session,
                             Model model) {
-        
+
         SortPreferences finalPrefs;
 
         if (sortField != null || sortDir != null) {
+
             SortCriteria sortBy = SortCriteria.CREATED_AT;
             if ("title".equalsIgnoreCase(sortField)) {
                 sortBy = SortCriteria.TITLE;
@@ -78,6 +82,7 @@ public class TaskController {
             session.setAttribute("sortPrefs", finalPrefs);
             cookieService.writeSortPreferences(response, finalPrefs);
         } else {
+
             Optional<SortPreferences> cookiePrefs = cookieService.readSortPreferences(request);
             if (cookiePrefs.isPresent()) {
                 finalPrefs = cookiePrefs.get();
@@ -103,13 +108,14 @@ public class TaskController {
 
         Sort sort = Sort.by(finalPrefs.sortDir(), currentSortField);
         PageRequest pageable = PageRequest.of(page, 10, sort);
-        Page<TaskDTO> tasks = taskService.findByFilters(since, categoryId, pageable);
+        Page<TaskDTO> tasks = taskService.findByFilters(since, categoryId, taskType, pageable);
 
         model.addAttribute("tasks", tasks);
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
         model.addAttribute("currentSort", currentSortField + "," + currentSortDir);
         model.addAttribute("sortField", currentSortField);
         model.addAttribute("sortDir", currentSortDir);
+        model.addAttribute("selectedTaskType", taskType);
 
         return "task-list";
     }
@@ -135,9 +141,12 @@ public class TaskController {
             }
         }
 
+        taskService.incrementViewCount(id);
+
         model.addAttribute("task", taskService.findById(id));
         model.addAttribute("isAuthor", isAuthor);
-        
+        model.addAttribute("isAdmin", isAdmin);
+
         List<AnswerDTO> rawAnswers = answerService.findByTaskId(id);
         List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
         Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
@@ -151,11 +160,17 @@ public class TaskController {
         if (username != null && (isAuthor || isAdmin)) {
             taskShares = shareService.findActiveSharesByTaskId(id, username);
         }
-        
+
+        List<Long> deletableAnswerIds = answerService.getDeletableAnswerIds(id, username);
+        List<Long> answerIds = rawAnswers.stream().map(AnswerDTO::id).toList();
+        List<Long> deletableCommentIds = commentService.getDeletableCommentIds(answerIds, username);
+
         model.addAttribute("answers", adjustedAnswers);
         model.addAttribute("userVotes", userVotes);
         model.addAttribute("commentsMap", commentsMap);
         model.addAttribute("taskShares", taskShares);
+        model.addAttribute("deletableAnswerIds", deletableAnswerIds);
+        model.addAttribute("deletableCommentIds", deletableCommentIds);
         model.addAttribute("newAnswer", new AnswerCreateRequest("", true));
         return "task-detail";
     }
@@ -187,7 +202,8 @@ public class TaskController {
 
     @GetMapping("/new")
     public String newTaskForm(Model model) {
-        model.addAttribute("taskCreateRequest", new TaskCreateRequest("", "", null, null, true, null));
+        model.addAttribute("taskCreateRequest",
+                new TaskCreateRequest("", "", null, null, true, null, null, null, null));
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
         return "task-form";
     }
@@ -201,7 +217,7 @@ public class TaskController {
             model.addAttribute("categories", categoryService.findAllOrderByPopularity());
             return "task-form";
         }
-        taskService.createTask(request, userDetails.getUsername());
+        taskService.createPendingTask(request, userDetails.getUsername());
         return "redirect:/tasks";
     }
 
@@ -235,7 +251,6 @@ public class TaskController {
         model.addAttribute("taskUpdateRequest", updateRequest);
         model.addAttribute("taskId", id);
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
-
 
         return "task-edit-form";
     }
@@ -275,28 +290,66 @@ public class TaskController {
 
             model.addAttribute("task", taskService.findById(taskId));
             model.addAttribute("isAuthor", isAuthor);
-            
+            model.addAttribute("isAdmin", isAdmin);
+
             List<AnswerDTO> rawAnswers = answerService.findByTaskId(taskId);
             List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
             Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
-            
+
             Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
             for (AnswerDTO answer : rawAnswers) {
                 commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
             }
-            
+
             List<ShareTokenDTO> taskShares = new ArrayList<>();
             if (username != null && (isAuthor || isAdmin)) {
                 taskShares = shareService.findActiveSharesByTaskId(taskId, username);
             }
-            
+
+            List<Long> deletableAnswerIds = answerService.getDeletableAnswerIds(taskId, username);
+            List<Long> answerIds = rawAnswers.stream().map(AnswerDTO::id).toList();
+            List<Long> deletableCommentIds = commentService.getDeletableCommentIds(answerIds, username);
+
             model.addAttribute("answers", adjustedAnswers);
             model.addAttribute("userVotes", userVotes);
             model.addAttribute("commentsMap", commentsMap);
             model.addAttribute("taskShares", taskShares);
+            model.addAttribute("deletableAnswerIds", deletableAnswerIds);
+            model.addAttribute("deletableCommentIds", deletableCommentIds);
             return "task-detail";
         }
         answerService.saveAnswer(taskId, request, userDetails.getUsername());
         return "redirect:/tasks/" + taskId + "#answers";
+    }
+
+    @PostMapping("/{taskId}/answers/{answerId}/official")
+    public String markAnswerAsOfficial(@PathVariable Long taskId, @PathVariable Long answerId, RedirectAttributes ra) {
+        answerService.markAsOfficial(answerId);
+        ra.addFlashAttribute("successMessage", "Odpowiedź oznaczona jako oficjalna.");
+        return "redirect:/tasks/" + taskId;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteTask(@PathVariable Long id,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             RedirectAttributes ra) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        User currentUser = userRepository.findByLogin(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
+        Task task = taskService.findEntityById(id);
+
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isAuthor = task.getAuthor() != null &&
+                task.getAuthor().getLogin().equals(currentUser.getLogin());
+
+        if (!isAdmin && !isAuthor) {
+            throw new SecurityException("Brak uprawnień do usunięcia tego zadania");
+        }
+
+        taskService.deleteTask(id);
+        ra.addFlashAttribute("successMessage", "Zadanie zostało pomyślnie usunięte.");
+        return "redirect:/tasks";
     }
 }

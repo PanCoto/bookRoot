@@ -10,6 +10,7 @@ import pl.studyshare.dto.ShareCreateRequest;
 import pl.studyshare.dto.ShareTokenDTO;
 import pl.studyshare.dto.TaskDTO;
 import pl.studyshare.enums.Role;
+import pl.studyshare.enums.ShareType;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.mapper.TaskMapper;
 import pl.studyshare.repository.ShareRepository;
@@ -17,6 +18,7 @@ import pl.studyshare.repository.TaskRepository;
 import pl.studyshare.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,13 +57,17 @@ public class ShareService {
                     .orElseThrow(() -> new IllegalArgumentException("Odbiorca o podanym ID nie istnieje"));
         }
 
+        ShareType shareType = (recipient != null) ? ShareType.SPECIFIC_USER : ShareType.PUBLIC_LINK;
+
         String token = UUID.randomUUID().toString();
 
         Share share = Share.builder()
                 .token(token)
+                .shareType(shareType)
                 .task(task)
+                .owner(owner)
                 .recipient(recipient)
-                .createdDate(LocalDate.now())
+                .expiresAt(LocalDateTime.now().plusDays(7))
                 .build();
 
         Share saved = shareRepository.save(share);
@@ -82,8 +88,8 @@ public class ShareService {
         Share share = shareRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Nieprawidłowy token udostępniania"));
 
-        if (share.getCreatedDate().isBefore(LocalDate.now().minusDays(7))) {
-            throw new IllegalStateException("Link udostępniania wygasł (jest ważny przez 7 dni)");
+        if (share.isExpired()) {
+            throw new IllegalStateException("Link udostępniania wygasł");
         }
 
         if (share.getRecipient() != null) {
@@ -114,7 +120,7 @@ public class ShareService {
         }
 
         return shareRepository.findByTaskId(taskId).stream()
-                .filter(share -> !share.getCreatedDate().isBefore(LocalDate.now().minusDays(7)))
+                .filter(share -> !share.isExpired())
                 .map(share -> new ShareTokenDTO(
                         share.getToken(),
                         taskId,

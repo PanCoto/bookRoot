@@ -15,7 +15,7 @@ import pl.studyshare.repository.UserRepository;
 import java.time.LocalDate;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "postgres", "docker"})
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -41,11 +41,11 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         Category programming = categoryRepository.save(
-                new Category("programowanie", "Przedmioty programistyczne"));
+                new Category("Programowanie", "Przedmioty programistyczne"));
         Category algorithms = categoryRepository.save(
-                new Category("algorytmy", "Algorytmy i struktury danych"));
+                new Category("Algorytmy", "Algorytmy i struktury danych"));
         Category databases = categoryRepository.save(
-                new Category("bazydanych", "Bazy danych i SQL"));
+                new Category("Bazy danych", "Bazy danych i SQL"));
 
         User admin = User.builder()
                 .login("admin")

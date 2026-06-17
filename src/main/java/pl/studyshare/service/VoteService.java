@@ -25,6 +25,7 @@ public class VoteService {
     private final AnswerRepository answerRepository;
 
     public VoteResponse registerVote(Long answerId, VoteType newVoteType, String username, HttpSession session) {
+
         VoteCollector collector = (VoteCollector) session.getAttribute("voteCollector");
         if (collector == null) {
             collector = new VoteCollector();

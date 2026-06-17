@@ -2,7 +2,6 @@ server:
   port: 8080
 
 spring:
-
   datasource:
     url: jdbc:h2:mem:studyshare;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -19,9 +18,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
+
+  # Flyway wyłączony w trybie H2/dev – schemat zarządzany przez ddl-auto=update
+  flyway:
+    enabled: false
 
   devtools:
     restart:

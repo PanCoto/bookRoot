@@ -28,7 +28,11 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home", "/register", "/login", "/error",
                                 "/css/**", "/js/**", "/images/**",
                                 "/h2-console/**",
-                                "/share/**", "/api/shares/**").permitAll()
+                                "/share/**", "/api/shares/**",
+
+                                "/tasks", "/tasks/{id}").permitAll()
+                        .requestMatchers("/api/tasks", "/api/tasks/**",
+                                "/api/categories", "/api/categories/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

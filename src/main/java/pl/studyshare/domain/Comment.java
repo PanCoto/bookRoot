@@ -16,9 +16,12 @@ public class Comment implements java.io.Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank @Size(max = 500)
+    @NotBlank @Size(min = 2, max = 1000, message = "Komentarz musi mieć 2-1000 znaków")
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @Builder.Default
+    private Boolean anonymous = false;
 
     @NotNull
     @Builder.Default

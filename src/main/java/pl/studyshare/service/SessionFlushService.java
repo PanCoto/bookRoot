@@ -1,5 +1,6 @@
 package pl.studyshare.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class SessionFlushService {
     private final VoteRepository voteRepository;
     private final AnswerRepository answerRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     public void flushVotes(HttpSession session, String username) {
         VoteCollector collector = (VoteCollector) session.getAttribute("voteCollector");
@@ -83,7 +85,9 @@ public class SessionFlushService {
             int downvotes = (int) voteRepository.countByAnswerIdAndVoteType(answerId, VoteType.DOWNVOTE);
             answer.setUpvotes(upvotes);
             answer.setDownvotes(downvotes);
-            answerRepository.save(answer);
+
+            answerRepository.saveAndFlush(answer);
+            entityManager.refresh(answer);
         }
     }
 }

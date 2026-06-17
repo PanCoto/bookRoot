@@ -1,0 +1,41 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bookroot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bookroot
+      POSTGRES_USER: bookroot_user
+      POSTGRES_PASSWORD: bookroot_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - bookroot_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U bookroot_user -d bookroot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bookroot-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bookroot
+      SPRING_DATASOURCE_USERNAME: bookroot_user
+      SPRING_DATASOURCE_PASSWORD: bookroot_dev
+    ports:
+      - "8080:8080"
+
+volumes:
+  bookroot_data:
+    name: bookroot_postgres_data

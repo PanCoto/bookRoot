@@ -5,7 +5,6 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-
     <groupId>pl.bookRook</groupId>
     <artifactId>bookRoot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -71,9 +70,9 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
             <optional>true</optional>
         </dependency>
-
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -87,7 +86,6 @@
             <scope>runtime</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -99,6 +97,15 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Flyway – zarządzanie migracjami schematu bazy -->
+        <!-- Spring Boot 3.2.x używa Flyway 9.x – wsparcie dla PostgreSQL jest wbudowane w flyway-core -->
+        <!-- Uwaga: flyway-database-postgresql istnieje dopiero od Flyway 10 / Spring Boot 3.3+ -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -94,4 +94,30 @@ public class AnswerService {
 
         answerRepository.delete(answer);
     }
+
+    @Transactional(readOnly = true)
+    public List<Long> getDeletableAnswerIds(Long taskId, String username) {
+        if (username == null) {
+            return List.of();
+        }
+        return answerRepository.findByTaskId(taskId).stream()
+                .filter(a -> a.getAuthor() != null && username.equals(a.getAuthor().getLogin()))
+                .map(Answer::getId)
+                .collect(Collectors.toList());
+    }
+
+    public AnswerDTO markAsOfficial(Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("Odpowiedź nie istnieje: " + answerId));
+
+        answerRepository.findByTaskIdWithSorting(answer.getTask().getId()).stream()
+                .filter(a -> Boolean.TRUE.equals(a.getIsOfficial()))
+                .forEach(a -> {
+                    a.setIsOfficial(false);
+                    answerRepository.save(a);
+                });
+
+        answer.setIsOfficial(true);
+        return answerMapper.toDto(answerRepository.save(answer));
+    }
 }

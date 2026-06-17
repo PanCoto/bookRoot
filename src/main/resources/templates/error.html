@@ -4,24 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Błąd – bookRoot</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
 </head>
-<body>
-<header role="banner">
-    <h1>bookRoot</h1>
-    <nav><a href="/">Strona główna</a></nav>
-</header>
+<body class="d-flex flex-column min-vh-100 bg-light">
 
-<main role="main" class="container error-page">
-    <h2>Wystąpił błąd</h2>
-    <p th:if="${message}" th:text="${message}" class="error-message"></p>
-    <p th:unless="${message}">Przepraszamy, coś poszło nie tak.</p>
-    <p th:if="${status}" class="status-code" th:text="${status}">404</p>
-    <p>Wróć do <a href="/">strony głównej</a>.</p>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            <span style="color:#f97316;"></span> bookRoot
+        </a>
+    </div>
+</nav>
+
+<main role="main" class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
+    <div class="text-center" style="max-width:500px;">
+        <div class="display-1 mb-3"></div>
+        <h1 class="h3 fw-bold text-danger mb-3"
+            th:text="${errorTitle ?: 'Wystąpił błąd'}">Błąd</h1>
+        <p class="text-muted mb-4"
+           th:text="${errorMessage ?: 'Przepraszamy, coś poszło nie tak. Spróbuj ponownie.'}">
+            Komunikat błędu
+        </p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a th:href="@{/}" class="btn btn-primary"
+               aria-label="Wróć do strony głównej">
+                Strona główna
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary"
+               aria-label="Wróć do poprzedniej strony">
+                ← Wróć
+            </a>
+        </div>
+    </div>
 </main>
 
-<footer role="contentinfo">
-    <p>&copy; 2026 bookRoot</p>
+<footer class="py-3 bg-dark text-white text-center" role="contentinfo">
+    <small class="text-white-50">&copy; 2026 bookRoot</small>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmxI3wH4U+VE4PVjuoFh60drI4L6N"
+        crossorigin="anonymous"></script>
 </body>
 </html>

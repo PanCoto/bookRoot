@@ -17,7 +17,7 @@ public class AnswerMapper {
                 answer.getCreatedDate(),
                 answer.getScore() != null ? answer.getScore() : 0,
                 authorName,
-                answer.getIsOfficial(),
+                Boolean.TRUE.equals(answer.getIsOfficial()),
                 0
         );
     }

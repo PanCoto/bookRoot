@@ -28,7 +28,7 @@ public class ShareViewController {
         try {
             TaskDTO task = shareService.findSharedTaskByToken(token, currentUsername);
             model.addAttribute("task", task);
-            return "sharel-view";
+            return "share-view";
         } catch (SecurityException e) {
             log.warn("Access denied to shared task with token {}: {}", token, e.getMessage());
             model.addAttribute("errorMessage", e.getMessage());

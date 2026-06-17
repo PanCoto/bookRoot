@@ -85,12 +85,15 @@ public class TaskApiController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         User currentUser = userRepository.findByLogin(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
+                .orElse(null);
+
         pl.studyshare.domain.Task task = taskService.findEntityById(id);
 
-        boolean isAdmin = currentUser.getRole() == pl.studyshare.enums.Role.ADMIN;
-        boolean isAuthor = task.getAuthor() != null && task.getAuthor().getLogin().equals(currentUser.getLogin());
+        boolean isAdmin = currentUser != null && currentUser.getRole() == pl.studyshare.enums.Role.ADMIN;
+        boolean isAuthor = currentUser != null && task.getAuthor() != null
+                && task.getAuthor().getLogin().equals(currentUser.getLogin());
 
         if (!isAdmin && !isAuthor) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

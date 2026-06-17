@@ -3,7 +3,9 @@ package pl.studyshare.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +19,18 @@ public class Category implements java.io.Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank @Size(min = 3, max = 50)
-    @Pattern(regexp = "^[a-z]+$")
+    @NotBlank @Size(min = 2, max = 100, message = "Nazwa kategorii musi mieć 2-100 znaków")
+    @Pattern(regexp = "^[A-ZĄĆĘŁŃÓŚŹŻ].*", message = "Nazwa kategorii musi zaczynać się wielką literą")
     @Column(unique = true)
     private String name;
 
     @Size(max = 500)
     private String description;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    @NotNull
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "category")
     @Builder.Default
@@ -32,5 +39,6 @@ public class Category implements java.io.Serializable {
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
+        this.createdAt = LocalDateTime.now();
     }
 }

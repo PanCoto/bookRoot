@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +56,12 @@ public class AnswerApiController {
         }
         answerService.deleteAnswer(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/api/answers/{id}/official")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AnswerDTO> markAsOfficial(@PathVariable Long id) {
+        AnswerDTO updated = answerService.markAsOfficial(id);
+        return ResponseEntity.ok(updated);
     }
 }

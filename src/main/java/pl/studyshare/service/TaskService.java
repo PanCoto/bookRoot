@@ -12,6 +12,7 @@ import pl.studyshare.dto.TaskCreateRequest;
 import pl.studyshare.dto.TaskDTO;
 import pl.studyshare.dto.TaskUpdateRequest;
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.enums.TaskType;
 import pl.studyshare.mapper.TaskMapper;
 import pl.studyshare.repository.CategoryRepository;
 import pl.studyshare.repository.TaskRepository;
@@ -44,7 +45,7 @@ public class TaskService {
     @Transactional(readOnly = true)
     public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, org.springframework.data.domain.Pageable pageable) {
         Page<Task> tasks;
-        
+
         boolean isPopularity = false;
         org.springframework.data.domain.Sort.Direction direction = org.springframework.data.domain.Sort.Direction.DESC;
         if (pageable.getSort().isSorted()) {
@@ -91,6 +92,56 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
+    public Page<TaskDTO> findByFilters(LocalDate since, Long categoryId, TaskType taskType, Pageable pageable) {
+        if (taskType == null) {
+            return findByFilters(since, categoryId, pageable);
+        }
+
+        boolean isPopularity = false;
+        org.springframework.data.domain.Sort.Direction direction = org.springframework.data.domain.Sort.Direction.DESC;
+        if (pageable.getSort().isSorted()) {
+            for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
+                if ("popularity".equalsIgnoreCase(order.getProperty())) {
+                    isPopularity = true;
+                    direction = order.getDirection();
+                    break;
+                }
+            }
+        }
+
+        Page<Task> tasks;
+        if (categoryId != null) {
+            Category cat = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
+            if (isPopularity) {
+                org.springframework.data.domain.Pageable up = org.springframework.data.domain.PageRequest.of(
+                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+                tasks = direction == org.springframework.data.domain.Sort.Direction.ASC
+                        ? taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, up)
+                        : taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, up);
+
+                tasks = tasks.map(t -> t.getTaskType() == taskType ? t : null);
+            } else {
+                tasks = taskRepository.findByCategoryAndStatusAndTaskType(cat, TaskStatus.APPROVED, taskType, pageable);
+            }
+        } else {
+            if (isPopularity) {
+                org.springframework.data.domain.Pageable up = org.springframework.data.domain.PageRequest.of(
+                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+                tasks = direction == org.springframework.data.domain.Sort.Direction.ASC
+                        ? taskRepository.findByStatusAndTaskTypeOrderByAnswersCountAsc(TaskStatus.APPROVED, taskType, up)
+                        : taskRepository.findByStatusAndTaskTypeOrderByAnswersCountDesc(TaskStatus.APPROVED, taskType, up);
+            } else {
+                tasks = taskRepository.findByStatusAndTaskType(TaskStatus.APPROVED, taskType, pageable);
+            }
+        }
+        if (since != null) {
+            tasks = tasks.map(t -> t != null && t.getCreatedDate().isAfter(since) ? t : null);
+        }
+        return tasks.map(taskMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
     public TaskDTO findById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
@@ -99,7 +150,7 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public Task findEntityById(Long id) {
-        return taskRepository.findById(id)
+        return taskRepository.findByIdWithAuthor(id)
                 .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
     }
 
@@ -113,6 +164,9 @@ public class TaskService {
                 .title(request.title())
                 .content(request.content())
                 .imageUrl(request.imageUrl())
+                .sourceUrl(request.sourceUrl())
+                .taskType(request.taskType() != null ? request.taskType() : pl.studyshare.enums.TaskType.OPEN)
+                .optionsJson(request.optionsJson())
                 .status(TaskStatus.DRAFT)
                 .createdDate(LocalDate.now())
                 .author(author)
@@ -134,6 +188,9 @@ public class TaskService {
                 .title(request.title())
                 .content(request.content())
                 .imageUrl(request.imageUrl())
+                .sourceUrl(request.sourceUrl())
+                .taskType(request.taskType() != null ? request.taskType() : pl.studyshare.enums.TaskType.OPEN)
+                .optionsJson(request.optionsJson())
                 .status(TaskStatus.PENDING)
                 .createdDate(LocalDate.now())
                 .author(author)
@@ -184,8 +241,35 @@ public class TaskService {
         }
         task.setStatus(TaskStatus.APPROVED);
         task.setApprovedBy(admin);
+        task.setIsOfficial(true);
         task.setLastModifiedDate(LocalDateTime.now());
         taskRepository.save(task);
+    }
+
+    public void rejectTask(Long taskId, User admin) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
+        if (task.getStatus() != TaskStatus.PENDING) {
+            throw new IllegalStateException("Można odrzucić tylko zadania oczekujące");
+        }
+        task.setStatus(TaskStatus.REJECTED);
+        task.setLastModifiedDate(LocalDateTime.now());
+        taskRepository.save(task);
+    }
+
+    public void incrementViewCount(Long taskId) {
+        taskRepository.findById(taskId).ifPresent(task -> {
+            task.setViewCount(task.getViewCount() + 1);
+            taskRepository.save(task);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskDTO> findAllPending() {
+        return taskRepository.findAllByStatusOrderByCreatedDateAsc(TaskStatus.PENDING)
+                .stream()
+                .map(taskMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public void deleteTask(Long taskId) {

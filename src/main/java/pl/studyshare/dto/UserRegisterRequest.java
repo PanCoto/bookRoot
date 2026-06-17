@@ -1,27 +1,27 @@
 package pl.studyshare.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record UserRegisterRequest(
-        @NotBlank(message = "Imię nie może być puste")
+        @NotBlank(message = "Imię jest wymagane")
         @Size(min = 3, max = 20, message = "Imię musi mieć 3-20 znaków")
-        @Pattern(regexp = "^[A-Z][a-z]*$", message = "Imię musi zaczynać się wielką literą i zawierać tylko litery")
+        @Pattern(regexp = "^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]*$", message = "Imię musi zaczynać się wielką literą i zawierać tylko litery")
         String firstName,
 
-        @NotBlank(message = "Nazwisko nie może być puste")
+        @NotBlank(message = "Nazwisko jest wymagane")
         @Size(min = 3, max = 50, message = "Nazwisko musi mieć 3-50 znaków")
-        @Pattern(regexp = "^[A-Z][a-z]*$", message = "Nazwisko musi zaczynać się wielką literą i zawierać tylko litery")
+        @Pattern(regexp = "^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]*$", message = "Nazwisko musi zaczynać się wielką literą i zawierać tylko litery")
         String lastName,
 
-        @NotBlank(message = "Login nie może być pusty")
+        @NotBlank(message = "Login jest wymagany")
         @Size(min = 3, max = 20, message = "Login musi mieć 3-20 znaków")
-        @Pattern(regexp = "^[a-z]+$", message = "Login musi składać się wyłącznie z małych liter")
+        @Pattern(regexp = "^[a-z]+$", message = "Login może zawierać tylko małe litery")
         String login,
 
-        @NotBlank(message = "Hasło nie może być puste")
+        @Email(message = "Podany adres e-mail jest nieprawidłowy")
+        String email,
+
+        @NotBlank(message = "Hasło jest wymagane")
         @Size(min = 5, message = "Hasło musi mieć co najmniej 5 znaków")
         String password,
 
