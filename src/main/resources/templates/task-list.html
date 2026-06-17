@@ -85,36 +85,42 @@
         <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
             <span class="text-muted small fw-semibold">Sortuj:</span>
             <a class="btn btn-sm"
+               data-sort-field="title" data-sort-dir="asc"
                th:classappend="${sortField == 'title' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'title' and sortDir == 'asc'} ? 'true' : null"
                th:href="@{/tasks(sortField='title',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Tytuł ▲
             </a>
             <a class="btn btn-sm"
+               data-sort-field="title" data-sort-dir="desc"
                th:classappend="${sortField == 'title' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'title' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='title',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Tytuł ▼
             </a>
             <a class="btn btn-sm"
+               data-sort-field="createdDate" data-sort-dir="desc"
                th:classappend="${sortField == 'createdDate' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'createdDate' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='createdDate',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Najnowsze ▼
             </a>
             <a class="btn btn-sm"
+               data-sort-field="createdDate" data-sort-dir="asc"
                th:classappend="${sortField == 'createdDate' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'createdDate' and sortDir == 'asc'} ? 'true' : null"
                th:href="@{/tasks(sortField='createdDate',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Najstarsze ▲
             </a>
             <a class="btn btn-sm"
+               data-sort-field="popularity" data-sort-dir="desc"
                th:classappend="${sortField == 'popularity' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'popularity' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='popularity',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Popularność ▼
             </a>
             <a class="btn btn-sm"
+               data-sort-field="popularity" data-sort-dir="asc"
                th:classappend="${sortField == 'popularity' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
                th:aria-current="${sortField == 'popularity' and sortDir == 'asc'} ? 'true' : null"
                th:href="@{/tasks(sortField='popularity',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
@@ -122,7 +128,7 @@
             </a>
         </div>
 
-        <div th:if="${#lists.isEmpty(tasks.content)}" class="text-center py-5 text-muted">
+        <div id="noTasksMessage" th:class="'text-center py-5 text-muted ' + (${#lists.isEmpty(tasks.content)} ? '' : 'd-none')">
             <div class="display-6 mb-3" aria-hidden="true">📭</div>
             <p class="lead">Brak zadań spełniających kryteria.</p>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary btn-sm"
@@ -132,7 +138,7 @@
         </div>
 
 
-        <div class="row row-cols-1 row-cols-lg-2 g-3" th:unless="${#lists.isEmpty(tasks.content)}">
+        <div id="tasksContainer" class="row row-cols-1 row-cols-lg-2 g-3">
             <div class="col" th:each="task : ${tasks.content}">
                 <div class="card h-100 shadow-sm border-0 task-card">
                     <div class="card-body">
@@ -169,25 +175,27 @@
         </div>
 
         <!-- Pagination -->
-        <nav aria-label="Paginacja zadań" class="mt-4" th:if="${tasks.totalPages > 1}">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/tasks(page=${tasks.number - 1}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
-                       aria-label="Poprzednia strona">‹</a>
-                </li>
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, tasks.totalPages - 1)}"
-                    th:classappend="${tasks.number == i} ? 'active'">
-                    <a class="page-link"
-                       th:href="@{/tasks(page=${i}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
-                       th:text="${i + 1}"
-                       th:aria-label="'Strona ' + ${i + 1}">1</a>
-                </li>
-                <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/tasks(page=${tasks.number + 1}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
-                       aria-label="Następna strona">›</a>
-                </li>
+        <nav id="paginationNav" aria-label="Paginacja zadań" class="mt-4" th:classappend="${tasks.totalPages > 1} ? '' : 'd-none'">
+            <ul id="paginationContainer" class="pagination justify-content-center">
+                <th:block th:if="${tasks.totalPages > 1}">
+                    <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/tasks(page=${tasks.number - 1}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
+                           aria-label="Poprzednia strona">‹</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, tasks.totalPages - 1)}"
+                        th:classappend="${tasks.number == i} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/tasks(page=${i}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
+                           th:text="${i + 1}"
+                           th:aria-label="'Strona ' + ${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/tasks(page=${tasks.number + 1}, categoryId=${param.categoryId}, since=${param.since}, sortField=${sortField}, sortDir=${sortDir}, taskType=${param.taskType})}"
+                           aria-label="Następna strona">›</a>
+                    </li>
+                </th:block>
             </ul>
         </nav>
 
@@ -199,5 +207,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmxI3wH4U+VE4PVjuoFh60drI4L6N"
         crossorigin="anonymous"></script>
+<script th:src="@{/js/task-list-ajax.js}"></script>
 </body>
 </html>

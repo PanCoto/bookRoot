@@ -17,6 +17,7 @@ import pl.studyshare.dto.TaskCreateRequest;
 import pl.studyshare.dto.TaskDTO;
 import pl.studyshare.dto.TaskUpdateRequest;
 import pl.studyshare.enums.TaskStatus;
+import pl.studyshare.enums.TaskType;
 import pl.studyshare.repository.UserRepository;
 import pl.studyshare.service.TaskService;
 
@@ -34,21 +35,18 @@ public class TaskApiController {
     public ResponseEntity<Page<TaskDTO>> getTasks(
             @RequestParam(required = false) LocalDate since,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) TaskType taskType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdDate,desc") String sort) {
+            @RequestParam(defaultValue = "createdDate") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir) {
 
-        String[] sortParts = sort.split(",");
-        Sort sorting = Sort.by(sortParts[0]);
-        if (sortParts.length > 1 && "asc".equalsIgnoreCase(sortParts[1])) {
-            sorting = sorting.ascending();
-        } else {
-            sorting = sorting.descending();
-        }
+        Sort sorting = "asc".equalsIgnoreCase(sortDir)
+                ? Sort.by(sortField).ascending()
+                : Sort.by(sortField).descending();
 
         Pageable pageable = PageRequest.of(page, size, sorting);
-        Page<TaskDTO> tasks = taskService.findByFilters(since, categoryId, pageable);
-        return ResponseEntity.ok(tasks);
+        return ResponseEntity.ok(taskService.findByFilters(since, categoryId, taskType, pageable));
     }
 
     @GetMapping("/{id}")

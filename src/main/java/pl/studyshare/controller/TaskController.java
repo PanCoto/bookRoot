@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 
 import java.time.LocalDate;
 
@@ -149,7 +151,16 @@ public class TaskController {
             }
         }
 
-        taskService.incrementViewCount(id);
+        @SuppressWarnings("unchecked")
+        Set<Long> viewedTasks = (Set<Long>) session.getAttribute("viewedTasks");
+        if (viewedTasks == null) {
+            viewedTasks = new HashSet<>();
+            session.setAttribute("viewedTasks", viewedTasks);
+        }
+        if (!viewedTasks.contains(id)) {
+            taskService.incrementViewCount(id);
+            viewedTasks.add(id);
+        }
 
         model.addAttribute("task", taskService.findById(id));
         model.addAttribute("isAuthor", isAuthor);
