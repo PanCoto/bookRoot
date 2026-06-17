@@ -1,121 +1,42 @@
 package pl.studyshare.client;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
+import pl.studyshare.dto.CategoryDTO;
 
-import java.util.Map;
+import java.util.Arrays;
 
-@Slf4j
 @Component
-@Profile({"dev", "postgres"})
-public class RestClientDemo {
+@Profile("dev")
+public class RestClientDemo implements CommandLineRunner {
 
-    private static final String BASE_URL = "http://localhost:8080";
+    private final RestClient restClient;
 
-    private final RestTemplate restTemplate;
-
-    public RestClientDemo() {
-        this.restTemplate = new RestTemplate();
+    public RestClientDemo(RestClient.Builder builder) {
+        this.restClient = builder
+                .baseUrl("http://localhost:8080")
+                .build();
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void runDemo() {
-        log.info("╔══════════════════════════════════════════╗");
-        log.info("║     bookRoot REST CLIENT DEMO            ║");
-        log.info("╚══════════════════════════════════════════╝");
-
-        demoGetTasks();
-        demoGetTasksWithFilters();
-        demoPostTaskNote();
-        demoPostVoteNote();
-        demoGetShare();
-
-        log.info("══════════ REST CLIENT DEMO COMPLETED ══════════");
-    }
-
-    private void demoGetTasks() {
-        String url = BASE_URL + "/api/tasks?page=0&size=5";
-        log.info("──────────────────────────────────────────");
-        log.info("1. GET {} (public – no auth required)", url);
+    @Override
+    public void run(String... args) throws Exception {
         try {
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<Map<String, Object>>() {}
-            );
-            log.info("   Status: {}", response.getStatusCode());
-            if (response.getBody() != null) {
-                Object totalElements = response.getBody().get("totalElements");
-                Object content = response.getBody().get("content");
-                log.info("   Total tasks: {}", totalElements);
-                log.info("   Content (page 0): {}", content);
+            CategoryDTO[] categories = restClient.get()
+                    .uri("/api/categories")
+                    .retrieve()
+                    .body(CategoryDTO[].class);
+
+            if (categories != null) {
+                System.out.println("=== REST Client Demo – kategorie ===");
+                Arrays.stream(categories)
+                        .forEach(c -> System.out.printf("  [%d] %s (%d zadań)%n",
+                                c.id(), c.name(), c.taskCount()));
             }
-        } catch (RestClientException e) {
-            log.warn("   Could not reach server: {}", e.getMessage());
-        }
-    }
-
-    private void demoGetTasksWithFilters() {
-        String url = BASE_URL + "/api/tasks?page=0&size=3&sort=createdDate,desc";
-        log.info("──────────────────────────────────────────");
-        log.info("2. GET {} (sorted by date DESC)", url);
-        try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            log.info("   Status: {}", response.getStatusCode());
-            String body = response.getBody();
-            log.info("   Body snippet: {}", body != null ? body.substring(0, Math.min(250, body.length())) : "null");
-        } catch (RestClientException e) {
-            log.warn("   Could not reach server: {}", e.getMessage());
-        }
-    }
-
-    private void demoPostTaskNote() {
-        log.info("──────────────────────────────────────────");
-        log.info("3. POST /api/tasks (requires USER or ADMIN authentication)");
-        log.info("   Example request body:");
-        log.info("   {{");
-        log.info("     \"title\":      \"Przykładowe zadanie z algebry\",");
-        log.info("     \"content\":    \"Oblicz wyznacznik macierzy 3x3...\",");
-        log.info("     \"categoryId\": 1,");
-        log.info("     \"anonymous\":  false,");
-        log.info("     \"taskType\":   \"OPEN\"");
-        log.info("   }}");
-        log.info("   Response: 201 Created + TaskDTO JSON");
-        log.info("   Note: Send with session cookie or Basic Auth header.");
-    }
-
-    private void demoPostVoteNote() {
-        log.info("──────────────────────────────────────────");
-        log.info("4. POST /api/votes (requires USER authentication – buffered in session)");
-        log.info("   Example request body:");
-        log.info("   {{");
-        log.info("     \"answerId\": 1,");
-        log.info("     \"voteType\": \"UPVOTE\"");
-        log.info("   }}");
-        log.info("   Response: 200 OK + {{ \"answerId\": 1, \"score\": 1 }}");
-        log.info("   Note: Vote is stored in HttpSession and flushed to DB on logout.");
-    }
-
-    private void demoGetShare() {
-
-        String url = BASE_URL + "/api/shares/demo-token-not-exist";
-        log.info("──────────────────────────────────────────");
-        log.info("5. GET {} (public – fetch task by share token)", url);
-        try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            log.info("   Status: {}", response.getStatusCode());
-            log.info("   Body: {}", response.getBody());
-        } catch (RestClientException e) {
-            log.info("   Expected response for non-existing token: {}", e.getMessage());
-            log.info("   Valid token would return: 200 OK + TaskDTO JSON");
+        } catch (Exception e) {
+            System.out.println("=== REST Client Demo – Błąd połączenia ===");
+            System.out.println(e.getMessage());
         }
     }
 }

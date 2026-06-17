@@ -129,6 +129,8 @@ public class TaskController {
         String username = (userDetails != null) ? userDetails.getUsername() : null;
         boolean isAdmin = userDetails != null && userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isModerator = userDetails != null && userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MODERATOR"));
         boolean isAuthor = userDetails != null && task.getAuthor() != null &&
                 task.getAuthor().getLogin().equals(username);
 
@@ -136,8 +138,14 @@ public class TaskController {
             if (userDetails == null) {
                 return "redirect:/login";
             }
-            if (!isAdmin && !isAuthor) {
-                throw new SecurityException("Brak uprawnień do przeglądania tego szkicu zadania.");
+            if (task.getStatus() == TaskStatus.PENDING) {
+                if (!isAdmin && !isModerator && !isAuthor) {
+                    throw new SecurityException("Brak uprawnień do przeglądania tego zadania.");
+                }
+            } else {
+                if (!isAdmin && !isAuthor) {
+                    throw new SecurityException("Brak uprawnień do przeglądania tego szkicu zadania.");
+                }
             }
         }
 

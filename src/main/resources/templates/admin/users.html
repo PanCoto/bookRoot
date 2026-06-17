@@ -57,37 +57,38 @@
                                     th:text="${user.firstName + ' ' + user.lastName}">Imię Nazwisko</td>
                                 <td class="align-middle small text-muted"
                                     th:text="${user.email ?: '—'}">email</td>
-                                <td class="align-middle">
-                                    <span class="badge"
-                                          th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : 'bg-secondary'"
-                                          th:text="${user.role}">ROLE</span>
-                                </td>
-                                <td class="align-middle">
-                                    <span class="badge"
-                                          th:classappend="${user.active} ? 'bg-success' : 'bg-secondary'"
-                                          th:text="${user.active ? 'Aktywny' : 'Dezaktywowany'}">
-                                        Status
-                                    </span>
-                                </td>
-                                <td class="align-middle small text-muted"
-                                    th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd.MM.yyyy') : '—'}">
-                                    Data
-                                </td>
-                                <td class="align-middle text-center">
-                                    <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                        <!-- Change role -->
-                                        <form th:action="@{/admin/users/{id}/role(id=${user.id})}"
-                                              method="post" class="d-inline">
-                                            <select name="newRole" class="form-select form-select-sm d-inline-block w-auto"
-                                                    th:aria-label="'Zmień rolę dla użytkownika ' + ${user.login}">
-                                                <option value="USER"  th:selected="${user.role.name() == 'USER'}">USER</option>
-                                                <option value="ADMIN" th:selected="${user.role.name() == 'ADMIN'}">ADMIN</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-outline-primary btn-sm"
-                                                    th:aria-label="'Zapisz rolę dla ' + ${user.login}">
-                                                Zmień
-                                            </button>
-                                        </form>
+                                 <td class="align-middle">
+                                     <span class="badge"
+                                           th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : (${user.role.name() == 'MODERATOR'} ? 'bg-info text-dark' : 'bg-secondary')"
+                                           th:text="${user.role}">ROLE</span>
+                                 </td>
+                                 <td class="align-middle">
+                                     <span class="badge"
+                                           th:classappend="${user.active} ? 'bg-success' : 'bg-secondary'"
+                                           th:text="${user.active ? 'Aktywny' : 'Dezaktywowany'}">
+                                         Status
+                                     </span>
+                                 </td>
+                                 <td class="align-middle small text-muted"
+                                     th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd.MM.yyyy') : '—'}">
+                                     Data
+                                 </td>
+                                 <td class="align-middle text-center">
+                                     <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                         <!-- Change role -->
+                                         <form th:action="@{/admin/users/{id}/role(id=${user.id})}"
+                                               method="post" class="d-inline">
+                                             <select name="newRole" class="form-select form-select-sm d-inline-block w-auto"
+                                                     th:aria-label="'Zmień rolę dla użytkownika ' + ${user.login}">
+                                                 <option value="USER"      th:selected="${user.role.name() == 'USER'}">USER</option>
+                                                 <option value="MODERATOR" th:selected="${user.role.name() == 'MODERATOR'}">MODERATOR</option>
+                                                 <option value="ADMIN"     th:selected="${user.role.name() == 'ADMIN'}">ADMIN</option>
+                                             </select>
+                                             <button type="submit" class="btn btn-outline-primary btn-sm"
+                                                     th:aria-label="'Zapisz rolę dla ' + ${user.login}">
+                                                 Zmień
+                                             </button>
+                                         </form>
                                         <!-- Deactivate/activate -->
                                         <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}"
                                               method="post" class="d-inline">

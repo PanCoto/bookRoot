@@ -58,35 +58,47 @@ public class TaskService {
             }
         }
 
+        org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+
         if (categoryId != null) {
             Category cat = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
             if (isPopularity) {
-                org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
-                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
-                if (direction == org.springframework.data.domain.Sort.Direction.ASC) {
-                    tasks = taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, unsortedPageable);
+                if (since != null) {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByCategoryAndStatusAndSinceOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, since, unsortedPageable)
+                            : taskRepository.findByCategoryAndStatusAndSinceOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, since, unsortedPageable);
                 } else {
-                    tasks = taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, unsortedPageable);
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, unsortedPageable)
+                            : taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, unsortedPageable);
                 }
             } else {
-                tasks = taskRepository.findByCategoryAndStatus(cat, TaskStatus.APPROVED, pageable);
+                if (since != null) {
+                    tasks = taskRepository.findByCategoryAndStatusAndCreatedDateGreaterThanEqual(cat, TaskStatus.APPROVED, since, pageable);
+                } else {
+                    tasks = taskRepository.findByCategoryAndStatus(cat, TaskStatus.APPROVED, pageable);
+                }
             }
         } else {
             if (isPopularity) {
-                org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
-                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
-                if (direction == org.springframework.data.domain.Sort.Direction.ASC) {
-                    tasks = taskRepository.findByStatusOrderByAnswersCountAsc(TaskStatus.APPROVED, unsortedPageable);
+                if (since != null) {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByStatusAndSinceOrderByAnswersCountAsc(TaskStatus.APPROVED, since, unsortedPageable)
+                            : taskRepository.findByStatusAndSinceOrderByAnswersCountDesc(TaskStatus.APPROVED, since, unsortedPageable);
                 } else {
-                    tasks = taskRepository.findByStatusOrderByAnswersCountDesc(TaskStatus.APPROVED, unsortedPageable);
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByStatusOrderByAnswersCountAsc(TaskStatus.APPROVED, unsortedPageable)
+                            : taskRepository.findByStatusOrderByAnswersCountDesc(TaskStatus.APPROVED, unsortedPageable);
                 }
             } else {
-                tasks = taskRepository.findByStatus(TaskStatus.APPROVED, pageable);
+                if (since != null) {
+                    tasks = taskRepository.findByStatusAndCreatedDateGreaterThanEqual(TaskStatus.APPROVED, since, pageable);
+                } else {
+                    tasks = taskRepository.findByStatus(TaskStatus.APPROVED, pageable);
+                }
             }
-        }
-        if (since != null) {
-            tasks = tasks.map(t -> t != null && t.getCreatedDate().isAfter(since) ? t : null);
         }
         return tasks.map(taskMapper::toDto);
     }
@@ -101,7 +113,7 @@ public class TaskService {
         org.springframework.data.domain.Sort.Direction direction = org.springframework.data.domain.Sort.Direction.DESC;
         if (pageable.getSort().isSorted()) {
             for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
-                if ("popularity".equalsIgnoreCase(order.getProperty())) {
+                if ("popularity".equalsIgnoreCase(order.getProperty()) || "answers".equalsIgnoreCase(order.getProperty())) {
                     isPopularity = true;
                     direction = order.getDirection();
                     break;
@@ -109,34 +121,48 @@ public class TaskService {
             }
         }
 
+        org.springframework.data.domain.Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
+
         Page<Task> tasks;
         if (categoryId != null) {
             Category cat = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException("Nieznana kategoria"));
             if (isPopularity) {
-                org.springframework.data.domain.Pageable up = org.springframework.data.domain.PageRequest.of(
-                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
-                tasks = direction == org.springframework.data.domain.Sort.Direction.ASC
-                        ? taskRepository.findByCategoryAndStatusOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, up)
-                        : taskRepository.findByCategoryAndStatusOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, up);
-
-                tasks = tasks.map(t -> t.getTaskType() == taskType ? t : null);
+                if (since != null) {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByCategoryAndStatusAndTaskTypeAndSinceOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, taskType, since, unsortedPageable)
+                            : taskRepository.findByCategoryAndStatusAndTaskTypeAndSinceOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, taskType, since, unsortedPageable);
+                } else {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByCategoryAndStatusAndTaskTypeOrderByAnswersCountAsc(cat, TaskStatus.APPROVED, taskType, unsortedPageable)
+                            : taskRepository.findByCategoryAndStatusAndTaskTypeOrderByAnswersCountDesc(cat, TaskStatus.APPROVED, taskType, unsortedPageable);
+                }
             } else {
-                tasks = taskRepository.findByCategoryAndStatusAndTaskType(cat, TaskStatus.APPROVED, taskType, pageable);
+                if (since != null) {
+                    tasks = taskRepository.findByCategoryAndStatusAndTaskTypeAndCreatedDateGreaterThanEqual(cat, TaskStatus.APPROVED, taskType, since, pageable);
+                } else {
+                    tasks = taskRepository.findByCategoryAndStatusAndTaskType(cat, TaskStatus.APPROVED, taskType, pageable);
+                }
             }
         } else {
             if (isPopularity) {
-                org.springframework.data.domain.Pageable up = org.springframework.data.domain.PageRequest.of(
-                        pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.unsorted());
-                tasks = direction == org.springframework.data.domain.Sort.Direction.ASC
-                        ? taskRepository.findByStatusAndTaskTypeOrderByAnswersCountAsc(TaskStatus.APPROVED, taskType, up)
-                        : taskRepository.findByStatusAndTaskTypeOrderByAnswersCountDesc(TaskStatus.APPROVED, taskType, up);
+                if (since != null) {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByStatusAndTaskTypeAndSinceOrderByAnswersCountAsc(TaskStatus.APPROVED, taskType, since, unsortedPageable)
+                            : taskRepository.findByStatusAndTaskTypeAndSinceOrderByAnswersCountDesc(TaskStatus.APPROVED, taskType, since, unsortedPageable);
+                } else {
+                    tasks = (direction == org.springframework.data.domain.Sort.Direction.ASC)
+                            ? taskRepository.findByStatusAndTaskTypeOrderByAnswersCountAsc(TaskStatus.APPROVED, taskType, unsortedPageable)
+                            : taskRepository.findByStatusAndTaskTypeOrderByAnswersCountDesc(TaskStatus.APPROVED, taskType, unsortedPageable);
+                }
             } else {
-                tasks = taskRepository.findByStatusAndTaskType(TaskStatus.APPROVED, taskType, pageable);
+                if (since != null) {
+                    tasks = taskRepository.findByStatusAndTaskTypeAndCreatedDateGreaterThanEqual(TaskStatus.APPROVED, taskType, since, pageable);
+                } else {
+                    tasks = taskRepository.findByStatusAndTaskType(TaskStatus.APPROVED, taskType, pageable);
+                }
             }
-        }
-        if (since != null) {
-            tasks = tasks.map(t -> t != null && t.getCreatedDate().isAfter(since) ? t : null);
         }
         return tasks.map(taskMapper::toDto);
     }

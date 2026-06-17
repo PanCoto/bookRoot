@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 "/api/categories", "/api/categories/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/moderator/**").hasAnyRole("ADMIN", "MODERATOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

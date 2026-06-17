@@ -68,13 +68,13 @@
                         <div class="col-md-3">
                             <label for="since" class="form-label fw-semibold small">Data od</label>
                             <input type="date" name="since" id="since" class="form-control form-control-sm"
-                                   th:value="${param.since}">
+                                   th:value="${param.since != null ? param.since : #temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
                         </div>
 
                         <div class="col-md-3">
                             <button type="submit" class="btn btn-primary btn-sm w-100"
                                     aria-label="Zastosuj filtry">
-                                🔍 Filtruj
+                                <span aria-hidden="true">🔍</span> Filtruj
                             </button>
                         </div>
                     </div>
@@ -84,30 +84,46 @@
 
         <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
             <span class="text-muted small fw-semibold">Sortuj:</span>
-            <a class="btn btn-outline-secondary btn-sm"
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'title' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'title' and sortDir == 'asc'} ? 'true' : null"
                th:href="@{/tasks(sortField='title',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Tytuł ▲
             </a>
-            <a class="btn btn-outline-secondary btn-sm"
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'title' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'title' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='title',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Tytuł ▼
             </a>
-            <a class="btn btn-outline-secondary btn-sm"
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'createdDate' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'createdDate' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='createdDate',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Najnowsze ▼
             </a>
-            <a class="btn btn-outline-secondary btn-sm"
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'createdDate' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'createdDate' and sortDir == 'asc'} ? 'true' : null"
                th:href="@{/tasks(sortField='createdDate',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Najstarsze ▲
             </a>
-            <a class="btn btn-outline-secondary btn-sm"
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'popularity' and sortDir == 'desc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'popularity' and sortDir == 'desc'} ? 'true' : null"
                th:href="@{/tasks(sortField='popularity',sortDir='desc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
                 Popularność ▼
+            </a>
+            <a class="btn btn-sm"
+               th:classappend="${sortField == 'popularity' and sortDir == 'asc'} ? 'btn-secondary' : 'btn-outline-secondary'"
+               th:aria-current="${sortField == 'popularity' and sortDir == 'asc'} ? 'true' : null"
+               th:href="@{/tasks(sortField='popularity',sortDir='asc',categoryId=${param.categoryId},since=${param.since},taskType=${param.taskType})}">
+                Popularność ▲
             </a>
         </div>
 
         <div th:if="${#lists.isEmpty(tasks.content)}" class="text-center py-5 text-muted">
-            <div class="display-6 mb-3">📭</div>
+            <div class="display-6 mb-3" aria-hidden="true">📭</div>
             <p class="lead">Brak zadań spełniających kryteria.</p>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary btn-sm"
                aria-label="Wyczyść filtry i pokaż wszystkie">
@@ -145,7 +161,7 @@
                             <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span>
                         </small>
                         <small class="text-muted">
-                            👁 <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
+                            <span aria-hidden="true">👁</span> <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
                         </small>
                     </div>
                 </div>

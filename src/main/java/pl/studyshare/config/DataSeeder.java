@@ -58,6 +58,17 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
         userRepository.save(admin);
 
+        User moderator = User.builder()
+                .login("moderator")
+                .password(passwordEncoder.encode("mod123"))
+                .firstName("Moderator")
+                .lastName("Systemu")
+                .age(25)
+                .role(Role.MODERATOR)
+                .enabled(true)
+                .build();
+        userRepository.save(moderator);
+
         User student1 = createStudent("studentjan", "pass123", "Jan", "Kowalski", 20);
         User student2 = createStudent("studentanna", "pass123", "Anna", "Nowak", 21);
 
