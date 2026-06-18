@@ -248,6 +248,12 @@ public class TaskService {
         }
 
         if (request.status() != null && currentUser.getRole().name().equals("ADMIN")) {
+            if (request.status() == TaskStatus.REJECTED) {
+                // Fizyczne usunięcie zadania zamiast przechowywania go ze statusem REJECTED,
+                // aby nie blokować kaskadowego usuwania kategorii.
+                taskRepository.delete(task);
+                return null;
+            }
             task.setStatus(request.status());
             if (request.status() == TaskStatus.APPROVED) {
                 task.setApprovedBy(currentUser);

@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.studyshare.domain.Category;
 import pl.studyshare.dto.CategoryCreateRequest;
 import pl.studyshare.dto.CategoryDTO;
+import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.repository.CategoryRepository;
+import pl.studyshare.repository.TaskRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final TaskRepository taskRepository;
 
     public List<CategoryDTO> findAllOrderByPopularity() {
         return categoryRepository.findAllOrderByTaskCountDesc().stream()
@@ -44,6 +47,13 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Kategoria nie istnieje: " + id));
+
+        taskRepository.deleteAll(
+                taskRepository.findAllByCategoryAndStatus(category, TaskStatus.REJECTED)
+        );
+
         categoryRepository.deleteById(id);
     }
 
@@ -52,3 +62,4 @@ public class CategoryService {
         return new CategoryDTO(c.getId(), c.getName(), count);
     }
 }
+

@@ -60,6 +60,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findAllByStatusOrderByCreatedDateAsc(TaskStatus status);
 
+    List<Task> findAllByCategoryAndStatus(Category category, TaskStatus status);
+
     long countByStatus(TaskStatus status);
 
     Page<Task> findByStatusAndTaskType(TaskStatus status, TaskType taskType, Pageable pageable);

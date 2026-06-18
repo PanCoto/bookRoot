@@ -282,7 +282,11 @@ public class TaskController {
         User currentUser = userRepository.findByLogin(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Nieznany użytkownik"));
 
-        taskService.updateTask(id, request, currentUser);
+        TaskDTO updated = taskService.updateTask(id, request, currentUser);
+        // Jeśli zadanie zostało odrzucone (REJECTED), jest fizycznie usuwane — przekieruj na listę
+        if (updated == null) {
+            return "redirect:/tasks";
+        }
         return "redirect:/tasks/" + id;
     }
 

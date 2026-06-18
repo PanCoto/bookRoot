@@ -74,6 +74,10 @@ public class TaskApiController {
         User currentUser = userRepository.findByLogin(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
         TaskDTO response = taskService.updateTask(id, request, currentUser);
+        // Jeśli zadanie zostało odrzucone (REJECTED), jest fizycznie usuwane
+        if (response == null) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(response);
     }
 

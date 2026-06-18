@@ -1,511 +1,531 @@
 <!DOCTYPE html>
-<html lang="pl"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" th:content="'Zadanie: ' + ${task.title} + ' – bookRoot'">
     <title th:text="${task.title} + ' – bookRoot'">Szczegóły zadania – bookRoot</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous">
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/header :: header}"></div>
 
-<main role="main" class="flex-grow-1 py-4">
-    <div class="container">
-        <div class="row g-4">
+    <main role="main" class="flex-grow-1 py-4">
+        <div class="container">
+            <div class="row g-4">
 
-            <div class="col-lg-8">
+                <div class="col-lg-8">
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white border-0 pb-0 pt-3 px-4">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <span class="badge bg-secondary"
-                                  th:text="${task.categoryName}">Kategoria</span>
-                            <span class="badge rounded-pill bg-primary"
-                                  th:text="${task.taskType != null ? task.taskType : 'OPEN'}">Typ</span>
-                            <span class="badge bg-success" th:if="${task.isOfficial}">
-                                 Oficjalne
-                            </span>
-                            <span class="badge bg-warning text-dark"
-                                  th:if="${task.status != null}"
-                                  th:text="${task.status}">Status</span>
-                        </div>
-                        <h1 class="h3 fw-bold" th:text="${task.title}">Tytuł zadania</h1>
-                    </div>
-                    <div class="card-body px-4">
-                        <div class="task-content mb-3" style="white-space: pre-line;"
-                             th:text="${task.content}">Treść zadania</div>
-
-                        <div th:if="${task.imageUrl != null and !#strings.isEmpty(task.imageUrl)}"
-                             class="mb-3">
-                            <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania"
-                                 class="img-fluid rounded shadow-sm">
-                        </div>
-
-                        <div th:if="${task.sourceUrl != null and !#strings.isEmpty(task.sourceUrl)}"
-                             class="mb-3">
-                            <a th:href="${task.sourceUrl}" target="_blank" rel="noopener noreferrer"
-                               class="small text-muted" aria-label="Źródło zadania">
-                                 Źródło zadania
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-top px-4 py-2">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <small class="text-muted">
-                                Dodano:
-                                <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span>
-                                &bull;
-                                Autor:
-                                <span th:if="${task.authorName == null}" class="fst-italic text-muted">Anonim</span>
-                                <a th:if="${task.authorName != null}" th:href="@{/users/{login}(login=${task.authorName})}" th:text="${task.authorName}" class="text-decoration-none fw-semibold">Autor</a>
-                                &bull;
-                                Wyświetlenia: <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
-                            </small>
-                            <div class="d-flex gap-2 flex-wrap" sec:authorize="isAuthenticated()">
-
-                                <a th:if="${isAuthor or isAdmin}"
-                                   th:href="@{/tasks/{id}/edit(id=${task.id})}"
-                                   class="btn btn-sm btn-outline-secondary"
-                                   aria-label="Edytuj zadanie">Edytuj</a>
-
-                                <form th:if="${isAuthor or isAdmin}"
-                                      th:action="@{/tasks/{id}/delete(id=${task.id})}"
-                                      method="post"
-                                      style="display: inline;"
-                                      onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Usuń zadanie">Usuń</button>
-                                </form>
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white border-0 pb-0 pt-3 px-4">
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="badge bg-secondary" th:text="${task.categoryName}">Kategoria</span>
+                                <span class="badge rounded-pill bg-primary"
+                                    th:text="${task.taskType != null ? task.taskType : 'OPEN'}">Typ</span>
+                                <span class="badge bg-success" th:if="${task.isOfficial}">
+                                    Oficjalne
+                                </span>
+                                <span class="badge bg-warning text-dark" th:if="${task.status != null}"
+                                    th:text="${task.status}">Status</span>
                             </div>
+                            <h1 class="h3 fw-bold" th:text="${task.title}">Tytuł zadania</h1>
                         </div>
-                    </div>
-                </div>
+                        <div class="card-body px-4">
+                            <div class="task-content mb-3" style="white-space: pre-line;" th:text="${task.content}">
+                                Treść zadania</div>
 
-
-                <div th:if="${task.status != null and task.status.name() == 'DRAFT' and isAuthor}"
-                     class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
-                    <div class="card-body">
-                        <h2 class="h5 fw-bold mb-3"> Udostępnij ten szkic</h2>
-                        <p class="text-muted small">
-                            Ten szkic nie jest jeszcze opublikowany. Wygeneruj bezpieczny link udostępnienia:
-                        </p>
-                        <form th:action="@{/tasks/{id}/share(id=${task.id})}" method="post">
-                            <div class="mb-3">
-                                <div class="form-check mb-1">
-                                    <input class="form-check-input" type="radio" name="shareType"
-                                           value="PUBLIC" id="sharePublic" checked
-                                           onclick="document.getElementById('recipientBox').classList.add('d-none')">
-                                    <label class="form-check-label" for="sharePublic">Link publiczny</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="shareType"
-                                           value="SPECIFIC" id="shareSpecific"
-                                           onclick="document.getElementById('recipientBox').classList.remove('d-none')">
-                                    <label class="form-check-label" for="shareSpecific">Dla konkretnego użytkownika</label>
-                                </div>
-                            </div>
-                            <div id="recipientBox" class="d-none mb-3">
-                                <label for="recipientLogin" class="form-label small">Login użytkownika:</label>
-                                <input type="text" class="form-control form-control-sm"
-                                       name="recipientLogin" id="recipientLogin"
-                                       placeholder="Wpisz login...">
-                            </div>
-                            <button type="submit" class="btn btn-warning btn-sm"
-                                    aria-label="Generuj link udostępniania">
-                                Generuj link
-                            </button>
-                        </form>
-
-                        <div th:if="${taskShares != null and !#lists.isEmpty(taskShares)}" class="mt-3">
-                            <h3 class="h6 fw-semibold mb-2">Wygenerowane linki:</h3>
-                            <ul class="list-unstyled mb-0">
-                                <li th:each="share : ${taskShares}" class="mb-1">
-                                    <a th:href="@{/share/{token}(token=${share.token})}"
-                                       th:text="'/share/' + ${share.token}"
-                                       target="_blank" class="small text-primary">Link</a>
-                                    <span th:if="${share.recipientName != null}"
-                                          class="text-muted small fst-italic"
-                                          th:text="' – dla: ' + ${share.recipientName}"></span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-
-                <section id="answers" th:if="${task.status != null and task.status.name() == 'APPROVED'}" aria-label="Odpowiedzi do zadania">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h4 fw-bold mb-0">Odpowiedzi społeczności</h2>
-                    </div>
-
-                    <div th:if="${#lists.isEmpty(answers)}" class="text-center py-4 text-muted">
-                        <div class="fs-1 mb-2">
-                            <img src="https://media.tenor.com/A90MwjsQgMcAAAAM/zy0x-zy0x-speed.gif" alt="" aria-hidden="true">
-                        </div>
-                        <p>Brak odpowiedzi. Bądź pierwszym, który doda rozwiązanie!</p>
-                    </div>
-
-                    <div th:each="answer : ${answers}" th:id="'answer-container-' + ${answer.id}" class="card shadow-sm border-0 mb-3"
-                         th:classappend="${answer.isOfficial} ? ' border-start border-success border-3' : ''">
-                        <div class="card-body">
-
-                            <div th:if="${answer.isOfficial}"
-                                 class="text-success fw-bold small mb-2">
-                                Oficjalne rozwiązanie
+                            <div th:if="${task.imageUrl != null and !#strings.isEmpty(task.imageUrl)}" class="mb-3">
+                                <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania"
+                                    class="img-fluid rounded shadow-sm">
                             </div>
 
-                            <div class="answer-content mb-3" style="white-space: pre-line;"
-                                 th:text="${answer.content}">Treść odpowiedzi</div>
-
+                            <div th:if="${task.sourceUrl != null and !#strings.isEmpty(task.sourceUrl)}" class="mb-3">
+                                <a th:href="${task.sourceUrl}" target="_blank" rel="noopener noreferrer"
+                                    class="small text-muted" aria-label="Źródło zadania">
+                                    Źródło zadania
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top px-4 py-2">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <small class="text-muted d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="d-inline-flex align-items-center gap-1">
-                                        <span th:if="${answer.authorName == null}" class="fst-italic">Anonim</span>
-                                        <span th:if="${answer.authorName != null}" class="d-inline-flex align-items-center gap-1">
-                                            <span class="answer-avatar-wrapper d-inline-block">
-                                                <img th:if="${answer.authorAvatarFilename != null and !#strings.isEmpty(answer.authorAvatarFilename)}"
-                                                     th:src="@{/uploads/avatars/{f}(f=${answer.authorAvatarFilename})}"
-                                                     alt="Avatar" class="rounded-circle border border-light shadow-sm"
-                                                     style="width: 22px; height: 22px; object-fit: cover;">
-                                                <span th:unless="${answer.authorAvatarFilename != null and !#strings.isEmpty(answer.authorAvatarFilename)}"
-                                                      class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
-                                                      style="width: 22px; height: 22px; font-size: 11px;">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                                    </svg>
-                                                </span>
-                                            </span>
-                                            <a th:href="@{/users/{login}(login=${answer.authorName})}" th:text="${answer.authorName}"
-                                               class="text-decoration-none fw-semibold text-dark">Autor</a>
-                                        </span>
-                                    </span>
+                                <small class="text-muted">
+                                    Dodano:
+                                    <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span>
                                     &bull;
-                                    Ocena: <strong th:id="'score-' + ${answer.id}" th:text="${answer.score != null ? answer.score : 0}">0</strong>
+                                    Autor:
+                                    <span th:if="${task.authorName == null}" class="fst-italic text-muted">Anonim</span>
+                                    <a th:if="${task.authorName != null}"
+                                        th:href="@{/users/{login}(login=${task.authorName})}"
+                                        th:text="${task.authorName}" class="text-decoration-none fw-semibold">Autor</a>
+                                    &bull;
+                                    Wyświetlenia: <span
+                                        th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
                                 </small>
+                                <div class="d-flex gap-2 flex-wrap" sec:authorize="isAuthenticated()">
 
-                                <div sec:authorize="isAuthenticated()"
-                                     th:id="'vote-container-' + ${answer.id}"
-                                     class="d-flex gap-2">
-                                    <button class="vote-btn btn-upvote btn btn-sm"
-                                            th:id="'upvote-' + ${answer.id}"
-                                            th:data-answer-id="${answer.id}"
-                                            th:data-vote-type="UPVOTE"
+                                    <a th:if="${isAuthor or isAdmin}" th:href="@{/tasks/{id}/edit(id=${task.id})}"
+                                        class="btn btn-sm btn-outline-secondary" aria-label="Edytuj zadanie">Edytuj</a>
+
+                                    <form th:if="${isAuthor or isAdmin}"
+                                        th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post"
+                                        style="display: inline;"
+                                        onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            aria-label="Usuń zadanie">Usuń</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div th:if="${task.status != null and task.status.name() == 'DRAFT' and isAuthor}"
+                        class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+                        <div class="card-body">
+                            <h2 class="h5 fw-bold mb-3"> Udostępnij ten szkic</h2>
+                            <p class="text-muted small">
+                                Ten szkic nie jest jeszcze opublikowany. Wygeneruj bezpieczny link udostępnienia:
+                            </p>
+                            <form th:action="@{/tasks/{id}/share(id=${task.id})}" method="post">
+                                <div class="mb-3">
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="radio" name="shareType" value="PUBLIC"
+                                            id="sharePublic" checked
+                                            onclick="document.getElementById('recipientBox').classList.add('d-none')">
+                                        <label class="form-check-label" for="sharePublic">Link publiczny</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="shareType" value="SPECIFIC"
+                                            id="shareSpecific"
+                                            onclick="document.getElementById('recipientBox').classList.remove('d-none')">
+                                        <label class="form-check-label" for="shareSpecific">Dla konkretnego
+                                            użytkownika</label>
+                                    </div>
+                                </div>
+                                <div id="recipientBox" class="d-none mb-3">
+                                    <label for="recipientLogin" class="form-label small">Login użytkownika:</label>
+                                    <input type="text" class="form-control form-control-sm" name="recipientLogin"
+                                        id="recipientLogin" placeholder="Wpisz login...">
+                                </div>
+                                <button type="submit" class="btn btn-warning btn-sm"
+                                    aria-label="Generuj link udostępniania">
+                                    Generuj link
+                                </button>
+                            </form>
+
+                            <div th:if="${taskShares != null and !#lists.isEmpty(taskShares)}" class="mt-3">
+                                <h3 class="h6 fw-semibold mb-2">Wygenerowane linki:</h3>
+                                <ul class="list-unstyled mb-0">
+                                    <li th:each="share : ${taskShares}" class="mb-1">
+                                        <a th:href="@{/share/{token}(token=${share.token})}"
+                                            th:text="'/share/' + ${share.token}" target="_blank"
+                                            class="small text-primary">Link</a>
+                                        <span th:if="${share.recipientName != null}" class="text-muted small fst-italic"
+                                            th:text="' – dla: ' + ${share.recipientName}"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <section id="answers" th:if="${task.status != null and task.status.name() == 'APPROVED'}"
+                        aria-label="Odpowiedzi do zadania">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h4 fw-bold mb-0">Odpowiedzi społeczności</h2>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(answers)}" class="text-center py-4 text-muted">
+                            <div class="fs-1 mb-2">
+                                <img src="https://media.tenor.com/A90MwjsQgMcAAAAM/zy0x-zy0x-speed.gif" alt=""
+                                    aria-hidden="true">
+                            </div>
+                            <p>Brak odpowiedzi. Bądź pierwszym, który doda rozwiązanie!</p>
+                        </div>
+
+                        <div th:each="answer : ${answers}" th:id="'answer-container-' + ${answer.id}"
+                            class="card shadow-sm border-0 mb-3"
+                            th:classappend="${answer.isOfficial} ? ' border-start border-success border-3' : ''">
+                            <div class="card-body">
+
+                                <div th:if="${answer.isOfficial}" class="text-success fw-bold small mb-2">
+                                    Oficjalne rozwiązanie
+                                </div>
+
+                                <div class="answer-content mb-3" style="white-space: pre-line;"
+                                    th:text="${answer.content}">Treść odpowiedzi</div>
+
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <small class="text-muted d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="d-inline-flex align-items-center gap-1">
+                                            <span th:if="${answer.authorName == null}" class="fst-italic">Anonim</span>
+                                            <span th:if="${answer.authorName != null}"
+                                                class="d-inline-flex align-items-center gap-1">
+                                                <span class="answer-avatar-wrapper d-inline-block">
+                                                    <img th:if="${answer.authorAvatarFilename != null and !#strings.isEmpty(answer.authorAvatarFilename)}"
+                                                        th:src="@{/uploads/avatars/{f}(f=${answer.authorAvatarFilename})}"
+                                                        alt="Avatar"
+                                                        class="rounded-circle border border-light shadow-sm"
+                                                        style="width: 22px; height: 22px; object-fit: cover;">
+                                                    <span
+                                                        th:unless="${answer.authorAvatarFilename != null and !#strings.isEmpty(answer.authorAvatarFilename)}"
+                                                        class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
+                                                        style="width: 22px; height: 22px; font-size: 11px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                            fill="currentColor" class="bi bi-person-fill"
+                                                            viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+                                                        </svg>
+                                                    </span>
+                                                </span>
+                                                <a th:href="@{/users/{login}(login=${answer.authorName})}"
+                                                    th:text="${answer.authorName}"
+                                                    class="text-decoration-none fw-semibold text-dark">Autor</a>
+                                            </span>
+                                        </span>
+                                        &bull;
+                                        Ocena: <strong th:id="'score-' + ${answer.id}"
+                                            th:text="${answer.score != null ? answer.score : 0}">0</strong>
+                                    </small>
+
+                                    <div sec:authorize="isAuthenticated()" th:id="'vote-container-' + ${answer.id}"
+                                        class="d-flex gap-2">
+                                        <button class="vote-btn btn-upvote btn btn-sm" th:id="'upvote-' + ${answer.id}"
+                                            th:data-answer-id="${answer.id}" th:data-vote-type="UPVOTE"
                                             th:classappend="${userVotes != null and userVotes.get(answer.id) == 'UPVOTE'} ? ' btn-success' : ' btn-outline-success'"
                                             th:aria-label="'Oceń pozytywnie odpowiedź ' + ${answer.id}"
                                             th:aria-pressed="${userVotes != null and userVotes.get(answer.id) == 'UPVOTE'}">
-                                        ▲ +1
-                                    </button>
-                                    <button class="vote-btn btn-downvote btn btn-sm"
-                                            th:id="'downvote-' + ${answer.id}"
-                                            th:data-answer-id="${answer.id}"
+                                            ▲ +1
+                                        </button>
+                                        <button class="vote-btn btn-downvote btn btn-sm"
+                                            th:id="'downvote-' + ${answer.id}" th:data-answer-id="${answer.id}"
                                             th:data-vote-type="DOWNVOTE"
                                             th:classappend="${userVotes != null and userVotes.get(answer.id) == 'DOWNVOTE'} ? ' btn-danger' : ' btn-outline-danger'"
                                             th:aria-label="'Oceń negatywnie odpowiedź ' + ${answer.id}"
                                             th:aria-pressed="${userVotes != null and userVotes.get(answer.id) == 'DOWNVOTE'}">
-                                        ▼ -1
-                                    </button>
-
-                                    <form sec:authorize="hasRole('ADMIN')"
-                                          th:unless="${answer.isOfficial}"
-                                          th:action="@{/tasks/{tid}/answers/{aid}/official(tid=${task.id},aid=${answer.id})}"
-                                          method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-success"
-                                                aria-label="Oznacz jako oficjalne rozwiązanie">
-                                             Oznacz oficjalne
+                                            ▼ -1
                                         </button>
-                                    </form>
 
-                                    <button th:if="${isAdmin or (deletableAnswerIds != null and deletableAnswerIds.contains(answer.id))}"
-                                            type="button"
-                                            class="btn btn-sm btn-outline-danger btn-delete-answer"
-                                            th:data-answer-id="${answer.id}"
-                                            aria-label="Usuń odpowiedź">
-                                        Usuń
-                                    </button>
-                                </div>
-                            </div>
+                                        <form sec:authorize="hasRole('ADMIN')" th:unless="${answer.isOfficial}"
+                                            th:action="@{/tasks/{tid}/answers/{aid}/official(tid=${task.id},aid=${answer.id})}"
+                                            method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                                aria-label="Oznacz jako oficjalne rozwiązanie">
+                                                Oznacz oficjalne
+                                            </button>
+                                        </form>
 
-                            <div class="mt-3 pt-2 border-top">
-                                <div th:if="${answer.comments != null and !#lists.isEmpty(answer.comments)}">
-                                    <div th:each="comment : ${answer.comments}"
-                                         th:id="'comment-container-' + ${comment.id}"
-                                         class="mb-2 ps-3 border-start border-2 border-secondary-subtle d-flex justify-content-between align-items-start comment-item">
-                                        <div>
-                                            <p class="mb-0 small" th:text="${comment.content}">Komentarz</p>
-                                            <small class="text-muted d-flex align-items-center gap-1 flex-wrap">
-                                                <span class="d-inline-flex align-items-center gap-1">
-                                                    <span class="comment-avatar-wrapper d-inline-block">
-                                                        <img th:if="${comment.authorAvatarFilename != null and !#strings.isEmpty(comment.authorAvatarFilename)}"
-                                                             th:src="@{/uploads/avatars/{f}(f=${comment.authorAvatarFilename})}"
-                                                             alt="Avatar" class="rounded-circle border border-light shadow-sm"
-                                                             style="width: 24px; height: 24px; object-fit: cover;">
-                                                        <span th:unless="${comment.authorAvatarFilename != null and !#strings.isEmpty(comment.authorAvatarFilename)}"
-                                                              class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle border border-light shadow-sm"
-                                                              style="width: 24px; height: 24px;">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                                            </svg>
-                                                        </span>
-                                                    </span>
-
-                                                    <span th:if="${comment.authorName == null}" class="fst-italic text-muted">Anonim</span>
-                                                    <a th:if="${comment.authorName != null}" th:href="@{/users/{login}(login=${comment.authorName})}" th:text="${comment.authorName}" class="text-decoration-none fw-semibold text-secondary">Autor</a>
-                                                </span>
-                                                &bull;
-                                                <span th:text="${#temporals.format(comment.createdDate, 'dd.MM.yyyy')}">Data</span>
-                                            </small>
-
-                                        </div>
-                                        <button th:if="${isAdmin or (deletableCommentIds != null and deletableCommentIds.contains(comment.id))}"
-                                                type="button"
-                                                class="btn btn-link btn-sm text-danger p-0 ms-2 btn-delete-comment"
-                                                th:data-comment-id="${comment.id}"
-                                                style="text-decoration: none; font-size: 0.8rem;"
-                                                aria-label="Usuń komentarz">
+                                        <button
+                                            th:if="${isAdmin or (deletableAnswerIds != null and deletableAnswerIds.contains(answer.id))}"
+                                            type="button" class="btn btn-sm btn-outline-danger btn-delete-answer"
+                                            th:data-answer-id="${answer.id}" aria-label="Usuń odpowiedź">
                                             Usuń
                                         </button>
                                     </div>
                                 </div>
 
-                                <form sec:authorize="isAuthenticated()"
-                                      th:action="@{/tasks/{tid}/answers/{aid}/comments(tid=${task.id},aid=${answer.id})}"
-                                      method="post" class="d-flex gap-2 mt-2">
-                                    <label th:for="'comment-input-' + ${answer.id}" class="visually-hidden">
-                                        Treść komentarza
-                                    </label>
-                                    <input type="text" name="content" required
-                                           th:id="'comment-input-' + ${answer.id}"
-                                           class="form-control form-control-sm"
-                                           placeholder="Dodaj komentarz..."
-                                           minlength="2" maxlength="1000">
-                                    <button type="submit" class="btn btn-primary btn-sm"
+                                <div class="mt-3 pt-2 border-top">
+                                    <div th:if="${answer.comments != null and !#lists.isEmpty(answer.comments)}">
+                                        <div th:each="comment : ${answer.comments}"
+                                            th:id="'comment-container-' + ${comment.id}"
+                                            class="mb-2 ps-3 border-start border-2 border-secondary-subtle d-flex justify-content-between align-items-start comment-item">
+                                            <div>
+                                                <p class="mb-0 small" th:text="${comment.content}">Komentarz</p>
+                                                <small class="text-muted d-flex align-items-center gap-1 flex-wrap">
+                                                    <span class="d-inline-flex align-items-center gap-1">
+                                                        <span class="comment-avatar-wrapper d-inline-block">
+                                                            <img th:if="${comment.authorAvatarFilename != null and !#strings.isEmpty(comment.authorAvatarFilename)}"
+                                                                th:src="@{/uploads/avatars/{f}(f=${comment.authorAvatarFilename})}"
+                                                                alt="Avatar"
+                                                                class="rounded-circle border border-light shadow-sm"
+                                                                style="width: 24px; height: 24px; object-fit: cover;">
+                                                            <span
+                                                                th:unless="${comment.authorAvatarFilename != null and !#strings.isEmpty(comment.authorAvatarFilename)}"
+                                                                class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle border border-light shadow-sm"
+                                                                style="width: 24px; height: 24px;">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14"
+                                                                    height="14" fill="currentColor"
+                                                                    class="bi bi-person-fill" viewBox="0 0 16 16">
+                                                                    <path
+                                                                        d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+
+                                                        <span th:if="${comment.authorName == null}"
+                                                            class="fst-italic text-muted">Anonim</span>
+                                                        <a th:if="${comment.authorName != null}"
+                                                            th:href="@{/users/{login}(login=${comment.authorName})}"
+                                                            th:text="${comment.authorName}"
+                                                            class="text-decoration-none fw-semibold text-secondary">Autor</a>
+                                                    </span>
+                                                    &bull;
+                                                    <span
+                                                        th:text="${#temporals.format(comment.createdDate, 'dd.MM.yyyy')}">Data</span>
+                                                </small>
+
+                                            </div>
+                                            <button
+                                                th:if="${isAdmin or (deletableCommentIds != null and deletableCommentIds.contains(comment.id))}"
+                                                type="button"
+                                                class="btn btn-link btn-sm text-danger p-0 ms-2 btn-delete-comment"
+                                                th:data-comment-id="${comment.id}"
+                                                style="text-decoration: none; font-size: 0.8rem;"
+                                                aria-label="Usuń komentarz">
+                                                Usuń
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <form sec:authorize="isAuthenticated()"
+                                        th:action="@{/tasks/{tid}/answers/{aid}/comments(tid=${task.id},aid=${answer.id})}"
+                                        method="post" class="d-flex gap-2 mt-2">
+                                        <label th:for="'comment-input-' + ${answer.id}" class="visually-hidden">
+                                            Treść komentarza
+                                        </label>
+                                        <input type="text" name="content" required
+                                            th:id="'comment-input-' + ${answer.id}" class="form-control form-control-sm"
+                                            placeholder="Dodaj komentarz..." minlength="2" maxlength="1000">
+                                        <button type="submit" class="btn btn-primary btn-sm"
                                             aria-label="Wyślij komentarz">Wyślij</button>
-                                </form>
-                                <div th:if="${commentErrorAnswerId == answer.id}"
-                                     class="text-danger small mt-1"
-                                     th:text="${commentError}" role="alert"></div>
+                                    </form>
+                                    <div th:if="${commentErrorAnswerId == answer.id}" class="text-danger small mt-1"
+                                        th:text="${commentError}" role="alert"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <section id="moderation-panel" th:if="${task.status != null and task.status.name() == 'PENDING'}"
-                         class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
-                    <div class="card-body">
-                        <h2 class="h4 fw-bold text-warning mb-3"> Zadanie oczekuje na moderację</h2>
-                        <p class="text-muted">
-                            To zadanie ma obecnie status <strong>PENDING</strong> i nie jest opublikowane publicznie.
-                        </p>
+                    <section id="moderation-panel" th:if="${task.status != null and task.status.name() == 'PENDING'}"
+                        class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+                        <div class="card-body">
+                            <h2 class="h4 fw-bold text-warning mb-3"> Zadanie oczekuje na moderację</h2>
+                            <p class="text-muted">
+                                To zadanie ma obecnie status <strong>PENDING</strong> i nie jest opublikowane
+                                publicznie.
+                            </p>
 
-                        <div sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')" class="bg-light p-3 rounded border">
-                            <h3 class="h6 fw-bold mb-3">Decyzja moderacyjna:</h3>
-                            <div class="d-flex gap-2">
-                                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i opublikuj</button>
-                                </form>
-                                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
-                                </form>
+                            <div sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')" class="bg-light p-3 rounded border">
+                                <h3 class="h6 fw-bold mb-3">Decyzja moderacyjna:</h3>
+                                <div class="d-flex gap-2">
+                                    <form sec:authorize="hasRole('ADMIN')"
+                                        th:action="@{/admin/tasks/{id}/approve(id=${task.id})}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i
+                                            opublikuj</button>
+                                    </form>
+                                    <form sec:authorize="hasRole('ADMIN')"
+                                        th:action="@{/admin/tasks/{id}/reject(id=${task.id})}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
+                                    </form>
 
-                                <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i opublikuj</button>
-                                </form>
-                                <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
-                                </form>
+                                    <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')"
+                                        th:action="@{/moderator/tasks/{id}/approve(id=${task.id})}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i
+                                            opublikuj</button>
+                                    </form>
+                                    <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')"
+                                        th:action="@{/moderator/tasks/{id}/reject(id=${task.id})}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div sec:authorize="!hasAnyRole('ADMIN', 'MODERATOR')" class="alert alert-secondary mb-0"
+                                role="status">
+                                Zadanie oczekuje na weryfikację przez zespół moderacyjny. Powiadomimy Cię po
+                                zatwierdzeniu.
                             </div>
                         </div>
+                    </section>
 
-                        <div sec:authorize="!hasAnyRole('ADMIN', 'MODERATOR')" class="alert alert-secondary mb-0" role="status">
-                            Zadanie oczekuje na weryfikację przez zespół moderacyjny. Powiadomimy Cię po zatwierdzeniu.
-                        </div>
-                    </div>
-                </section>
-
-                <section sec:authorize="isAuthenticated()" 
-                         th:if="${task.status != null and task.status.name() == 'APPROVED'}"
-                         class="card shadow-sm border-0 mt-4"
-                         aria-label="Formularz dodawania odpowiedzi">
-                    <div class="card-header bg-white fw-bold">Dodaj swoją odpowiedź</div>
-                    <div class="card-body">
-                        <form th:action="@{/tasks/{id}/answers(id=${task.id})}"
-                              method="post" th:object="${newAnswer}">
-                            <div class="mb-3">
-                                <label for="answerContent" class="form-label">Treść odpowiedzi</label>
-                                <textarea th:field="*{content}" id="answerContent"
-                                          class="form-control" rows="6"
-                                          required minlength="10" maxlength="2000"
-                                          placeholder="Wpisz treść rozwiązania..."></textarea>
-                                <div th:if="${#fields.hasErrors('content')}"
-                                     th:errors="*{content}"
-                                     class="invalid-feedback d-block" role="alert"></div>
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input"
-                                       th:field="*{anonymous}" id="answerAnonymous">
-                                <label class="form-check-label" for="answerAnonymous">
-                                    Opublikuj anonimowo
-                                </label>
-                            </div>
-                            <button type="submit" class="btn btn-primary"
+                    <section sec:authorize="isAuthenticated()"
+                        th:if="${task.status != null and task.status.name() == 'APPROVED'}"
+                        class="card shadow-sm border-0 mt-4" aria-label="Formularz dodawania odpowiedzi">
+                        <div class="card-header bg-white fw-bold">Dodaj swoją odpowiedź</div>
+                        <div class="card-body">
+                            <form th:action="@{/tasks/{id}/answers(id=${task.id})}" method="post"
+                                th:object="${newAnswer}">
+                                <div class="mb-3">
+                                    <label for="answerContent" class="form-label">Treść odpowiedzi</label>
+                                    <textarea th:field="*{content}" id="answerContent" class="form-control" rows="6"
+                                        required minlength="10" maxlength="2000"
+                                        placeholder="Wpisz treść rozwiązania..."></textarea>
+                                    <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}"
+                                        class="invalid-feedback d-block" role="alert"></div>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" th:field="*{anonymous}"
+                                        id="answerAnonymous">
+                                    <label class="form-check-label" for="answerAnonymous">
+                                        Opublikuj anonimowo
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary"
                                     aria-label="Opublikuj odpowiedź do zadania">
-                                Opublikuj odpowiedź
-                            </button>
-                        </form>
-                    </div>
-                </section>
+                                    Opublikuj odpowiedź
+                                </button>
+                            </form>
+                        </div>
+                    </section>
 
-                <div sec:authorize="!isAuthenticated()"
-                     th:if="${task.status != null and task.status.name() == 'APPROVED'}"
-                     class="alert alert-info mt-4" role="alert">
-                    Tylko zalogowani użytkownicy mogą dodawać odpowiedzi.
-                    <a th:href="@{/login}" class="alert-link">Zaloguj się teraz</a>.
+                    <div sec:authorize="!isAuthenticated()"
+                        th:if="${task.status != null and task.status.name() == 'APPROVED'}"
+                        class="alert alert-info mt-4" role="alert">
+                        Tylko zalogowani użytkownicy mogą dodawać odpowiedzi.
+                        <a th:href="@{/login}" class="alert-link">Zaloguj się teraz</a>.
+                    </div>
+
                 </div>
+
+                <aside class="col-lg-4" aria-label="Informacje dodatkowe">
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-header bg-white fw-semibold">Informacje</div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Kategoria</span>
+                                <span class="fw-semibold" th:text="${task.categoryName}">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Typ</span>
+                                <span class="fw-semibold"
+                                    th:text="${task.taskType != null ? task.taskType : 'OPEN'}">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Status</span>
+                                <span th:text="${task.status}">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Wyświetlenia</span>
+                                <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between"
+                                th:if="${task.status != null and task.status.name() == 'APPROVED'}">
+                                <span class="text-muted">Odpowiedzi</span>
+                                <span th:text="${#lists.size(answers)}">0</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card shadow-sm border-0" sec:authorize="isAuthenticated()">
+                        <div class="card-body text-center">
+                            <a th:href="@{/tasks}" class="btn btn-outline-secondary btn-sm w-100"
+                                aria-label="Wróć do listy zadań">← Wróć do listy</a>
+                        </div>
+                    </div>
+                </aside>
 
             </div>
-
-            <aside class="col-lg-4" aria-label="Informacje dodatkowe">
-                <div class="card shadow-sm border-0 mb-3">
-                    <div class="card-header bg-white fw-semibold">Informacje</div>
-                    <ul class="list-group list-group-flush small">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Kategoria</span>
-                            <span class="fw-semibold" th:text="${task.categoryName}">—</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Typ</span>
-                            <span class="fw-semibold" th:text="${task.taskType != null ? task.taskType : 'OPEN'}">—</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Status</span>
-                            <span th:text="${task.status}">—</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Wyświetlenia</span>
-                            <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between" th:if="${task.status != null and task.status.name() == 'APPROVED'}">
-                            <span class="text-muted">Odpowiedzi</span>
-                            <span th:text="${#lists.size(answers)}">0</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="card shadow-sm border-0" sec:authorize="isAuthenticated()">
-                    <div class="card-body text-center">
-                        <a th:href="@{/tasks}" class="btn btn-outline-secondary btn-sm w-100"
-                           aria-label="Wróć do listy zadań">← Wróć do listy</a>
-                    </div>
-                </div>
-            </aside>
-
         </div>
-    </div>
-</main>
+    </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script sec:authorize="isAuthenticated()">
-document.addEventListener("DOMContentLoaded", function () {
-    const csrfToken  = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    <script sec:authorize="isAuthenticated()">
+        document.addEventListener("DOMContentLoaded", function () {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-    document.querySelectorAll(".vote-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            const answerId    = parseInt(this.getAttribute("data-answer-id"));
-            const clickedType = this.getAttribute("data-vote-type");
-            const isActive    = this.classList.contains("btn-success") || this.classList.contains("btn-danger");
-            const sendType    = isActive ? null : clickedType;
+            document.querySelectorAll(".vote-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const answerId = parseInt(this.getAttribute("data-answer-id"));
+                    const clickedType = this.getAttribute("data-vote-type");
+                    const isActive = this.classList.contains("btn-success") || this.classList.contains("btn-danger");
+                    const sendType = isActive ? null : clickedType;
 
-            fetch("/api/votes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", [csrfHeader]: csrfToken },
-                body: JSON.stringify({ answerId, voteType: sendType })
-            })
-            .then(r => r.ok ? r.json() : Promise.reject(r.status))
-            .then(data => {
-                const scoreEl = document.getElementById("score-" + answerId);
-                if (scoreEl) scoreEl.textContent = data.currentScore;
+                    fetch("/api/votes", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", [csrfHeader]: csrfToken },
+                        body: JSON.stringify({ answerId, voteType: sendType })
+                    })
+                        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                        .then(data => {
+                            const scoreEl = document.getElementById("score-" + answerId);
+                            if (scoreEl) scoreEl.textContent = data.currentScore;
 
-                const container = document.getElementById("vote-container-" + answerId);
-                if (!container) return;
+                            const container = document.getElementById("vote-container-" + answerId);
+                            if (!container) return;
 
-                const upBtn   = container.querySelector(".btn-upvote");
-                const downBtn = container.querySelector(".btn-downvote");
+                            const upBtn = container.querySelector(".btn-upvote");
+                            const downBtn = container.querySelector(".btn-downvote");
 
-                upBtn.classList.replace("btn-success", "btn-outline-success") ||
-                    upBtn.classList.remove("btn-success");
-                downBtn.classList.replace("btn-danger", "btn-outline-danger") ||
-                    downBtn.classList.remove("btn-danger");
+                            upBtn.classList.replace("btn-success", "btn-outline-success") ||
+                                upBtn.classList.remove("btn-success");
+                            downBtn.classList.replace("btn-danger", "btn-outline-danger") ||
+                                downBtn.classList.remove("btn-danger");
 
-                if (sendType === "UPVOTE") {
-                    upBtn.classList.replace("btn-outline-success", "btn-success");
-                    upBtn.setAttribute("aria-pressed", "true");
-                    downBtn.setAttribute("aria-pressed", "false");
-                } else if (sendType === "DOWNVOTE") {
-                    downBtn.classList.replace("btn-outline-danger", "btn-danger");
-                    downBtn.setAttribute("aria-pressed", "true");
-                    upBtn.setAttribute("aria-pressed", "false");
-                } else {
-                    upBtn.setAttribute("aria-pressed", "false");
-                    downBtn.setAttribute("aria-pressed", "false");
-                }
-            })
-            .catch(err => console.error("Vote error:", err));
+                            if (sendType === "UPVOTE") {
+                                upBtn.classList.replace("btn-outline-success", "btn-success");
+                                upBtn.setAttribute("aria-pressed", "true");
+                                downBtn.setAttribute("aria-pressed", "false");
+                            } else if (sendType === "DOWNVOTE") {
+                                downBtn.classList.replace("btn-outline-danger", "btn-danger");
+                                downBtn.setAttribute("aria-pressed", "true");
+                                upBtn.setAttribute("aria-pressed", "false");
+                            } else {
+                                upBtn.setAttribute("aria-pressed", "false");
+                                downBtn.setAttribute("aria-pressed", "false");
+                            }
+                        })
+                        .catch(err => console.error("Vote error:", err));
+                });
+            });
+
+            document.querySelectorAll(".btn-delete-answer").forEach(button => {
+                button.addEventListener("click", function () {
+                    if (!confirm("Czy na pewno chcesz usunąć tę odpowiedź?")) return;
+                    const answerId = this.getAttribute("data-answer-id");
+
+                    fetch("/api/answers/" + answerId, {
+                        method: "DELETE",
+                        headers: { [csrfHeader]: csrfToken }
+                    })
+                        .then(r => {
+                            if (r.ok) {
+                                const container = document.getElementById("answer-container-" + answerId);
+                                if (container) container.remove();
+                            } else {
+                                alert("Wystąpił błąd podczas usuwania odpowiedzi.");
+                            }
+                        })
+                        .catch(err => console.error("Error deleting answer:", err));
+                });
+            });
+
+            document.querySelectorAll(".btn-delete-comment").forEach(button => {
+                button.addEventListener("click", function () {
+                    if (!confirm("Czy na pewno chcesz usunąć ten komentarz?")) return;
+                    const commentId = this.getAttribute("data-comment-id");
+
+                    fetch("/api/comments/" + commentId, {
+                        method: "DELETE",
+                        headers: { [csrfHeader]: csrfToken }
+                    })
+                        .then(r => {
+                            if (r.ok) {
+                                const container = document.getElementById("comment-container-" + commentId);
+                                if (container) container.remove();
+                            } else {
+                                alert("Wystąpił błąd podczas usuwania komentarza.");
+                            }
+                        })
+                        .catch(err => console.error("Error deleting comment:", err));
+                });
+            });
         });
-    });
-    
-    document.querySelectorAll(".btn-delete-answer").forEach(button => {
-        button.addEventListener("click", function () {
-            if (!confirm("Czy na pewno chcesz usunąć tę odpowiedź?")) return;
-            const answerId = this.getAttribute("data-answer-id");
-
-            fetch("/api/answers/" + answerId, {
-                method: "DELETE",
-                headers: { [csrfHeader]: csrfToken }
-            })
-            .then(r => {
-                if (r.ok) {
-                    const container = document.getElementById("answer-container-" + answerId);
-                    if (container) container.remove();
-                } else {
-                    alert("Wystąpił błąd podczas usuwania odpowiedzi.");
-                }
-            })
-            .catch(err => console.error("Error deleting answer:", err));
-        });
-    });
-
-    document.querySelectorAll(".btn-delete-comment").forEach(button => {
-        button.addEventListener("click", function () {
-            if (!confirm("Czy na pewno chcesz usunąć ten komentarz?")) return;
-            const commentId = this.getAttribute("data-comment-id");
-
-            fetch("/api/comments/" + commentId, {
-                method: "DELETE",
-                headers: { [csrfHeader]: csrfToken }
-            })
-            .then(r => {
-                if (r.ok) {
-                    const container = document.getElementById("comment-container-" + commentId);
-                    if (container) container.remove();
-                } else {
-                    alert("Wystąpił błąd podczas usuwania komentarza.");
-                }
-            })
-            .catch(err => console.error("Error deleting comment:", err));
-        });
-    });
-});
-</script>
+    </script>
 </body>
+
 </html>
