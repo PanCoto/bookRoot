@@ -27,6 +27,11 @@ public class ShareViewController {
         String currentUsername = (userDetails != null) ? userDetails.getUsername() : null;
         try {
             TaskDTO task = shareService.findSharedTaskByToken(token, currentUsername);
+
+            if (userDetails != null) {
+                return "redirect:/tasks/" + task.id();
+            }
+
             model.addAttribute("task", task);
             return "share-view";
         } catch (SecurityException e) {

@@ -87,12 +87,12 @@
                     </div>
 
 
-                    <div th:if="${task.status != null and task.status.name() == 'DRAFT' and isAuthor}"
-                        class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+                    <div th:if="${isAuthor or isAdmin}"
+                        class="card shadow-sm border-0 mb-4 border-start border-4 border-primary">
                         <div class="card-body">
-                            <h2 class="h5 fw-bold mb-3"> Udostępnij ten szkic</h2>
+                            <h2 class="h5 fw-bold mb-3">Udostępnij to zadanie</h2>
                             <p class="text-muted small">
-                                Ten szkic nie jest jeszcze opublikowany. Wygeneruj bezpieczny link udostępnienia:
+                                Wygeneruj link udostępnienia – będzie działał dla tego zadania.
                             </p>
                             <form th:action="@{/tasks/{id}/share(id=${task.id})}" method="post">
                                 <div class="mb-3">
@@ -106,8 +106,7 @@
                                         <input class="form-check-input" type="radio" name="shareType" value="SPECIFIC"
                                             id="shareSpecific"
                                             onclick="document.getElementById('recipientBox').classList.remove('d-none')">
-                                        <label class="form-check-label" for="shareSpecific">Dla konkretnego
-                                            użytkownika</label>
+                                        <label class="form-check-label" for="shareSpecific">Dla konkretnego użytkownika</label>
                                     </div>
                                 </div>
                                 <div id="recipientBox" class="d-none mb-3">
@@ -115,19 +114,19 @@
                                     <input type="text" class="form-control form-control-sm" name="recipientLogin"
                                         id="recipientLogin" placeholder="Wpisz login...">
                                 </div>
-                                <button type="submit" class="btn btn-warning btn-sm"
-                                    aria-label="Generuj link udostępniania">
+                                <button type="submit" class="btn btn-warning btn-sm">
                                     Generuj link
                                 </button>
                             </form>
 
+                            <!-- Wyświetlenie istniejących linków -->
                             <div th:if="${taskShares != null and !#lists.isEmpty(taskShares)}" class="mt-3">
                                 <h3 class="h6 fw-semibold mb-2">Wygenerowane linki:</h3>
                                 <ul class="list-unstyled mb-0">
                                     <li th:each="share : ${taskShares}" class="mb-1">
                                         <a th:href="@{/share/{token}(token=${share.token})}"
-                                            th:text="'/share/' + ${share.token}" target="_blank"
-                                            class="small text-primary">Link</a>
+                                        th:text="'/share/' + ${share.token}" target="_blank"
+                                        class="small text-primary">Link</a>
                                         <span th:if="${share.recipientName != null}" class="text-muted small fst-italic"
                                             th:text="' – dla: ' + ${share.recipientName}"></span>
                                     </li>

@@ -47,8 +47,8 @@ public class ShareService {
             throw new SecurityException("Nie masz uprawnień do udostępniania tego zadania");
         }
 
-        if (task.getStatus() != TaskStatus.DRAFT) {
-            throw new IllegalStateException("Udostępniać można wyłącznie szkice zadań (status DRAFT)");
+        if (task.getStatus() != TaskStatus.DRAFT && task.getStatus() != TaskStatus.APPROVED) {
+            throw new IllegalStateException("Udostępniać można wyłącznie szkice lub zatwierdzone zadania");
         }
 
         User recipient = null;
