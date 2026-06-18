@@ -13,4 +13,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT COUNT(t) FROM Task t WHERE t.category = :category")
     long countByCategory(@Param("category") Category category);
+
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.category = :category AND t.status = pl.studyshare.enums.TaskStatus.APPROVED")
+    long countApprovedByCategory(@Param("category") Category category);
 }

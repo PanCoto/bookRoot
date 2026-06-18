@@ -273,15 +273,14 @@ public class TaskService {
     }
 
     public void rejectTask(Long taskId, User admin) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
-        if (task.getStatus() != TaskStatus.PENDING) {
-            throw new IllegalStateException("Można odrzucić tylko zadania oczekujące");
-        }
-        task.setStatus(TaskStatus.REJECTED);
-        task.setLastModifiedDate(LocalDateTime.now());
-        taskRepository.save(task);
+    Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new IllegalArgumentException("Zadanie nie istnieje"));
+    if (task.getStatus() != TaskStatus.PENDING) {
+        throw new IllegalStateException("Można odrzucić tylko zadania oczekujące");
     }
+    
+    taskRepository.delete(task);
+}
 
     public void incrementViewCount(Long taskId) {
         taskRepository.findById(taskId).ifPresent(task -> {

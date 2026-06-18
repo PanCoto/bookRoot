@@ -48,7 +48,7 @@ public class CategoryService {
     }
 
     private CategoryDTO toDto(Category c) {
-        long count = categoryRepository.countByCategory(c);
+        long count = categoryRepository.countApprovedByCategory(c);
         return new CategoryDTO(c.getId(), c.getName(), count);
     }
 }

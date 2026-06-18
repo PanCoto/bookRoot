@@ -117,8 +117,8 @@ public class TaskApiController {
                                             @AuthenticationPrincipal UserDetails userDetails) {
         User admin = userRepository.findByLogin(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Zalogowany użytkownik nie istnieje"));
-        TaskUpdateRequest updateRequest = new TaskUpdateRequest(null, null, null, TaskStatus.REJECTED, null);
-        taskService.updateTask(id, updateRequest, admin);
+                
+        taskService.rejectTask(id, admin);
         return ResponseEntity.noContent().build();
     }
 }
