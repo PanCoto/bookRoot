@@ -22,6 +22,7 @@ import pl.studyshare.repository.UserRepository;
 import pl.studyshare.service.CategoryService;
 import pl.studyshare.service.TaskService;
 import pl.studyshare.service.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 
@@ -153,8 +154,14 @@ public class AdminController {
             model.addAttribute("categories", categoryService.findAllOrderByPopularity());
             return "admin/categories";
         }
-        categoryService.createCategory(request);
-        redirectAttributes.addFlashAttribute("successMessage", "Kategoria została utworzona.");
+        try {
+            categoryService.createCategory(request);
+            redirectAttributes.addFlashAttribute("successMessage", "Kategoria została utworzona.");
+        } catch (DataIntegrityViolationException e) {
+            bindingResult.rejectValue("name", "duplicate", "Kategoria o tej nazwie już istnieje.");
+            model.addAttribute("categories", categoryService.findAllOrderByPopularity());
+            return "admin/categories";
+        }
         return "redirect:/admin/categories";
     }
 
