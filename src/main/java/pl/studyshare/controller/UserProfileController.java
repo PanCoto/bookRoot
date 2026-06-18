@@ -42,12 +42,15 @@ public class UserProfileController {
         int totalReputation = answerRepository.sumScoreByAuthorId(user.getId());
         var userTasks = taskRepository.findByAuthorLoginAndStatusOrderByCreatedDateDesc(login, TaskStatus.APPROVED);
         var userComments = commentRepository.findByAuthorLoginOrderByCreatedDateDesc(login);
+        var userAnswers = answerRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(login);
 
         model.addAttribute("profileUser", user);
         model.addAttribute("reputation", totalReputation);
         model.addAttribute("tasks", userTasks);
         model.addAttribute("comments", userComments);
+        model.addAttribute("answers", userAnswers);
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("isAdmin", isAdmin);
 
         return "profile-view";
     }

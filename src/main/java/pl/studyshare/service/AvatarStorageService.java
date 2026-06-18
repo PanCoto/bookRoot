@@ -32,13 +32,11 @@ public class AvatarStorageService {
             fileExtension = originalFilename.substring(i);
         }
 
-        // Walidacja typu pliku (tylko obrazy)
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new IllegalArgumentException("Dozwolone są wyłącznie pliki graficzne.");
         }
 
-        // Unikalna i bezpieczna nazwa pliku
         String filename = username + "-" + UUID.randomUUID() + fileExtension;
         Path filePath = uploadPath.resolve(filename);
         

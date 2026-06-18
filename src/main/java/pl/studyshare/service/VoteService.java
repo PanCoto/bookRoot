@@ -75,8 +75,10 @@ public class VoteService {
                         dto.createdDate(),
                         adjustedScore,
                         dto.authorName(),
+                        dto.authorAvatarFilename(),
                         dto.isOfficial(),
-                        dto.commentCount()
+                        dto.commentCount(),
+                        dto.comments()
                 ));
             } else {
                 adjusted.add(dto);

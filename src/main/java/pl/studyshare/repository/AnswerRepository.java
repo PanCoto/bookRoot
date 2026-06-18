@@ -18,4 +18,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
     @Query("SELECT COALESCE(SUM(a.score), 0) FROM Answer a WHERE a.author.id = :userId")
     int sumScoreByAuthorId(@Param("userId") Long userId);
+
+    List<Answer> findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(String login);
 }

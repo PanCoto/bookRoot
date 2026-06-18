@@ -49,12 +49,17 @@ public class UserService {
             throw new SecurityException("Brak uprawnień do edycji tego profilu");
         }
 
-        user.setFirstName(request.firstName());
-        user.setLastName(request.lastName());
-        user.setAge(request.age());
-        user.setDisplayName(request.displayName());
-        user.setEmail(request.email());
-        user.setAnonymousMode(request.anonymousMode() != null ? request.anonymousMode() : false);
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAge(request.getAge());
+        
+        String cleanEmail = (request.getEmail() != null && !request.getEmail().isBlank()) ? request.getEmail().trim() : null;
+        user.setEmail(cleanEmail);
+
+        String cleanDisplayName = (request.getDisplayName() != null && !request.getDisplayName().isBlank()) ? request.getDisplayName().trim() : null;
+        user.setDisplayName(cleanDisplayName);
+        
+        user.setAnonymousMode(request.getAnonymousMode() != null ? request.getAnonymousMode() : false);
 
         User saved = userRepository.save(user);
         return toDto(saved);

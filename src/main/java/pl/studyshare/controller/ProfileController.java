@@ -2,12 +2,16 @@ package pl.studyshare.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +41,15 @@ public class ProfileController {
     private final TaskRepository taskRepository;
     private final CommentRepository commentRepository;
 
+    /**
+     * Konwertuje puste stringi na null przed walidacją.
+     * Pozwala to na opcjonalne pola jak email – @Email(null) przechodzi walidację.
+     */
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    }
+
     @GetMapping
     public String viewMyProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) {
@@ -47,12 +60,18 @@ public class ProfileController {
         int totalReputation = answerRepository.sumScoreByAuthorId(user.getId());
         var userTasks = taskRepository.findByAuthorLoginAndStatusOrderByCreatedDateDesc(user.getLogin(), TaskStatus.APPROVED);
         var userComments = commentRepository.findByAuthorLoginOrderByCreatedDateDesc(user.getLogin());
+        var userAnswers = answerRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(user.getLogin());
+
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         model.addAttribute("profileUser", user);
         model.addAttribute("reputation", totalReputation);
         model.addAttribute("tasks", userTasks);
         model.addAttribute("comments", userComments);
+        model.addAttribute("answers", userAnswers);
         model.addAttribute("isOwner", true);
+        model.addAttribute("isAdmin", isAdmin);
 
         return "profile-view";
     }
@@ -106,14 +125,28 @@ public class ProfileController {
         }
 
         User user = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
-        user.setFirstName(request.firstName());
-        user.setLastName(request.lastName());
-        user.setAge(request.age());
-        user.setDisplayName(request.displayName());
-        user.setEmail(request.email());
-        user.setAnonymousMode(request.anonymousMode() != null ? request.anonymousMode() : false);
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAge(request.getAge());
 
-        userRepository.save(user);
+        // Bezpieczne mapowanie pustych pól na null (zapobiega Unique Constraint Exception w bazie SQL)
+        String cleanEmail = (request.getEmail() != null && !request.getEmail().isBlank())
+                ? request.getEmail().trim() : null;
+        user.setEmail(cleanEmail);
+
+        String cleanDisplayName = (request.getDisplayName() != null && !request.getDisplayName().isBlank())
+                ? request.getDisplayName().trim() : null;
+        user.setDisplayName(cleanDisplayName);
+
+        user.setAnonymousMode(request.getAnonymousMode() != null ? request.getAnonymousMode() : false);
+
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("errorMessage", "Podany adres e-mail jest już zajęty przez innego użytkownika.");
+            return "profile-edit";
+        }
+
         return "redirect:/profile/edit?success";
     }
 

@@ -170,11 +170,6 @@ public class TaskController {
         List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
         Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
 
-        Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
-        for (AnswerDTO answer : rawAnswers) {
-            commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
-        }
-
         List<ShareTokenDTO> taskShares = new ArrayList<>();
         if (username != null && (isAuthor || isAdmin)) {
             taskShares = shareService.findActiveSharesByTaskId(id, username);
@@ -186,7 +181,6 @@ public class TaskController {
 
         model.addAttribute("answers", adjustedAnswers);
         model.addAttribute("userVotes", userVotes);
-        model.addAttribute("commentsMap", commentsMap);
         model.addAttribute("taskShares", taskShares);
         model.addAttribute("deletableAnswerIds", deletableAnswerIds);
         model.addAttribute("deletableCommentIds", deletableCommentIds);
@@ -315,11 +309,6 @@ public class TaskController {
             List<AnswerDTO> adjustedAnswers = voteService.getAdjustedAnswers(rawAnswers, username, session);
             Map<Long, String> userVotes = voteService.getUserVotesMap(rawAnswers, username, session);
 
-            Map<Long, List<CommentDTO>> commentsMap = new HashMap<>();
-            for (AnswerDTO answer : rawAnswers) {
-                commentsMap.put(answer.id(), commentService.findCommentsByAnswerId(answer.id()));
-            }
-
             List<ShareTokenDTO> taskShares = new ArrayList<>();
             if (username != null && (isAuthor || isAdmin)) {
                 taskShares = shareService.findActiveSharesByTaskId(taskId, username);
@@ -331,7 +320,6 @@ public class TaskController {
 
             model.addAttribute("answers", adjustedAnswers);
             model.addAttribute("userVotes", userVotes);
-            model.addAttribute("commentsMap", commentsMap);
             model.addAttribute("taskShares", taskShares);
             model.addAttribute("deletableAnswerIds", deletableAnswerIds);
             model.addAttribute("deletableCommentIds", deletableCommentIds);

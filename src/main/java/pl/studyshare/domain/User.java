@@ -22,12 +22,10 @@ public class User implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank @Size(min = 3, max = 20)
-    @Pattern(regexp = "^[A-Z][a-z]*$")
+    @NotBlank @Size(min = 2, max = 40)
     private String firstName;
 
-    @NotBlank @Size(min = 3, max = 50)
-    @Pattern(regexp = "^[A-Z][a-z]*$")
+    @NotBlank @Size(min = 2, max = 60)
     private String lastName;
 
     @NotBlank @Size(min = 3, max = 20)
@@ -51,6 +49,7 @@ public class User implements java.io.Serializable {
     @Builder.Default
     private Boolean anonymousMode = false;
 
+    @PrimaryKeyJoinColumn
     @Enumerated(EnumType.STRING)
     @NotNull
     private Role role;

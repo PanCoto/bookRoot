@@ -1,6 +1,7 @@
 package pl.studyshare.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record AnswerDTO(
         Long id,
@@ -8,6 +9,8 @@ public record AnswerDTO(
         LocalDate createdDate,
         int score,
         String authorName,
+        String authorAvatarFilename,
         boolean isOfficial,
-        int commentCount
+        int commentCount,
+        List<CommentDTO> comments
 ) {}

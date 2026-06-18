@@ -9,10 +9,12 @@ import pl.studyshare.domain.User;
 import pl.studyshare.dto.AnswerCreateRequest;
 import pl.studyshare.dto.AnswerDTO;
 import pl.studyshare.dto.AnswerUpdateRequest;
+import pl.studyshare.dto.CommentDTO;
 import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.mapper.AnswerMapper;
 import pl.studyshare.repository.AnswerRepository;
+import pl.studyshare.repository.CommentRepository;
 import pl.studyshare.repository.TaskRepository;
 import pl.studyshare.repository.UserRepository;
 
@@ -27,12 +29,23 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final AnswerMapper answerMapper;
 
     @Transactional(readOnly = true)
     public List<AnswerDTO> findByTaskId(Long taskId) {
         return answerRepository.findByTaskIdWithSorting(taskId).stream()
-                .map(answerMapper::toDto)
+                .map(answer -> {
+                    List<CommentDTO> comments = commentRepository.findByAnswerIdOrderByCreatedDateAsc(answer.getId()).stream()
+                            .map(c -> {
+                                boolean isAnon = Boolean.TRUE.equals(c.getAnonymous()) || c.getAuthor() == null;
+                                String authorName = isAnon ? null : c.getAuthor().getLogin();
+                                String avatar = isAnon ? null : c.getAuthor().getAvatarFilename();
+                                return new CommentDTO(c.getId(), c.getContent(), c.getCreatedDate(), authorName, avatar);
+                            })
+                            .collect(Collectors.toList());
+                    return answerMapper.toDto(answer, comments);
+                })
                 .collect(Collectors.toList());
     }
 
