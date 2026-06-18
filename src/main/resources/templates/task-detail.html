@@ -23,9 +23,7 @@
     <div class="container">
         <div class="row g-4">
 
-
             <div class="col-lg-8">
-
 
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white border-0 pb-0 pt-3 px-4">
@@ -47,13 +45,11 @@
                         <div class="task-content mb-3" style="white-space: pre-line;"
                              th:text="${task.content}">Treść zadania</div>
 
-
                         <div th:if="${task.imageUrl != null and !#strings.isEmpty(task.imageUrl)}"
                              class="mb-3">
                             <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania"
                                  class="img-fluid rounded shadow-sm">
                         </div>
-
 
                         <div th:if="${task.sourceUrl != null and !#strings.isEmpty(task.sourceUrl)}"
                              class="mb-3">
@@ -144,7 +140,8 @@
                     </div>
                 </div>
 
-                <section id="answers" aria-label="Odpowiedzi do zadania">
+
+                <section id="answers" th:if="${task.status != null and task.status.name() == 'APPROVED'}" aria-label="Odpowiedzi do zadania">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h4 fw-bold mb-0">Odpowiedzi społeczności</h2>
                     </div>
@@ -168,17 +165,13 @@
                             <div class="answer-content mb-3" style="white-space: pre-line;"
                                  th:text="${answer.content}">Treść odpowiedzi</div>
 
-
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-
-
                                 <small class="text-muted">
                                     <span th:text="${answer.authorName != null ? answer.authorName : 'Anonim'}">Autor</span>
                                     &bull;
                                     Ocena: <strong th:id="'score-' + ${answer.id}"
                                                    th:text="${answer.score != null ? answer.score : 0}">0</strong>
                                 </small>
-
 
                                 <div sec:authorize="isAuthenticated()"
                                      th:id="'vote-container-' + ${answer.id}"
@@ -221,7 +214,6 @@
                                     </button>
                                 </div>
                             </div>
-
 
                             <div class="mt-3 pt-2 border-top">
                                 <div th:if="${commentsMap != null and commentsMap.get(answer.id) != null}"
@@ -268,8 +260,44 @@
                     </div>
                 </section>
 
+                <section id="moderation-panel" th:if="${task.status != null and task.status.name() == 'PENDING'}"
+                         class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+                    <div class="card-body">
+                        <h2 class="h4 fw-bold text-warning mb-3"> Zadanie oczekuje na moderację</h2>
+                        <p class="text-muted">
+                            To zadanie ma obecnie status <strong>PENDING</strong> i nie jest opublikowane publicznie.
+                        </p>
 
-                <section sec:authorize="isAuthenticated()" class="card shadow-sm border-0 mt-4"
+
+                        <div sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')" class="bg-light p-3 rounded border">
+                            <h3 class="h6 fw-bold mb-3">Decyzja moderacyjna:</h3>
+                            <div class="d-flex gap-2">
+                                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success fw-semibold">✓ Zatwierdź i opublikuj</button>
+                                </form>
+                                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger fw-semibold">✗ Odrzuć zadanie</button>
+                                </form>
+
+                                <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success fw-semibold">✓ Zatwierdź i opublikuj</button>
+                                </form>
+                                <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger fw-semibold">✗ Odrzuć zadanie</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div sec:authorize="!hasAnyRole('ADMIN', 'MODERATOR')" class="alert alert-secondary mb-0" role="status">
+                            Zadanie oczekuje na weryfikację przez zespół moderacyjny. Powiadomimy Cię po zatwierdzeniu.
+                        </div>
+                    </div>
+                </section>
+
+
+                <section sec:authorize="isAuthenticated()" 
+                         th:if="${task.status != null and task.status.name() == 'APPROVED'}"
+                         class="card shadow-sm border-0 mt-4"
                          aria-label="Formularz dodawania odpowiedzi">
                     <div class="card-header bg-white fw-bold">Dodaj swoją odpowiedź</div>
                     <div class="card-body">
@@ -301,13 +329,13 @@
                 </section>
 
                 <div sec:authorize="!isAuthenticated()"
+                     th:if="${task.status != null and task.status.name() == 'APPROVED'}"
                      class="alert alert-info mt-4" role="alert">
                     Tylko zalogowani użytkownicy mogą dodawać odpowiedzi.
                     <a th:href="@{/login}" class="alert-link">Zaloguj się teraz</a>.
                 </div>
 
             </div>
-
 
             <aside class="col-lg-4" aria-label="Informacje dodatkowe">
                 <div class="card shadow-sm border-0 mb-3">
@@ -329,7 +357,7 @@
                             <span class="text-muted">Wyświetlenia</span>
                             <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
+                        <li class="list-group-item d-flex justify-content-between" th:if="${task.status != null and task.status.name() == 'APPROVED'}">
                             <span class="text-muted">Odpowiedzi</span>
                             <span th:text="${#lists.size(answers)}">0</span>
                         </li>
@@ -378,12 +406,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const upBtn   = container.querySelector(".btn-upvote");
                 const downBtn = container.querySelector(".btn-downvote");
 
-
                 upBtn.classList.replace("btn-success", "btn-outline-success") ||
                     upBtn.classList.remove("btn-success");
                 downBtn.classList.replace("btn-danger", "btn-outline-danger") ||
                     downBtn.classList.remove("btn-danger");
-
 
                 if (sendType === "UPVOTE") {
                     upBtn.classList.replace("btn-outline-success", "btn-success");
@@ -401,6 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("Vote error:", err));
         });
     });
+    
     document.querySelectorAll(".btn-delete-answer").forEach(button => {
         button.addEventListener("click", function () {
             if (!confirm("Czy na pewno chcesz usunąć tę odpowiedź?")) return;
