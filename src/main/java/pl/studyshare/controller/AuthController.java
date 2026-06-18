@@ -29,7 +29,7 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerForm(Model model) {
-        model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", "", 18));
+        model.addAttribute("userRegisterRequest", new UserRegisterRequest("", "", "", "", "", 18, false));
         return "register";
     }
 

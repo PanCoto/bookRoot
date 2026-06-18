@@ -26,5 +26,8 @@ public record UserRegisterRequest(
         String password,
 
         @Min(value = 18, message = "Wiek musi wynosić co najmniej 18 lat")
-        int age
+        int age,
+
+        @AssertTrue(message = "Musisz zaakceptować Warunki Użytkowania, aby założyć konto")
+        boolean eulaAccepted
 ) {}

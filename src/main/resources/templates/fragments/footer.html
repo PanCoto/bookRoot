@@ -1,18 +1,48 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
+<footer th:fragment="footer" class="site-footer" role="contentinfo">
+    <div class="footer-wrapper">
 
-<footer th:fragment="footer" class="footer mt-auto py-4 bg-dark text-white" role="contentinfo">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                <span class="fw-bold" style="color:#f97316;"> bookRoot</span>
-                <span class="text-white-50 ms-2 small">Platforma edukacyjna dla studentów</span>
+        <div class="footer-columns">
+            <div class="footer-col">
+                <h3>bookRoot</h3>
+                <ul>
+                    <li><a th:href="@{/}">Strona główna</a></li>
+                    <li><a th:href="@{/tasks}">Zadania</a></li>
+                    <li><a th:href="@{/tasks/new}" sec:authorize="isAuthenticated()">Dodaj zadanie</a></li>
+                    <li><a th:href="@{/profile}" sec:authorize="isAuthenticated()">Mój profil</a></li>
+                    <li><a th:href="@{/register}" sec:authorize="!isAuthenticated()">Rejestracja</a></li>
+                    <li><a th:href="@{/login}" sec:authorize="!isAuthenticated()">Logowanie</a></li>
+                    <li><a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Panel admina</a></li>
+                    <li><a th:href="@{/moderator/tasks}" sec:authorize="hasRole('MODERATOR')">Moderacja</a></li>
+                </ul>
             </div>
-            <div class="col-md-6 text-center text-md-end">
-                <span class="text-white-50 small">&copy; 2026 bookRoot. Wszelkie prawa zastrzeżone.</span>
+
+            <div class="footer-col">
+                <h3>Pomoc</h3>
+                <ul>
+                    <li><a th:href="@{/about}">O nas</a></li>
+                    <li><a th:href="@{/register}">Jak zacząć?</a></li>
+                    <li><a th:href="@{/tasks}">Przeglądaj zadania</a></li>
+                    <li><a th:href="@{/profile/edit}" sec:authorize="isAuthenticated()">Ustawienia konta</a></li>
+                    <li><a th:href="@{/profile/password}" sec:authorize="isAuthenticated()">Zmień hasło</a></li>
+                </ul>
             </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p class="footer-disclaimer">
+                bookRoot jest platformą edukacyjną tworzoną przez studentów dla studentów. Treści zamieszczane na stronie
+                są moderowane, jednak serwis nie ponosi odpowiedzialności za ich merytoryczną poprawność.
+            </p>
+            <p class="footer-copyright">
+                &copy; 2026 bookRoot. Wszelkie prawa zastrzeżone.
+            </p>
         </div>
     </div>
 </footer>

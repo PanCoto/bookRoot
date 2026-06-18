@@ -43,7 +43,7 @@
                         </a>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')">
+                    <li class="nav-item" sec:authorize="hasRole('MODERATOR')">
                         <a class="nav-link badge bg-info text-dark text-decoration-none"
                            th:href="@{/moderator/tasks}" aria-label="Panel moderatora">
                             Moderator
