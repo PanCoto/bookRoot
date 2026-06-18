@@ -23,20 +23,17 @@
 <main role="main" class="flex-grow-1 py-5">
     <div class="container" style="max-width:700px;">
 
-        <!-- Token expired / not found -->
         <div th:if="${task == null}"
              class="card border-danger shadow-sm border-0 text-center p-5">
-            <div class="display-4 mb-3">⚠️</div>
+
             <h1 class="h4 text-danger">Link jest nieważny lub wygasł</h1>
             <p class="text-muted">Token udostępnienia nie istnieje lub minął jego termin ważności.</p>
             <a th:href="@{/}" class="btn btn-outline-secondary btn-sm mt-2"
                aria-label="Wróć do strony głównej">Strona główna</a>
         </div>
 
-        <!-- Shared task view -->
         <div th:unless="${task == null}">
             <div class="alert alert-info d-flex align-items-center gap-2 mb-4" role="note">
-                <span>🔗</span>
                 <span class="small">To zadanie zostało Ci udostępnione poprzez bezpieczny link.</span>
             </div>
 

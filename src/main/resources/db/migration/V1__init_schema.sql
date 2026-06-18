@@ -1,17 +1,3 @@
--- ============================================================
---  bookRoot – Flyway Migration V1
---  Inicjalna schema bazy PostgreSQL
---  Wersja: 1.0.0
---  Generowana na podstawie modelu domenowego Hibernate
--- ============================================================
-
--- ──────────────────────────────────────────────────────────────
---  Typy ENUM jako VARCHAR – Hibernate enkoduje je jako STRING
--- ──────────────────────────────────────────────────────────────
-
--- ──────────────────────────────────────────────────────────────
---  Tabela: users
--- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users
 (
     id              BIGSERIAL PRIMARY KEY,
@@ -29,9 +15,6 @@ CREATE TABLE IF NOT EXISTS users
     last_login_at   TIMESTAMP
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: categories
--- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS categories
 (
     id          BIGSERIAL PRIMARY KEY,
@@ -39,9 +22,6 @@ CREATE TABLE IF NOT EXISTS categories
     description TEXT
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: tasks
--- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tasks
 (
     id                 BIGSERIAL PRIMARY KEY,
@@ -62,9 +42,6 @@ CREATE TABLE IF NOT EXISTS tasks
     approved_by_id     BIGINT        REFERENCES users (id) ON DELETE SET NULL
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: answers
--- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS answers
 (
     id           BIGSERIAL PRIMARY KEY,
@@ -78,9 +55,7 @@ CREATE TABLE IF NOT EXISTS answers
     task_id      BIGINT        NOT NULL REFERENCES tasks (id) ON DELETE CASCADE
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: comments
--- ──────────────────────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS comments
 (
     id           BIGSERIAL PRIMARY KEY,
@@ -92,9 +67,7 @@ CREATE TABLE IF NOT EXISTS comments
     answer_id    BIGINT   REFERENCES answers (id) ON DELETE CASCADE
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: questions (pytania wewnątrz zadania)
--- ──────────────────────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS questions
 (
     id           BIGSERIAL PRIMARY KEY,
@@ -105,9 +78,7 @@ CREATE TABLE IF NOT EXISTS questions
     task_id      BIGINT       NOT NULL REFERENCES tasks (id) ON DELETE CASCADE
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: votes
--- ──────────────────────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS votes
 (
     id         BIGSERIAL PRIMARY KEY,
@@ -118,9 +89,7 @@ CREATE TABLE IF NOT EXISTS votes
     UNIQUE (voter_id, answer_id)
 );
 
--- ──────────────────────────────────────────────────────────────
---  Tabela: shares (tokeny udostępniania zadań)
--- ──────────────────────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS shares
 (
     id          BIGSERIAL PRIMARY KEY,
@@ -130,9 +99,6 @@ CREATE TABLE IF NOT EXISTS shares
     task_id     BIGINT       NOT NULL REFERENCES tasks (id) ON DELETE CASCADE
 );
 
--- ──────────────────────────────────────────────────────────────
---  Indeksy dla poprawy wydajności zapytań
--- ──────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_tasks_status      ON tasks (status);
 CREATE INDEX IF NOT EXISTS idx_tasks_category    ON tasks (category_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_author      ON tasks (author_id);

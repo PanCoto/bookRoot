@@ -160,7 +160,7 @@
 
                             <div th:if="${answer.isOfficial}"
                                  class="text-success fw-bold small mb-2">
-                                ✓ Oficjalne rozwiązanie
+                                Oficjalne rozwiązanie
                             </div>
 
                             <div class="answer-content mb-3" style="white-space: pre-line;"
@@ -168,11 +168,9 @@
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <small class="text-muted d-flex align-items-center gap-2 flex-wrap">
-                                    <!-- Author avatar + name -->
                                     <span class="d-inline-flex align-items-center gap-1">
                                         <span th:if="${answer.authorName == null}" class="fst-italic">Anonim</span>
                                         <span th:if="${answer.authorName != null}" class="d-inline-flex align-items-center gap-1">
-                                            <!-- Avatar -->
                                             <span class="answer-avatar-wrapper d-inline-block">
                                                 <img th:if="${answer.authorAvatarFilename != null and !#strings.isEmpty(answer.authorAvatarFilename)}"
                                                      th:src="@{/uploads/avatars/{f}(f=${answer.authorAvatarFilename})}"
@@ -186,7 +184,6 @@
                                                     </svg>
                                                 </span>
                                             </span>
-                                            <!-- Profile link -->
                                             <a th:href="@{/users/{login}(login=${answer.authorName})}" th:text="${answer.authorName}"
                                                class="text-decoration-none fw-semibold text-dark">Autor</a>
                                         </span>
@@ -238,7 +235,6 @@
                             </div>
 
                             <div class="mt-3 pt-2 border-top">
-                                <!-- Komentarze do odpowiedzi -->
                                 <div th:if="${answer.comments != null and !#lists.isEmpty(answer.comments)}">
                                     <div th:each="comment : ${answer.comments}"
                                          th:id="'comment-container-' + ${comment.id}"
@@ -247,7 +243,6 @@
                                             <p class="mb-0 small" th:text="${comment.content}">Komentarz</p>
                                             <small class="text-muted d-flex align-items-center gap-1 flex-wrap">
                                                 <span class="d-inline-flex align-items-center gap-1">
-                                                    <!-- Profile Picture -->
                                                     <span class="comment-avatar-wrapper d-inline-block">
                                                         <img th:if="${comment.authorAvatarFilename != null and !#strings.isEmpty(comment.authorAvatarFilename)}"
                                                              th:src="@{/uploads/avatars/{f}(f=${comment.authorAvatarFilename})}"
@@ -262,7 +257,6 @@
                                                         </span>
                                                     </span>
 
-                                                    <!-- Author Name / Link -->
                                                     <span th:if="${comment.authorName == null}" class="fst-italic text-muted">Anonim</span>
                                                     <a th:if="${comment.authorName != null}" th:href="@{/users/{login}(login=${comment.authorName})}" th:text="${comment.authorName}" class="text-decoration-none fw-semibold text-secondary">Autor</a>
                                                 </span>
@@ -316,17 +310,17 @@
                             <h3 class="h6 fw-bold mb-3">Decyzja moderacyjna:</h3>
                             <div class="d-flex gap-2">
                                 <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success fw-semibold">✓ Zatwierdź i opublikuj</button>
+                                    <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i opublikuj</button>
                                 </form>
                                 <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger fw-semibold">✗ Odrzuć zadanie</button>
+                                    <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
                                 </form>
 
                                 <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/approve(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success fw-semibold">✓ Zatwierdź i opublikuj</button>
+                                    <button type="submit" class="btn btn-success fw-semibold">Zatwierdź i opublikuj</button>
                                 </form>
                                 <form sec:authorize="hasRole('MODERATOR') and !hasRole('ADMIN')" th:action="@{/moderator/tasks/{id}/reject(id=${task.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger fw-semibold">✗ Odrzuć zadanie</button>
+                                    <button type="submit" class="btn btn-danger fw-semibold">Odrzuć zadanie</button>
                                 </form>
                             </div>
                         </div>

@@ -1,254 +1,266 @@
 <!DOCTYPE html>
-<html lang="pl"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" th:content="'Profil publiczny użytkownika ' + (${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName)} ? ${profileUser.displayName} : ${profileUser.login}) + ' w bookRoot.'">
-    <title th:text="(${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName)} ? ${profileUser.displayName} : ${profileUser.login}) + ' – Profil użytkownika – bookRoot'"></title>
+    <meta name="description"
+        th:content="'Profil publiczny użytkownika ' + (${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName)} ? ${profileUser.displayName} : ${profileUser.login}) + ' w bookRoot.'">
+    <title
+        th:text="(${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName)} ? ${profileUser.displayName} : ${profileUser.login}) + ' – Profil użytkownika – bookRoot'">
+    </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous">
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .profile-header-gradient {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-bottom: 4px solid #f97316;
-        }
-        .reputation-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-        }
-        .activity-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .activity-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
-        }
-        .nav-tabs .nav-link {
-            border: none;
-            color: #64748b;
-            font-weight: 600;
-            padding: 10px 20px;
-        }
-        .nav-tabs .nav-link.active {
-            color: #f97316;
-            border-bottom: 3px solid #f97316;
-            background-color: transparent;
-        }
-    </style>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/header :: header}"></div>
 
-<main role="main" class="flex-grow-1">
-    
-    <!-- Profile Hero Section -->
-    <section class="profile-header-gradient text-white py-5 mb-4">
-        <div class="container">
-            <div class="row align-items-center g-4">
-                <div class="col-md-auto text-center text-md-start">
-                    <img th:if="${profileUser.avatarFilename != null}" th:src="'/uploads/avatars/' + ${profileUser.avatarFilename}"
-                         alt="Avatar" class="rounded-circle border border-4 border-warning shadow" style="width: 140px; height: 140px; object-fit: cover;">
-                    <div th:unless="${profileUser.avatarFilename != null}" class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle border border-4 border-warning shadow" style="width: 140px; height: 140px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="col-md text-center text-md-start">
-                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
-                        <h1 class="h2 fw-bold mb-0 text-white" th:text="${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName) ? profileUser.displayName : profileUser.login}">Nazwa użytkownika</h1>
-                        <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1 text-uppercase small" th:text="${profileUser.role}">USER</span>
-                    </div>
-                    <p class="text-white-50 mb-3" th:text="'@' + ${profileUser.login}">login</p>
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3 text-white-75 small">
-                        <div>
-                            Dołączył(a): <span th:text="${profileUser.createdAt != null ? #temporals.format(profileUser.createdAt, 'dd.MM.yyyy') : '—'}">data</span>
-                        </div>
-                        <div th:if="${isOwner or isAdmin}" class="text-info">
-                            Email: <span th:text="${profileUser.email != null ? profileUser.email : 'Brak adresu e-mail'}">email</span>
+    <main role="main" class="flex-grow-1">
+
+        <section class="profile-header-gradient text-white py-5 mb-4">
+            <div class="container">
+                <div class="row align-items-center g-4">
+                    <div class="col-md-auto text-center text-md-start">
+                        <img th:if="${profileUser.avatarFilename != null}"
+                            th:src="'/uploads/avatars/' + ${profileUser.avatarFilename}" alt="Avatar"
+                            class="rounded-circle border border-4 border-warning shadow"
+                            style="width: 140px; height: 140px; object-fit: cover;">
+                        <div th:unless="${profileUser.avatarFilename != null}"
+                            class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle border border-4 border-warning shadow"
+                            style="width: 140px; height: 140px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor"
+                                class="bi bi-person-fill" viewBox="0 0 16 16">
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+                            </svg>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-auto text-center text-md-end" th:if="${isOwner}">
-                    <a th:href="@{/profile/edit}" class="btn btn-outline-warning fw-semibold px-4">
-                        Edytuj profil
-                    </a>
+                    <div class="col-md text-center text-md-start">
+                        <div
+                            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                            <h1 class="h2 fw-bold mb-0 text-white"
+                                th:text="${profileUser.displayName != null && !#strings.isEmpty(profileUser.displayName) ? profileUser.displayName : profileUser.login}">
+                                Nazwa użytkownika</h1>
+                            <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1 text-uppercase small"
+                                th:text="${profileUser.role}">USER</span>
+                        </div>
+                        <p class="text-white-50 mb-3" th:text="'@' + ${profileUser.login}">login</p>
+                        <div
+                            class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3 text-white-75 small">
+                            <div>
+                                Dołączył(a): <span
+                                    th:text="${profileUser.createdAt != null ? #temporals.format(profileUser.createdAt, 'dd.MM.yyyy') : '—'}">data</span>
+                            </div>
+                            <div th:if="${isOwner or isAdmin}" class="text-info">
+                                Email: <span
+                                    th:text="${profileUser.email != null ? profileUser.email : 'Brak adresu e-mail'}">email</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-auto text-center text-md-end" th:if="${isOwner}">
+                        <a th:href="@{/profile/edit}" class="btn btn-outline-warning fw-semibold px-4">
+                            Edytuj profil
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Content Section -->
-    <div class="container pb-5">
-        <div class="row g-4">
-            
-            <!-- Sidebar stats -->
-            <aside class="col-lg-4">
-                <div class="card shadow-sm border-0 mb-4 text-center">
-                    <div class="card-body p-4">
-                        <div class="reputation-badge text-white rounded-4 p-4 mb-4">
-                            <h2 class="h6 text-uppercase tracking-wider fw-bold text-white-50 mb-2">Reputacja</h2>
-                            <div class="display-3 fw-black text-white" th:text="${reputation}">0</div>
-                            <div class="mt-2 text-warning fw-semibold">
-                                <span th:if="${reputation <= 10}">Nowicjusz</span>
-                                <span th:if="${reputation > 10 and reputation <= 50}">Entuzjasta</span>
-                                <span th:if="${reputation > 50 and reputation <= 200}">Ekspert</span>
-                                <span th:if="${reputation > 200}">Legenda</span>
-                            </div>
-                        </div>
-                        
-                        <div class="row g-3 py-2 border-top border-bottom text-muted">
-                            <div class="col-6 border-end">
-                                <div class="h3 fw-bold text-dark mb-0" th:text="${#lists.size(tasks)}">0</div>
-                                <div class="small">Dodane zadania</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="h3 fw-bold text-dark mb-0" th:text="${#lists.size(comments)}">0</div>
-                                <div class="small">Komentarze</div>
-                            </div>
-                        </div>
+        <div class="container pb-5">
+            <div class="row g-4">
 
-                        <div th:if="${profileUser.anonymousMode}" class="alert alert-secondary mb-0 mt-4 small border-0" role="status">
-                            <strong>Tryb prywatny aktywowany.</strong><br>
-                            Twój profil jest niewidoczny dla innych odwiedzających.
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Main Activity Feed -->
-            <section class="col-lg-8" aria-label="Aktywność użytkownika">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
-                        <ul class="nav nav-tabs border-bottom" id="profileTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="nav-tasks-tab" data-bs-toggle="tab" data-bs-target="#nav-tasks" type="button" role="tab" aria-controls="nav-tasks" aria-selected="true">
-                                    Zadania (<span th:text="${#lists.size(tasks)}">0</span>)
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="nav-answers-tab" data-bs-toggle="tab" data-bs-target="#nav-answers" type="button" role="tab" aria-controls="nav-answers" aria-selected="false">
-                                    Odpowiedzi (<span th:text="${#lists.size(answers)}">0</span>)
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="nav-comments-tab" data-bs-toggle="tab" data-bs-target="#nav-comments" type="button" role="tab" aria-controls="nav-comments" aria-selected="false">
-                                    Komentarze (<span th:text="${#lists.size(comments)}">0</span>)
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="card-body p-4">
-                        <div class="tab-content" id="nav-tabContent">
-                            
-                            <!-- Tasks Tab -->
-                            <div class="tab-pane fade show active" id="nav-tasks" role="tabpanel" aria-labelledby="nav-tasks-tab">
-                                <div th:if="${#lists.isEmpty(tasks)}" class="text-center py-5 text-muted">
-                                    <div class="display-6 mb-3"></div>
-                                    <p class="lead small">Użytkownik nie opublikował jeszcze żadnych zadań.</p>
+                <aside class="col-lg-4">
+                    <div class="card shadow-sm border-0 mb-4 text-center">
+                        <div class="card-body p-4">
+                            <div class="reputation-badge text-white rounded-4 p-4 mb-4">
+                                <h2 class="h6 text-uppercase tracking-wider fw-bold text-white-50 mb-2">Reputacja</h2>
+                                <div class="display-3 fw-black text-white" th:text="${reputation}">0</div>
+                                <div class="mt-2 text-warning fw-semibold">
+                                    <span th:if="${reputation <= 10}">Nowicjusz</span>
+                                    <span th:if="${reputation > 10 and reputation <= 50}">Entuzjasta</span>
+                                    <span th:if="${reputation > 50 and reputation <= 200}">Ekspert</span>
+                                    <span th:if="${reputation > 200}">Legenda</span>
                                 </div>
-                                <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(tasks)}">
-                                    <div th:each="task : ${tasks}" class="card border border-light-subtle shadow-sm activity-card">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="badge bg-secondary small" th:text="${task.category != null ? task.category.name : 'Inne'}">Kategoria</span>
-                                                <small class="text-muted" th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">data</small>
-                                            </div>
-                                            <h3 class="h5 fw-semibold mb-2">
-                                                <a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}" class="text-decoration-none text-dark hover-warning">Tytuł zadania</a>
-                                            </h3>
-                                            <p class="text-muted small mb-0" th:text="${#strings.abbreviate(task.content, 140)}">Skrót treści zadania...</p>
-                                        </div>
+                            </div>
+
+                            <div class="row g-3 py-2 border-top border-bottom text-muted">
+                                <div class="col-6 border-end">
+                                    <div class="h3 fw-bold text-dark mb-0" th:text="${#lists.size(tasks)}">0</div>
+                                    <div class="small">Dodane zadania</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h3 fw-bold text-dark mb-0" th:text="${#lists.size(comments)}">0</div>
+                                    <div class="small">Komentarze</div>
+                                </div>
+                            </div>
+
+                            <div th:if="${profileUser.anonymousMode}"
+                                class="alert alert-secondary mb-0 mt-4 small border-0" role="status">
+                                <strong>Tryb prywatny aktywowany.</strong><br>
+                                Twój profil jest niewidoczny dla innych odwiedzających.
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+
+                <section class="col-lg-8" aria-label="Aktywność użytkownika">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                            <ul class="nav nav-tabs border-bottom" id="profileTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="nav-tasks-tab" data-bs-toggle="tab"
+                                        data-bs-target="#nav-tasks" type="button" role="tab" aria-controls="nav-tasks"
+                                        aria-selected="true">
+                                        Zadania (<span th:text="${#lists.size(tasks)}">0</span>)
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="nav-answers-tab" data-bs-toggle="tab"
+                                        data-bs-target="#nav-answers" type="button" role="tab"
+                                        aria-controls="nav-answers" aria-selected="false">
+                                        Odpowiedzi (<span th:text="${#lists.size(answers)}">0</span>)
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="nav-comments-tab" data-bs-toggle="tab"
+                                        data-bs-target="#nav-comments" type="button" role="tab"
+                                        aria-controls="nav-comments" aria-selected="false">
+                                        Komentarze (<span th:text="${#lists.size(comments)}">0</span>)
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <div class="tab-content" id="nav-tabContent">
+
+
+                                <div class="tab-pane fade show active" id="nav-tasks" role="tabpanel"
+                                    aria-labelledby="nav-tasks-tab">
+                                    <div th:if="${#lists.isEmpty(tasks)}" class="text-center py-5 text-muted">
+                                        <div class="display-6 mb-3"></div>
+                                        <p class="lead small">Użytkownik nie opublikował jeszcze żadnych zadań.</p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Answers Tab -->
-                            <div class="tab-pane fade" id="nav-answers" role="tabpanel" aria-labelledby="nav-answers-tab">
-                                <div th:if="${#lists.isEmpty(answers)}" class="text-center py-5 text-muted">
-                                    <div class="display-6 mb-3"></div>
-                                    <p class="lead small">Użytkownik nie udzielił jeszcze żadnych publicznych odpowiedzi.</p>
-                                </div>
-                                <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(answers)}">
-                                    <div th:each="answer : ${answers}" class="card border border-light-subtle shadow-sm activity-card"
-                                         th:classappend="${answer.isOfficial} ? ' border-start border-success border-3' : ''">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <div class="d-flex gap-2 align-items-center">
-                                                    <span th:if="${answer.isOfficial}" class="badge bg-success small">✓ Oficjalna</span>
-                                                    <span class="badge bg-light text-dark border small">Odpowiedź</span>
+                                    <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(tasks)}">
+                                        <div th:each="task : ${tasks}"
+                                            class="card border border-light-subtle shadow-sm activity-card">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="badge bg-secondary small"
+                                                        th:text="${task.category != null ? task.category.name : 'Inne'}">Kategoria</span>
+                                                    <small class="text-muted"
+                                                        th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">data</small>
                                                 </div>
-                                                <div class="d-flex gap-2 align-items-center">
-                                                    <span class="badge rounded-pill"
-                                                          th:classappend="${answer.score > 0} ? 'bg-success' : (${answer.score < 0} ? 'bg-danger' : 'bg-secondary')"
-                                                          th:text="(${answer.score > 0} ? '+' : '') + ${answer.score}">0</span>
-                                                    <small class="text-muted" th:text="${#temporals.format(answer.createdDate, 'dd.MM.yyyy')}">data</small>
+                                                <h3 class="h5 fw-semibold mb-2">
+                                                    <a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}"
+                                                        class="text-decoration-none text-dark hover-warning">Tytuł
+                                                        zadania</a>
+                                                </h3>
+                                                <p class="text-muted small mb-0"
+                                                    th:text="${#strings.abbreviate(task.content, 140)}">Skrót treści
+                                                    zadania...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="nav-answers" role="tabpanel"
+                                    aria-labelledby="nav-answers-tab">
+                                    <div th:if="${#lists.isEmpty(answers)}" class="text-center py-5 text-muted">
+                                        <div class="display-6 mb-3"></div>
+                                        <p class="lead small">Użytkownik nie udzielił jeszcze żadnych publicznych
+                                            odpowiedzi.</p>
+                                    </div>
+                                    <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(answers)}">
+                                        <div th:each="answer : ${answers}"
+                                            class="card border border-light-subtle shadow-sm activity-card"
+                                            th:classappend="${answer.isOfficial} ? ' border-start border-success border-3' : ''">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span th:if="${answer.isOfficial}"
+                                                            class="badge bg-success small">Oficjalna</span>
+                                                        <span
+                                                            class="badge bg-light text-dark border small">Odpowiedź</span>
+                                                    </div>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span class="badge rounded-pill"
+                                                            th:classappend="${answer.score > 0} ? 'bg-success' : (${answer.score < 0} ? 'bg-danger' : 'bg-secondary')"
+                                                            th:text="(${answer.score > 0} ? '+' : '') + ${answer.score}">0</span>
+                                                        <small class="text-muted"
+                                                            th:text="${#temporals.format(answer.createdDate, 'dd.MM.yyyy')}">data</small>
+                                                    </div>
+                                                </div>
+                                                <p class="small text-dark mb-2"
+                                                    th:text="${#strings.abbreviate(answer.content, 180)}">Treść
+                                                    odpowiedzi...</p>
+                                                <div class="border-top pt-2 mt-2">
+                                                    <small class="text-muted">
+                                                        Do zadania:
+                                                        <a th:href="@{/tasks/{tid}(tid=${answer.task.id})}"
+                                                            th:text="${answer.task.title}"
+                                                            class="text-decoration-none text-primary fw-semibold">
+                                                            Zadanie
+                                                        </a>
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <p class="small text-dark mb-2" th:text="${#strings.abbreviate(answer.content, 180)}">Treść odpowiedzi...</p>
-                                            <div class="border-top pt-2 mt-2">
-                                                <small class="text-muted">
-                                                    Do zadania:
-                                                    <a th:href="@{/tasks/{tid}(tid=${answer.task.id})}"
-                                                       th:text="${answer.task.title}" class="text-decoration-none text-primary fw-semibold">
-                                                        Zadanie
-                                                    </a>
-                                                </small>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Comments Tab -->
-                            <div class="tab-pane fade" id="nav-comments" role="tabpanel" aria-labelledby="nav-comments-tab">
-                                <div th:if="${#lists.isEmpty(comments)}" class="text-center py-5 text-muted">
-                                    <div class="display-6 mb-3"></div>
-                                    <p class="lead small">Użytkownik nie napisał jeszcze żadnych komentarzy.</p>
-                                </div>
-                                <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(comments)}">
-                                    <div th:each="comment : ${comments}" class="card border border-light-subtle shadow-sm activity-card">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <span class="badge bg-light text-dark border small">Komentarz</span>
-                                                <small class="text-muted" th:text="${#temporals.format(comment.createdDate, 'dd.MM.yyyy')}">data</small>
-                                            </div>
-                                            <p class="small text-dark mb-2" th:text="${comment.content}">Treść komentarza...</p>
-                                            <div class="border-top pt-2 mt-2">
-                                                <small class="text-muted">
-                                                    Do zadania:
-                                                    <a th:href="@{/tasks/{tid}(tid=${comment.answer.task.id})}"
-                                                       th:text="${comment.answer.task.title}" class="text-decoration-none text-primary fw-semibold">
-                                                        Zadanie
-                                                    </a>
-                                                </small>
+
+                                <div class="tab-pane fade" id="nav-comments" role="tabpanel"
+                                    aria-labelledby="nav-comments-tab">
+                                    <div th:if="${#lists.isEmpty(comments)}" class="text-center py-5 text-muted">
+                                        <div class="display-6 mb-3"></div>
+                                        <p class="lead small">Użytkownik nie napisał jeszcze żadnych komentarzy.</p>
+                                    </div>
+                                    <div class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(comments)}">
+                                        <div th:each="comment : ${comments}"
+                                            class="card border border-light-subtle shadow-sm activity-card">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge bg-light text-dark border small">Komentarz</span>
+                                                    <small class="text-muted"
+                                                        th:text="${#temporals.format(comment.createdDate, 'dd.MM.yyyy')}">data</small>
+                                                </div>
+                                                <p class="small text-dark mb-2" th:text="${comment.content}">Treść
+                                                    komentarza...</p>
+                                                <div class="border-top pt-2 mt-2">
+                                                    <small class="text-muted">
+                                                        Do zadania:
+                                                        <a th:href="@{/tasks/{tid}(tid=${comment.answer.task.id})}"
+                                                            th:text="${comment.answer.task.title}"
+                                                            class="text-decoration-none text-primary fw-semibold">
+                                                            Zadanie
+                                                        </a>
+                                                    </small>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
 
                         </div>
                     </div>
-                </div>
+            </div>
             </section>
-            
+
         </div>
-    </div>
+        </div>
 
-</main>
+    </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 </body>
+
 </html>

@@ -30,7 +30,7 @@ public class UserProfileController {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje."));
 
-        // Walidacja trybu anonimowego
+
         boolean isOwner = currentUser != null && currentUser.getUsername().equals(login);
         boolean isAdmin = currentUser != null && currentUser.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -39,9 +39,9 @@ public class UserProfileController {
             throw new SecurityException("Ten profil jest prywatny (użytkownik korzysta z trybu anonimowego).");
         }
 
-        int totalReputation = answerRepository.sumScoreByAuthorId(user.getId());
+        int totalReputation = answerRepository.sumUpvotesByAuthorLogin(login);
         var userTasks = taskRepository.findByAuthorLoginAndStatusOrderByCreatedDateDesc(login, TaskStatus.APPROVED);
-        var userComments = commentRepository.findByAuthorLoginOrderByCreatedDateDesc(login);
+        var userComments = commentRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(login);
         var userAnswers = answerRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(login);
 
         model.addAttribute("profileUser", user);

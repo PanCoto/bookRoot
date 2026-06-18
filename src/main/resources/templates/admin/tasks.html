@@ -88,10 +88,10 @@
 
                         <div class="d-flex gap-2 justify-content-end border-top pt-3">
                             <form th:action="@{/admin/tasks/{id}/approve(id=${task.id})}" method="post">
-                                <button type="submit" class="btn btn-success btn-sm fw-semibold">✓ Zatwierdź zadanie</button>
+                                <button type="submit" class="btn btn-success btn-sm fw-semibold">Zatwierdź zadanie</button>
                             </form>
                             <form th:action="@{/admin/tasks/{id}/reject(id=${task.id})}" method="post">
-                                <button type="submit" class="btn btn-danger btn-sm fw-semibold">✗ Odrzuć zadanie</button>
+                                <button type="submit" class="btn btn-danger btn-sm fw-semibold">Odrzuć zadanie</button>
                             </form>
                         </div>
                     </div>

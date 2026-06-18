@@ -174,7 +174,6 @@
             </div>
         </div>
 
-        <!-- Pagination -->
         <nav id="paginationNav" aria-label="Paginacja zadań" class="mt-4" th:classappend="${tasks.totalPages > 1} ? '' : 'd-none'">
             <ul id="paginationContainer" class="pagination justify-content-center">
                 <th:block th:if="${tasks.totalPages > 1}">

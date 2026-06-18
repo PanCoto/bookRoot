@@ -16,8 +16,13 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
     List<Answer> findByTaskId(Long taskId);
 
-    @Query("SELECT COALESCE(SUM(a.score), 0) FROM Answer a WHERE a.author.id = :userId")
-    int sumScoreByAuthorId(@Param("userId") Long userId);
 
-    List<Answer> findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(String login);
+    @Query("SELECT a FROM Answer a " +
+           "LEFT JOIN FETCH a.task t " +
+           "WHERE a.author.login = :login AND a.anonymous = false " +
+           "ORDER BY a.createdDate DESC")
+    List<Answer> findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(@Param("login") String login);
+
+    @Query("SELECT COALESCE(SUM(a.upvotes), 0) FROM Answer a WHERE a.author.login = :login")
+    int sumUpvotesByAuthorLogin(@Param("login") String login);
 }

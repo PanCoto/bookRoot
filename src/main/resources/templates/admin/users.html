@@ -75,7 +75,6 @@
                                  </td>
                                  <td class="align-middle text-center">
                                      <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                         <!-- Change role -->
                                          <form th:action="@{/admin/users/{id}/role(id=${user.id})}"
                                                method="post" class="d-inline">
                                              <select name="newRole" class="form-select form-select-sm d-inline-block w-auto"
@@ -89,7 +88,6 @@
                                                  Zmień
                                              </button>
                                          </form>
-                                        <!-- Deactivate/activate -->
                                         <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}"
                                               method="post" class="d-inline">
                                             <button type="submit"

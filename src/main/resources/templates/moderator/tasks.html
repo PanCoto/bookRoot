@@ -85,10 +85,10 @@
 
                         <div class="d-flex gap-2 justify-content-end border-top pt-3">
                             <form th:action="@{/moderator/tasks/{id}/approve(id=${task.id})}" method="post">
-                                <button type="submit" class="btn btn-success btn-sm fw-semibold">✓ Zatwierdź</button>
+                                <button type="submit" class="btn btn-success btn-sm fw-semibold">Zatwierdź</button>
                             </form>
                             <form th:action="@{/moderator/tasks/{id}/reject(id=${task.id})}" method="post">
-                                <button type="submit" class="btn btn-danger btn-sm fw-semibold">✗ Odrzuć</button>
+                                <button type="submit" class="btn btn-danger btn-sm fw-semibold">Odrzuć</button>
                             </form>
                         </div>
                     </div>

@@ -26,7 +26,6 @@
                       th:object="${userRegisterRequest}"
                       method="post" novalidate>
 
-                    <!-- Imię -->
                     <div class="mb-3">
                         <label for="firstName" class="form-label fw-semibold small">Imię</label>
                         <input type="text" id="firstName" th:field="*{firstName}"
@@ -40,7 +39,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Nazwisko -->
                     <div class="mb-3">
                         <label for="lastName" class="form-label fw-semibold small">Nazwisko</label>
                         <input type="text" id="lastName" th:field="*{lastName}"
@@ -53,7 +51,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Login -->
                     <div class="mb-3">
                         <label for="login" class="form-label fw-semibold small">Login</label>
                         <input type="text" id="login" th:field="*{login}"
@@ -70,7 +67,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Email (opcjonalny) -->
                     <div class="mb-3">
                         <label for="email" class="form-label fw-semibold small">
                             E-mail <span class="text-muted fw-normal">(opcjonalny)</span>
@@ -84,7 +80,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Hasło -->
                     <div class="mb-3">
                         <label for="password" class="form-label fw-semibold small">Hasło</label>
                         <input type="password" id="password" th:field="*{password}"
@@ -97,7 +92,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Wiek (V4: @Min(18)) -->
                     <div class="mb-4">
                         <label for="age" class="form-label fw-semibold small">Wiek</label>
                         <input type="number" id="age" th:field="*{age}"

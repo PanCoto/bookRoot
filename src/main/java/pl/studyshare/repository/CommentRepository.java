@@ -16,4 +16,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
            "WHERE c.author.login = :login " +
            "ORDER BY c.createdDate DESC")
     List<Comment> findByAuthorLoginOrderByCreatedDateDesc(@Param("login") String login);
+
+    @Query("SELECT c FROM Comment c " +
+           "LEFT JOIN FETCH c.answer a " +
+           "LEFT JOIN FETCH a.task t " +
+           "WHERE c.author.login = :login AND c.anonymous = false " +
+           "ORDER BY c.createdDate DESC")
+    List<Comment> findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(@Param("login") String login);
 }

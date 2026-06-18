@@ -41,10 +41,6 @@ public class ProfileController {
     private final TaskRepository taskRepository;
     private final CommentRepository commentRepository;
 
-    /**
-     * Konwertuje puste stringi na null przed walidacją.
-     * Pozwala to na opcjonalne pola jak email – @Email(null) przechodzi walidację.
-     */
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -57,9 +53,9 @@ public class ProfileController {
         }
         User user = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
         
-        int totalReputation = answerRepository.sumScoreByAuthorId(user.getId());
+        int totalReputation = answerRepository.sumUpvotesByAuthorLogin(user.getLogin());
         var userTasks = taskRepository.findByAuthorLoginAndStatusOrderByCreatedDateDesc(user.getLogin(), TaskStatus.APPROVED);
-        var userComments = commentRepository.findByAuthorLoginOrderByCreatedDateDesc(user.getLogin());
+        var userComments = commentRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(user.getLogin());
         var userAnswers = answerRepository.findByAuthorLoginAndAnonymousFalseOrderByCreatedDateDesc(user.getLogin());
 
         boolean isAdmin = userDetails.getAuthorities().stream()
@@ -129,7 +125,6 @@ public class ProfileController {
         user.setLastName(request.getLastName());
         user.setAge(request.getAge());
 
-        // Bezpieczne mapowanie pustych pól na null (zapobiega Unique Constraint Exception w bazie SQL)
         String cleanEmail = (request.getEmail() != null && !request.getEmail().isBlank())
                 ? request.getEmail().trim() : null;
         user.setEmail(cleanEmail);

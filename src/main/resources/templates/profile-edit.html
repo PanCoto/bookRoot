@@ -20,14 +20,12 @@
 
         <h1 class="h3 fw-bold mb-4">Mój profil</h1>
 
-        <!-- Success flash -->
         <div th:if="${param.success}" class="alert alert-success" role="alert">
             Profil został zaktualizowany.
         </div>
         <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
-        <!-- Avatar upload card -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4 text-center">
                 <div class="mb-3">
@@ -57,7 +55,6 @@
                       th:object="${userProfile}"
                       method="post" novalidate>
 
-                    <!-- Imię -->
                     <div class="mb-3">
                         <label for="firstName" class="form-label fw-semibold small">Imię</label>
                         <input type="text" id="firstName" th:field="*{firstName}"
@@ -69,7 +66,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Nazwisko -->
                     <div class="mb-3">
                         <label for="lastName" class="form-label fw-semibold small">Nazwisko</label>
                         <input type="text" id="lastName" th:field="*{lastName}"
@@ -81,7 +77,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Wiek -->
                     <div class="mb-3">
                         <label for="age" class="form-label fw-semibold small">Wiek</label>
                         <input type="number" id="age" th:field="*{age}"
@@ -93,7 +88,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Nazwa wyświetlana (YAML: displayName) -->
                     <div class="mb-3">
                         <label for="displayName" class="form-label fw-semibold small">
                             Nazwa wyświetlana
@@ -108,7 +102,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- E-mail -->
                     <div class="mb-3">
                         <label for="email" class="form-label fw-semibold small">
                             E-mail <span class="text-muted fw-normal">(opcjonalny)</span>
@@ -122,7 +115,6 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <!-- Tryb anonimowy -->
                     <div class="mb-4 form-check">
                         <input type="checkbox" class="form-check-input"
                                th:field="*{anonymousMode}" id="anonymousMode">
