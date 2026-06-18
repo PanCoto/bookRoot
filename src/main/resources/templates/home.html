@@ -18,12 +18,12 @@
 
 <main role="main" class="flex-grow-1">
 
-    <section class="py-5 text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+   <section class="banner-sangwina py-5 text-white">
         <div class="container py-3">
             <div class="row align-items-center">
                 <div class="col-lg-7">
                     <h1 class="display-4 fw-bold mb-3">
-                        <span style="color:#f97316;"></span> bookRoot
+                    <span style="color: #f0c850; ">bookRoot</span>
                     </h1>
                     <p class="lead text-white-75 mb-4">
                         Platforma edukacyjna dla studentów – przeglądaj, rozwiązuj i oceniaj
@@ -31,17 +31,17 @@
                     </p>
                     <div class="d-flex gap-3 flex-wrap">
                         <a th:href="@{/tasks}" class="btn btn-warning btn-lg fw-semibold"
-                           aria-label="Przeglądaj zadania">
+                        aria-label="Przeglądaj zadania">
                             Przeglądaj zadania →
                         </a>
                         <a th:href="@{/register}" sec:authorize="!isAuthenticated()"
-                           class="btn btn-outline-light btn-lg"
-                           aria-label="Zarejestruj się za darmo">
+                        class="btn btn-outline-light btn-lg"
+                        aria-label="Zarejestruj się za darmo">
                             Zarejestruj się
                         </a>
                         <a th:href="@{/tasks/new}" sec:authorize="isAuthenticated()"
-                           class="btn btn-outline-light btn-lg"
-                           aria-label="Dodaj swoje zadanie">
+                        class="btn btn-outline-light btn-lg"
+                        aria-label="Dodaj swoje zadanie">
                             + Dodaj zadanie
                         </a>
                     </div>
