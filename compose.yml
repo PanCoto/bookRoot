@@ -33,9 +33,14 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bookroot
       SPRING_DATASOURCE_USERNAME: bookroot_user
       SPRING_DATASOURCE_PASSWORD: bookroot_dev
+      APP_UPLOAD_DIR: /app/uploads/avatars
+    volumes:
+      - bookroot_avatars:/app/uploads/avatars
     ports:
       - "8080:8080"
 
 volumes:
   bookroot_data:
     name: bookroot_postgres_data
+  bookroot_avatars:
+    name: bookroot_avatars_data

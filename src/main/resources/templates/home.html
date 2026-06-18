@@ -112,7 +112,7 @@
                         <div class="card-footer bg-transparent border-top-0 pt-0">
                             <small class="text-muted">
                                 <span th:if="${task.anonymous}" class="fst-italic">Anonim</span>
-                                <span th:unless="${task.anonymous}" th:text="${task.authorName}">Autor</span>
+                                <a th:unless="${task.anonymous}" th:href="@{/users/{login}(login=${task.authorName})}" th:text="${task.authorName}" class="text-decoration-none text-muted fw-semibold">Autor</a>
                                 &bull;
                                 <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span>
                             </small>

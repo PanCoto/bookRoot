@@ -64,6 +64,8 @@ public class User implements java.io.Serializable {
 
     private LocalDateTime lastLoginAt;
 
+    private String avatarFilename;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Task> tasks = new ArrayList<>();

@@ -77,4 +77,61 @@ public class TaskControllerTest {
                 .andExpect(model().attribute("sortField", "createdDate"))
                 .andExpect(model().attribute("sortDir", "desc"));
     }
+
+    @Autowired
+    private pl.studyshare.repository.UserRepository userRepository;
+    @Autowired
+    private pl.studyshare.repository.TaskRepository taskRepository;
+    @Autowired
+    private pl.studyshare.repository.AnswerRepository answerRepository;
+    @Autowired
+    private pl.studyshare.repository.CommentRepository commentRepository;
+    @Autowired
+    private pl.studyshare.repository.CategoryRepository categoryRepository;
+
+    @Test
+    public void testCommentsAreFoundForUser() throws Exception {
+        pl.studyshare.domain.User user = pl.studyshare.domain.User.builder()
+                .login("commenttester")
+                .password("pass123")
+                .firstName("Comment")
+                .lastName("Tester")
+                .age(25)
+                .role(pl.studyshare.enums.Role.USER)
+                .enabled(true)
+                .build();
+        user = userRepository.save(user);
+
+        pl.studyshare.domain.Category category = categoryRepository.save(new pl.studyshare.domain.Category("TestCategory", "desc"));
+
+        pl.studyshare.domain.Task task = pl.studyshare.domain.Task.builder()
+                .title("Test Task")
+                .content("Test Task Content")
+                .status(pl.studyshare.enums.TaskStatus.APPROVED)
+                .createdDate(java.time.LocalDate.now())
+                .author(user)
+                .category(category)
+                .build();
+        task = taskRepository.save(task);
+
+        pl.studyshare.domain.Answer answer = pl.studyshare.domain.Answer.builder()
+                .content("Test Answer Content (more than 10 characters)")
+                .createdDate(java.time.LocalDate.now())
+                .task(task)
+                .author(user)
+                .build();
+        answer = answerRepository.save(answer);
+
+        pl.studyshare.domain.Comment comment = pl.studyshare.domain.Comment.builder()
+                .content("Test comment content")
+                .createdDate(java.time.LocalDate.now())
+                .answer(answer)
+                .author(user)
+                .build();
+        commentRepository.save(comment);
+
+        java.util.List<pl.studyshare.domain.Comment> comments = commentRepository.findByAuthorLoginOrderByCreatedDateDesc("commenttester");
+        assertEquals(1, comments.size());
+    }
 }
+

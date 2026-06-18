@@ -104,9 +104,12 @@ public class CommentService {
     }
 
     private CommentDTO toDto(Comment c) {
-        String authorName = (Boolean.TRUE.equals(c.getAnonymous()) || c.getAuthor() == null) ? null : c.getAuthor().getLogin();
-        return new CommentDTO(c.getId(), c.getContent(), c.getCreatedDate(), authorName);
+        boolean isAnon = Boolean.TRUE.equals(c.getAnonymous()) || c.getAuthor() == null;
+        String authorName = isAnon ? null : c.getAuthor().getLogin();
+        String avatar = isAnon ? null : c.getAuthor().getAvatarFilename();
+        return new CommentDTO(c.getId(), c.getContent(), c.getCreatedDate(), authorName, avatar);
     }
+
 
     @Transactional(readOnly = true)
     public List<Long> getDeletableCommentIds(List<Long> answerIds, String username) {

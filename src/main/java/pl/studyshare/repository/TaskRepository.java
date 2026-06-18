@@ -93,4 +93,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t LEFT JOIN t.answers a WHERE t.category = :category AND t.status = :status AND t.taskType = :taskType AND t.createdDate >= :since GROUP BY t.id ORDER BY COUNT(a) ASC")
     Page<Task> findByCategoryAndStatusAndTaskTypeAndSinceOrderByAnswersCountAsc(@Param("category") Category category, @Param("status") TaskStatus status, @Param("taskType") TaskType taskType, @Param("since") LocalDate since, Pageable pageable);
+
+    @Query("SELECT t FROM Task t LEFT JOIN FETCH t.category LEFT JOIN FETCH t.author WHERE t.author.login = :login AND t.status = :status ORDER BY t.createdDate DESC")
+    List<Task> findByAuthorLoginAndStatusOrderByCreatedDateDesc(@Param("login") String login, @Param("status") TaskStatus status);
 }

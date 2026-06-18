@@ -14,13 +14,13 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-RUN addgroup -S bookroot && adduser -S bookroot -G bookroot
+RUN addgroup -S bookroot && adduser -S bookroot -G bookroot && \
+    mkdir -p /app/uploads/avatars && \
+    chown -R bookroot:bookroot /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
 RUN chown bookroot:bookroot app.jar
-
-USER bookroot
 
 EXPOSE 8080
 

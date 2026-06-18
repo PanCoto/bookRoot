@@ -74,7 +74,7 @@
                         <div class="col-md-3">
                             <button type="submit" class="btn btn-primary btn-sm w-100"
                                     aria-label="Zastosuj filtry">
-                                <span aria-hidden="true">🔍</span> Filtruj
+                                Filtruj
                             </button>
                         </div>
                     </div>
@@ -162,12 +162,12 @@
                     <div class="card-footer bg-transparent pt-0 d-flex justify-content-between align-items-center">
                         <small class="text-muted">
                             <span th:if="${task.anonymous}">Anonim</span>
-                            <span th:unless="${task.anonymous}" th:text="${task.authorName}">Autor</span>
+                            <a th:unless="${task.anonymous}" th:href="@{/users/{login}(login=${task.authorName})}" th:text="${task.authorName}" class="text-decoration-none text-muted fw-semibold">Autor</a>
                             &bull;
                             <span th:text="${#temporals.format(task.createdDate, 'dd.MM.yyyy')}">Data</span>
                         </small>
                         <small class="text-muted">
-                            <span aria-hidden="true">👁</span> <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
+                            Wyświetlenia: <span th:text="${task.viewCount != null ? task.viewCount : 0}">0</span>
                         </small>
                     </div>
                 </div>

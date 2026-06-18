@@ -23,5 +23,10 @@ public record UserUpdateRequest(
         @Email(message = "Podany adres e-mail jest nieprawidłowy")
         String email,
 
-        Boolean anonymousMode
-) {}
+        Boolean anonymousMode,
+        String avatarFilename
+) {
+    public UserUpdateRequest(String firstName, String lastName, int age, String displayName, String email, Boolean anonymousMode) {
+        this(firstName, lastName, age, displayName, email, anonymousMode, null);
+    }
+}

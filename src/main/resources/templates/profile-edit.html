@@ -24,6 +24,32 @@
         <div th:if="${param.success}" class="alert alert-success" role="alert">
             Profil został zaktualizowany.
         </div>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+        <!-- Avatar upload card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <img th:if="${userProfile.avatarFilename != null}" th:src="'/uploads/avatars/' + ${userProfile.avatarFilename}"
+                         alt="Avatar" class="rounded-circle border border-3 border-warning shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                    <div th:unless="${userProfile.avatarFilename != null}" class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle border border-3 border-warning shadow-sm" style="width: 120px; height: 120px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        </svg>
+                    </div>
+                </div>
+                <form th:action="@{/profile/edit/avatar}" method="post" enctype="multipart/form-data" class="d-inline-block">
+                    <div class="mb-3 text-start" style="max-width: 320px;">
+                        <label for="avatarFile" class="form-label fw-semibold small text-muted mb-1">Zmień zdjęcie profilowe</label>
+                        <div class="d-flex gap-2">
+                            <input class="form-control form-control-sm" type="file" id="avatarFile" name="avatar" accept="image/*" required>
+                            <button type="submit" class="btn btn-dark btn-sm fw-semibold">Wgraj</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
