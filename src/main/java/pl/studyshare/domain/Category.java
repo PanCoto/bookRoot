@@ -29,7 +29,6 @@ public class Category implements java.io.Serializable {
 
     @CreationTimestamp
     @Column(updatable = false)
-    @NotNull
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "category")
