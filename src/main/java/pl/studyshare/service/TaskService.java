@@ -192,7 +192,7 @@ public class TaskService {
                 .imageUrl(request.imageUrl())
                 .sourceUrl(request.sourceUrl())
                 .taskType(request.taskType() != null ? request.taskType() : pl.studyshare.enums.TaskType.OPEN)
-                .optionsJson(request.optionsJson())
+
                 .status(TaskStatus.DRAFT)
                 .createdDate(LocalDate.now())
                 .author(author)
@@ -216,7 +216,7 @@ public class TaskService {
                 .imageUrl(request.imageUrl())
                 .sourceUrl(request.sourceUrl())
                 .taskType(request.taskType() != null ? request.taskType() : pl.studyshare.enums.TaskType.OPEN)
-                .optionsJson(request.optionsJson())
+
                 .status(TaskStatus.PENDING)
                 .createdDate(LocalDate.now())
                 .author(author)
@@ -249,8 +249,7 @@ public class TaskService {
 
         if (request.status() != null && currentUser.getRole().name().equals("ADMIN")) {
             if (request.status() == TaskStatus.REJECTED) {
-                // Fizyczne usunięcie zadania zamiast przechowywania go ze statusem REJECTED,
-                // aby nie blokować kaskadowego usuwania kategorii.
+
                 taskRepository.delete(task);
                 return null;
             }

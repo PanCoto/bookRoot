@@ -14,10 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.studyshare.domain.Task;
 import pl.studyshare.domain.User;
-import pl.studyshare.dto.AnswerCreateRequest;
-import pl.studyshare.dto.TaskCreateRequest;
-import pl.studyshare.dto.TaskDTO;
-import pl.studyshare.dto.TaskUpdateRequest;
 import pl.studyshare.enums.Role;
 import pl.studyshare.enums.TaskStatus;
 import pl.studyshare.enums.TaskType;
@@ -216,7 +212,7 @@ public class TaskController {
     @GetMapping("/new")
     public String newTaskForm(Model model) {
         model.addAttribute("taskCreateRequest",
-                new TaskCreateRequest("", "", null, null, true, null, null, null, null));
+                new TaskCreateRequest("", "", null, null, true, null, null));
         model.addAttribute("categories", categoryService.findAllOrderByPopularity());
         return "task-form";
     }

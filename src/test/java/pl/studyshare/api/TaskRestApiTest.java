@@ -97,16 +97,14 @@ public class TaskRestApiTest {
     @WithMockUser(username = "kamilkowal", roles = "USER")
     public void shouldCreateTaskInPendingStatus() throws Exception {
         TaskCreateRequest request = new TaskCreateRequest(
-                "Nowe zadanie z optyki",
-                "Oblicz kąt załamania światła na granicy ośrodków...",
-                null,
-                category.getId(),
-                true,
-                null,
-                pl.studyshare.enums.TaskType.OPEN,
-                null,
-                null
-        );
+        "Nowe zadanie z optyki",
+        "Oblicz kąt załamania światła na granicy ośrodków...",
+        null,
+        category.getId(),
+        true,
+        null,
+        pl.studyshare.enums.TaskType.OPEN
+);
 
         mockMvc.perform(post("/api/tasks")
                         .with(csrf())

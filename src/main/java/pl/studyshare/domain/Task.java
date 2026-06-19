@@ -45,7 +45,6 @@ public class Task implements java.io.Serializable {
     @Builder.Default
     private TaskType taskType = TaskType.OPEN;
 
-    @ValidOptionsJson
     @Column(columnDefinition = "TEXT")
     private String optionsJson;
 

@@ -85,25 +85,7 @@
                              class="invalid-feedback" role="alert"></div>
                     </div>
 
-                    <div class="mb-3" id="optionsJsonSection">
-                        <label for="optionsJson" class="form-label fw-semibold small">
-                            Opcje odpowiedzi (JSON)
-                            <span class="text-muted fw-normal small">
-                                – wymagane dla Wielokrotnego wyboru i Prawda/Fałsz
-                            </span>
-                        </label>
-                        <textarea id="optionsJson" th:field="*{optionsJson}"
-                                  class="form-control font-monospace"
-                                  th:classappend="${#fields.hasErrors('optionsJson')} ? ' is-invalid'"
-                                  rows="4"
-                                  placeholder='[{"label":"Opcja A","correct":true},{"label":"Opcja B","correct":false}]'></textarea>
-                        <div class="form-text small text-muted">
-                            Format: <code>[{"label":"Tekst opcji","correct":true/false}, ...]</code>
-                        </div>
-                        <div th:if="${#fields.hasErrors('optionsJson')}"
-                             th:errors="*{optionsJson}"
-                             class="invalid-feedback" role="alert"></div>
-                    </div>
+                    
 
                     <div class="mb-3">
                         <label for="sourceUrl" class="form-label fw-semibold small">
