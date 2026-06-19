@@ -98,12 +98,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Flyway – zarządzanie migracjami schematu bazy -->
-        <!-- Spring Boot 3.2.x używa Flyway 9.x – wsparcie dla PostgreSQL jest wbudowane w flyway-core -->
-        <!-- Uwaga: flyway-database-postgresql istnieje dopiero od Flyway 10 / Spring Boot 3.3+ -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
         </dependency>
 
     </dependencies>
