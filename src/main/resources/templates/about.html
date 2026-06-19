@@ -4,118 +4,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dowiedz się więcej o platformie bookRoot – edukacyjnym serwisie dla studentów.">
+    <meta name="description" content="Dowiedz się więcej o platformie bookRoot – o naszej misji i funkcjonalnościach serwisu.">
     <title>O nas – bookRoot</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100">
 
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <main role="main" class="flex-grow-1">
-
-
-        <section class="py-5 text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
-            <div class="container py-3">
-                <h1 class="display-5 fw-bold mb-3">Attuned inside, alluded, denied</h1>
-                <p class="lead text-white-75 mb-0">
-                    I feel my breath pressed into contact
-                </p>
+    <main role="main" class="main-content-container flex-grow-1 py-5">
+        <div class="container" style="max-width: 1000px;">
+            
+            <div class="p-5 mb-5 text-white rounded-4 shadow-sm" style="background: linear-gradient(135deg, var(--ciemnosc) 0%, var(--sangwina-dark) 100%);">
+                <div class="row align-items-center g-4">
+                    <div class="col-md-7 text-center text-md-start">
+                        <span class="badge bg-warning text-dark mb-2 text-uppercase tracking-wider small fw-bold">O projekcie</span>
+                        <h1 class="display-5 fw-bold mb-3 text-white">Platforma bookRoot</h1>
+                        <p class="lead text-white-75">
+                            bookRoot to nowoczesna, studencka przestrzeń edukacyjna stworzona z myślą o efektywnej nauce. Naszym celem jest ułatwienie przygotowań do kolokwiów i egzaminów poprzez dzielenie się sprawdzonymi materiałami z poprzednich lat.
+                        </p>
+                    </div>
+                    <div class="col-md-5 text-center">
+                        <img src="https://media.tenor.com/GjaOSW3A-SkAAAAC/flower-bloom.gif" 
+                             alt="Rozkwitający kwiat Sangwinarii" 
+                             class="img-fluid rounded-circle border border-4 border-warning shadow-sm" 
+                             style="width: 180px; height: 180px; object-fit: cover;">
+                    </div>
+                </div>
             </div>
-        </section>
 
-        <section class="py-5">
-            <div class="container" style="max-width: 800px;">
-
-
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 p-md-5">
-                        <pre
-                            style="font-family: inherit; white-space: pre-wrap; word-break: break-word; line-height: 2; margin-bottom: 0; font-size: 1rem;">
-Undo the seal, the vague and unreal
-I shouldn't pry, a child sighs and hides away
-Align my eyes, to focus, despise
-I notice hands around my center
-Undo the seal, the vague and unreal
-I feel it pry, a child sighs and hides
-
-Visions intangible
-Though small, they echo through the night
-Memories I've felt before
-Again and again, ghosts blind my sight
-                    </pre>
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 p-4">
+                        <div class="card-body">
+                            <h2 class="h4 fw-bold mb-3 d-flex align-items-center gap-2">
+                                Twoje akademickie korzenie
+                            </h2>
+                            <p class="text-muted">
+                                Nazwa serwisu (<em>book</em> + <em>root</em>) odzwierciedla nasze podejście do edukacji. Wierzymy, że kluczem do sukcesu na studiach są solidne fundamenty i dobrze opanowana baza zadań.
+                            </p>
+                            <p class="text-muted mb-0">
+                                Gromadzimy rzeczywiste arkusze egzaminacyjne i pytania testowe z ubiegłych lat akademickich, pozwalając studentom uczyć się na konkretnych przykładach i lepiej zrozumieć wymagania prowadzących.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
-
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 p-md-5">
-                        <pre
-                            style="font-family: inherit; white-space: pre-wrap; word-break: break-word; line-height: 2; margin-bottom: 0; font-size: 1rem;">
-Hold my hand even if I cry
-I need to feel like I'm human through you
-Hold on tight till the tears run dry
-The things I see are a dread to undo
-Don't go, I feel too wrong
-Uncanny all along
-                    </pre>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 p-4">
+                        <div class="card-body">
+                            <h2 class="h4 fw-bold mb-3 d-flex align-items-center gap-2">
+                                Wspólny cel i rozwój
+                            </h2>
+                            <p class="text-muted">
+                                Podobnie jak Sangwinaria kanadyjska rozkwita wczesną wiosną po mroźnej zimie, tak nasza platforma pomaga studentom bezstresowo przebrnąć przez najbardziej wymagające okresy sesji.
+                            </p>
+                            <p class="text-muted mb-0">
+                                Dzięki prostym mechanizmom wyszukiwania, oceniania i filtrowania zadań, każdy użytkownik może szybko odnaleźć potrzebne zagadnienia i merytoryczne odpowiedzi, co pozwala zaoszczędzić czas na zbędne poszukiwania.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
-
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 p-md-5">
-                        <pre
-                            style="font-family: inherit; white-space: pre-wrap; word-break: break-word; line-height: 2; margin-bottom: 0; font-size: 1rem;">
-Attuned inside with context applied
-I feel, this time, I shouldn't say it
-Self-spinning lies, unconscious surmise
-I shouldn't pry, a child hides away and cries
-Enabled thoughts, are they real or not?
-A story sold but never gone cold
-The cited truth, malleable youth
-Although I know emotions tell it all
-
-Visions intangible
-Though small, they echo through the night
-Memories I've felt before
-Again and again, ghosts blind my sight
-                    </pre>
-                    </div>
-                </div>
-
-
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4 p-md-5">
-                        <pre
-                            style="font-family: inherit; white-space: pre-wrap; word-break: break-word; line-height: 2; margin-bottom: 0; font-size: 1rem;">
-Should I then believe my dealings? (Backed against a wall)
-Spit it out, forget my feelings
-Should I then believe my dealings? (Backed against a wall)
-Hear me out, they're only feelings
-Should I then believe my dealings? (Backed against a wall)
-Attributes to my own doing
-Should I then believe my dealings? (Backed against a wall)
-Scrape it out, stare at the ceiling
-
-Go away, even if I cry
-The burning shadows of human hands are
-Far too much for a single life
-The things I see are a dread I must withstand
-Though sobs, "I feel too wrong" on my own
-Uncanny all along
-Uncanny all along
-Uncanny all along
-                    </pre>
-                    </div>
-                </div>
-
             </div>
-        </section>
 
+            <div class="card shadow-sm border-0 p-4 p-md-5 mb-5">
+                <div class="card-body">
+                    <h2 class="h3 fw-bold mb-4 text-center">Jak działa bookRoot?</h2>
+                    <div class="row g-4 text-center mt-2">
+                        <div class="col-md-4">
+                            <div class="fs-1 mb-2"></div>
+                            <h3 class="h5 fw-bold">Baza Pytań Egzaminacyjnych</h3>
+                            <p class="text-muted small mb-0">Zbieramy i katalogujemy zadania z podziałem na kategorie i typy (otwarte, wielokrotny wybór, prawda/fałsz).</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-1 mb-2"></div>
+                            <h3 class="h5 fw-bold">Społecznościowe Rozwiązania</h3>
+                            <p class="text-muted small mb-0">Użytkownicy mogą wspólnie tworzyć, oceniać i komentować odpowiedzi, aby wyłonić te najbardziej poprawne.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-1 mb-2"></div>
+                            <h3 class="h5 fw-bold">Bezpieczeństwo i Prywatność</h3>
+                            <p class="text-muted small mb-0">Możesz publikować i przeglądać zadania w trybie anonimowym, bez obaw o swoją tożsamość i prywatność.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm overflow-hidden" style="background-color: #fdfbf7;">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="https://www.futuregardens.pl/uploads/recovered/8d420c03bc0739fd2f3893953ebcee28.jpeg" 
+                             alt="Kompilacja motywów bookRoot" 
+                             class="img-fluid h-100 w-100" 
+                             style="object-fit: cover; min-height: 200px;">
+                    </div>
+                    <div class="col-md-8 p-4 d-flex align-items-center">
+                        <div class="card-body">
+                            <h3 class="h5 fw-bold text-uppercase tracking-wider small mb-2" style="color: var(--sangwina);">Dlaczego motyw Sangwiny?</h3>
+                            <p class="text-muted mb-0">
+                                Nasza kolorystyka opiera się na odcieniu głębokiej czerwieni, znanej jako <strong>sangwina</strong>. W świecie sztuki to klasyczny kolor szkiców, a w świecie natury – barwa soku korzeni Sangwinarii. Dla nas ten odcień symbolizuje determinację, kreatywność oraz niesłabnącą energię, jaką studenci wkładają w rozwijanie swojej ścieżki edukacyjnej i wzajemną pomoc akademicką.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>

@@ -12,11 +12,11 @@
           crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100">
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main role="main" class="flex-grow-1 py-4">
+<main role="main" class="main-content-container flex-grow-1 py-4">
     <div class="container">
 
         <div class="row mb-4 align-items-center">
@@ -129,7 +129,7 @@
         </div>
 
         <div id="noTasksMessage" th:class="'text-center py-5 text-muted ' + (${#lists.isEmpty(tasks.content)} ? '' : 'd-none')">
-            <div class="display-6 mb-3" aria-hidden="true">📭</div>
+            <div class="display-6 mb-3" aria-hidden="true"></div>
             <p class="lead">Brak zadań spełniających kryteria.</p>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary btn-sm"
                aria-label="Wyczyść filtry i pokaż wszystkie">

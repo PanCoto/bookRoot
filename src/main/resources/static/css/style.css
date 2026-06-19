@@ -14,22 +14,43 @@
 }
 
 body {
-    background-image: url('https://www.futuregardens.pl/uploads/recovered/8d420c03bc0739fd2f3893953ebcee28.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+   
     font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
     color: #2c241e;
     line-height: 1.6;
+    position: relative; 
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://w0.peakpx.com/wallpaper/863/396/HD-wallpaper-delicate-bloodroot-summer-flowers.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+
+    filter: blur(4px); 
+    
+
+    transform: scale(1.05); 
+    
+
+    z-index: -1; 
 }
 
 .main-content-container {
     background-color: var(--krem);
     background-image: radial-gradient(circle at 10% 20%, rgba(180, 50, 50, 0.03) 0%, transparent 30%),
                       radial-gradient(circle at 90% 80%, rgba(212, 160, 23, 0.04) 0%, transparent 40%);
-    max-width: 1400px;
-    width: 100%;
+    
+    width: 90%; 
+    max-width: 90%; 
+
     margin: 0 auto;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     border-left: 1px solid rgba(0, 0, 0, 0.05);
@@ -218,7 +239,7 @@ h1, h2, h3, h4, h5,
     color: #cbbdb0;
     border-top: 4px solid var(--sangwina);
     padding: 2rem 0 1.5rem;
-    margin-top: 0; /* Zmieniono z 2rem na 0, aby usunąć prześwit tła */
+    margin-top: 0; 
 }
 .site-footer a {
     color: #d4c8b8;
@@ -330,7 +351,7 @@ hr {
     opacity: 0.3;
 }
 .banner-sangwina {
-    background-image: url('https://www.futuregardens.pl/uploads/recovered/8d420c03bc0739fd2f3893953ebcee28.jpeg');
+    background-image: url('https://w0.peakpx.com/wallpaper/863/396/HD-wallpaper-delicate-bloodroot-summer-flowers.jpg');
     background-size: cover;
     background-position: center;
     position: relative;
