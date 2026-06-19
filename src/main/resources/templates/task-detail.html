@@ -10,6 +10,8 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
@@ -36,11 +38,12 @@
                                 <span class="badge bg-warning text-dark" th:if="${task.status != null}"
                                     th:text="${task.status}">Status</span>
                             </div>
-                            <h1 class="h3 fw-bold" th:text="${task.title}">Tytuł zadania</h1>
+                            <span id="raw-title" th:text="${task.title}" style="display: none;"></span>
+                            <h1 id="formatted-title" class="h3 fw-bold"></h1>
                         </div>
                         <div class="card-body px-4">
-                            <div class="task-content mb-3" style="white-space: pre-line;" th:text="${task.content}">
-                                Treść zadania</div>
+                            <div id="raw-markdown" th:text="${task.content}" style="display: none;"></div>
+                            <div id="formatted-markdown" class="task-content mb-3"></div>
 
                             <div th:if="${task.imageUrl != null and !#strings.isEmpty(task.imageUrl)}" class="mb-3">
                                 <img th:src="${task.imageUrl}" alt="Załącznik graficzny zadania"
@@ -119,7 +122,6 @@
                                 </button>
                             </form>
 
-                            <!-- Wyświetlenie istniejących linków -->
                             <div th:if="${taskShares != null and !#lists.isEmpty(taskShares)}" class="mt-3">
                                 <h3 class="h6 fw-semibold mb-2">Wygenerowane linki:</h3>
                                 <ul class="list-unstyled mb-0">
@@ -523,6 +525,22 @@
                         .catch(err => console.error("Error deleting comment:", err));
                 });
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const rawTitleEl = document.getElementById("raw-title");
+            const formattedTitleEl = document.getElementById("formatted-title");
+            if (rawTitleEl && formattedTitleEl) {
+                formattedTitleEl.innerHTML = marked.parseInline(rawTitleEl.textContent);
+            }
+
+            const rawMarkdownEl = document.getElementById("raw-markdown");
+            const formattedMarkdownEl = document.getElementById("formatted-markdown");
+            if (rawMarkdownEl && formattedMarkdownEl) {
+                formattedMarkdownEl.innerHTML = marked.parse(rawMarkdownEl.textContent);
+            }
         });
     </script>
 </body>
